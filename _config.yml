@@ -1,2 +1,4 @@
 name: MiniGamesBot
 markdown: kramdown
+
+theme: jekyll-theme-cayman
