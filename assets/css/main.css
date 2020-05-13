@@ -13,7 +13,7 @@ body {
   	background-color: transparent;
   	font-family: 'Montserrat', sans-serif;
     font-weight: 400;
-    font-size: 14px;
+    font-size: 60px;
     color: #555;
 
     -webkit-font-smoothing: antialiased;
@@ -24,7 +24,8 @@ body {
 h1, h2, h3, h4, h5, h6 {
 	font-family: 'Montserrat', sans-serif;
     font-weight: 700;
-    color: #333;
+	color: #333;
+	background-color: transparent;
 }
 
 h1 {
