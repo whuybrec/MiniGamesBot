@@ -35,7 +35,15 @@ h1 {
 	background-color: transparent;
 }
 
-
+.tab { 
+	font-size: 17px;
+	margin-left: 40px; 
+}
+.tab_large { 
+	font-size: 16px;
+	margin-left: 80px; 
+	margin-bottom: 15px;
+}
 
 /* Paragraph & Typographic */
 p {
@@ -47,6 +55,15 @@ p {
 .centered {
     text-align: center;
 }
+
+.right {
+	text-align: right;
+}
+
+.img-container {
+	text-align: center;
+	display: block;
+  }
 
 /* Links */
 a {
@@ -111,8 +128,9 @@ a:after {
 
 .navbar-brand {
 	font-weight: 700;
-	font-size: 20px;
+	font-size: 60px;
 	letter-spacing: 2px;
+	text-align: left;
 }
 
 .navbar-inverse .navbar-brand {
