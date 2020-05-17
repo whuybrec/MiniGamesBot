@@ -18,6 +18,7 @@ class Variables:
     game_names = ["hangman", "connect4", "scramble", "guessword", "blackjack", "quiz"]
 
     amtPlayedGames = {game_names[i]: 0 for i in range(len(game_names))}
+    history = list()
 
     games_names_short = ["hm", "c4", "sc", "gw", "bj", "qz"]
 
@@ -142,23 +143,23 @@ class Variables:
               "Questions are always multiple choice and have 4 possible answers.\n" \
               "Only one answer is the correct one.\n" \
               "There are different categories available.\n" \
-              "You can get a new question after answering the previous one with " + NEXT_EMOJI + "\n" \
+              "You can get a new question after answering the previous one with " + NEXT_EMOJI + ".\n" \
               "Press the indicated reactions on the message to make your move.\n" \
               "Press " + STOP_EMOJI + " to close the game.\n"
 
 def on_startup():
     global randwords
-    json1_file = open('Other/dictionary.json')
+    json1_file = open('Data/dictionary.json')
     json1_str = json1_file.read()
     Variables.eng_dict = json.loads(json1_str)
     json1_file.close()
 
-    json1_file = open('Quiz/questions.json')
+    json1_file = open('Data/questions.json')
     json1_str = json1_file.read()
     Variables.questions_dict = json.loads(json1_str)
     json1_file.close()
 
-    with open("Other/10k words.txt") as f:
+    with open("Data/10k words.txt") as f:
         randwords = f.readlines()
     f.close()
 

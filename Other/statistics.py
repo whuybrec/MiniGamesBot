@@ -1,21 +1,35 @@
+import time
 from Other.private import Private
 from Other.variables import Variables, get_next_midnight_stamp
 import ast
+import json
+import discord
 
 class Statistics:
     serverCount = 0
     def __init__(self, bot):
         self.bot = bot
-        self.msgID = 0
+        self.msgID = Private.STATS_MSGID
 
     def get_stats(self):
         total_played = 0
-        text = "```css\n{0:15s}\t{1:10s}\n".format("Games", "Today")
+        servers, users = self.get_server_count()
+
+        text = "```md" \
+               "\n/* STATISTICS */\n\n"
+        text += "{0:10s}   {1}\n".format("<Servers>", str(servers))
+        text += "{0:10s}   {1}\n".format("<Users>", str(users))
+
+        text += "\n{0:20s}{1}\n".format("<Games>", "<Usage>")
         for key, value in Variables.amtPlayedGames.items():
             total_played += int(value)
-            text += "{0:15s}\t{1:10s}\n".format(key+':', str(value))
-        servers, users = self.get_server_count()
-        text += "\nTotal games played: {0}\nServers: {1}\nUsers: {2}".format(total_played, servers, users)
+            text += "{0:20s}{1:>4s}\n".format('   < ' + key+' > ', str(value))
+        text += "\n{0:20s}{1:>4s}\n\n".format("   < Total >", str(total_played))
+
+        text += "<History>\n"
+        for i in range(len(Variables.history)):
+            text += "\t{0:5s}   {1}\n".format(Variables.history[i][0], Variables.history[i][1])
+        text += "\n{0}: {1}\n".format("Updated", time.strftime("%H:%M:%S"))
         text += "```"
         return text
 
@@ -40,9 +54,11 @@ class Statistics:
             except:
                 msg = await channel.send(self.get_stats())
                 self.msgID = msg.id
-            self._write_var()
+            self.write_var()
             if context is None:
                 Variables.scheduler.add(60*10, self.update_stats, None)
+            await self.bot.change_presence(
+                activity=discord.Activity(type=discord.ActivityType.listening, name=self.bot.prefix + "help"))
 
     """Called every 24 hours"""
     async def renew(self, context):
@@ -51,35 +67,38 @@ class Statistics:
             msg = await channel.fetch_message(self.msgID)
             await msg.edit(content=self.get_stats())
 
+            total_played = 0
+            for key, value in Variables.amtPlayedGames.items():
+                total_played += int(value)
+            Variables.history.insert(0, [time.strftime("%d/%m"), total_played])
             Variables.amtPlayedGames = {Variables.game_names[i]: 0 for i in range(len(Variables.game_names))}
-            msg = await channel.send(self.get_stats())
-            self.msgID = msg.id
+
+            self.write_var()
             Variables.scheduler.at(get_next_midnight_stamp(), self.renew, None)
 
-    """Write stats to stats.txt"""
-    def _write_var(self):
-        f = open('stats.txt', 'w')
-        f.write(str(Variables.amtPlayedGames)+"\n")
-        f.write(str(self.msgID))
+    """Write stats to stats.json"""
+    def write_var(self):
+        f = open('Data/stats.json', 'w')
+        tmp = {"Today": Variables.amtPlayedGames, "History": Variables.history}
+        tmp = json.dumps(tmp)
+        f.write(tmp)
         f.close()
 
     """Read stats on init"""
     def _read_var(self):
-        f = open('stats.txt', 'r')
-        content = f.readline()
-        dictionary = ast.literal_eval(content)
-        Variables.amtPlayedGames = dictionary
-        content = f.readline()
-        if content != "":
-            self.msgID = int(content)
-        f.close()
+        json1_file = open('Data/stats.json')
+        json1_str = json1_file.read()
+        dictionary = json.loads(json1_str)
+        json1_file.close()
+        Variables.amtPlayedGames = dictionary["Today"]
+        Variables.history = dictionary["History"]
 
     def get_server_count(self):
         count_s = 0
         count_u = set()
         for guilds in self.bot.guilds:
-            if guilds.name != "Discord Bot List":
-                count_s += 1
+            count_s += 1
+            if guilds.name != "Discord Bot List" and guilds.name != "Discord Bots":
                 for u in guilds.members:
                     if not u.bot:
                         count_u.add(u.id)

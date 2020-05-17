@@ -56,6 +56,7 @@ class QuizMaster:
 
         if reaction.emoji == Variables.STOP_EMOJI:
             await self.end_game(self.msg)
+            await self.msg.edit(content="Game closed.")
             return
 
         if reaction.emoji in Variables.NUMBERS:

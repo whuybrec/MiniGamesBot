@@ -34,6 +34,7 @@ class MiniGameManager:
             await game.msg.edit(content="Game closed, deadline reached.")
             try:
                 await game.msg2.delete()
+                del self.open_games[game.msg2.id]
             except:
                 pass
             await self.close_game(game.msg)

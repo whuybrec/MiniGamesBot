@@ -31,7 +31,7 @@ class HangMan:
             return
 
         if reaction.emoji == Variables.STOP_EMOJI:
-            await self.msg2.delete()
+            await self.msg.edit(content="Game closed.")
             await self.end_game(self.msg)
             return
 
@@ -49,13 +49,11 @@ class HangMan:
 
         if self.index == 10:
             await reaction.message.channel.send("<@" +str(self.playerID) + "> lost the game!")
-            await self.msg2.delete()
             await self.end_game(self.msg)
             return
 
         if "".join(self.guessed_word) == self.word:
             await reaction.message.channel.send("Congratulations <@" +str(self.playerID) + ">, you found the word!")
-            await self.msg2.delete()
             await self.end_game(self.msg)
 
     def get_word_status(self):
@@ -75,5 +73,7 @@ class HangMan:
         return text
 
     async def end_game(self, message):
+        await self.msg2.delete()
+        del self.gamemanager.open_games[self.msg2.id]
         await self.gamemanager.close_game(message)
 

@@ -43,7 +43,7 @@ class MiniGamesBot(Bot):
         self.command(name="scramble", brief="Start a game of scramble", help=Variables.SCRULES)(self.scramble_game)
         self.command(name="guessword", brief="Start a game of guessword", help=Variables.GWRULES)(self.guessword_game)
         self.command(name="quiz", brief="Start a quiz", help=Variables.QZRULES)(self.quiz_game)
-        self.minigamescmdsstr = ["connect4", "hangman", "scramble", "guessword", "blackjack", "Quiz"]
+        self.minigamescmdsstr = ["connect4", "hangman", "scramble", "guessword", "blackjack", "quiz"]
         self.minigamescmds = []
 
         for command in self.commands:
@@ -63,10 +63,12 @@ class MiniGamesBot(Bot):
         await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=self.prefix + "help"))
         if not self.called:
             channel = self.get_channel(Private.PRIM_CHANNELID)
-            await channel.send("Ready!")
+            await channel.send("Reading some data...")
             on_startup()
+            await channel.send("Getting statistics...")
             await self.stats.on_startup()
             self.called = True
+            await channel.send("Ready!")
 
     async def on_guild_join(self, guild):
         general = find(lambda x: 'general' in x.name, guild.text_channels)
@@ -99,7 +101,7 @@ class MiniGamesBot(Bot):
         await self.game_manager.add_game(context, "guessword", context.author.id)
 
     async def quiz_game(self, context):
-        await self.game_manager.add_game(context, "Quiz", context.author.id)
+        await self.game_manager.add_game(context, "quiz", context.author.id)
 
     async def info(self, context):
         text =  "- Check out my github page with the source code, you can sponsor me there too.\n"
@@ -110,14 +112,17 @@ class MiniGamesBot(Bot):
         text += "- Every minigame has a time limit of " + str(int(Variables.DEADLINE/60)) + " minutes.\n"
         text += "- You can find the invite link to this bot on this page: <https://top.gg/bot/704677903182594119>\n"
         text += "- If you wish to make a donation: https://www.buymeacoffee.com/whuybrec\n"
-        text += "- Github link: <https://github.com/whuybrec/minigamesbot>\n"
+        text += "- Github link: <https://github.com/whuybrec/whuybrec.github.io>\n"
+        text += "- My website: <https://whuybrec.github.io/>"
         await context.message.channel.send(text)
 
     async def shut_down(self, ctx):
         if ctx.author.id in Private.DEV_IDS.keys():
+            await ctx.send("Closing all games...")
             await self.game_manager.force_close_all()
-            self.stats._write_var()
-            await ctx.send("Shutting down...")
+            await ctx.send("Saving statisticss...")
+            self.stats.write_var()
+            await ctx.send("Rebooting...")
             try:
                 await self.close()
             except:
@@ -132,17 +137,6 @@ class MiniGamesBot(Bot):
                "Args: {2}\n\n" \
                "Kwargs: {3}\n\n" \
                "```".format(time.strftime("%b %d %Y %H:%M:%S"),event_method, str(args), str(kwargs))
-        await channel.send(text)
-
-    async def on_command_error(self, context, exception):
-        channel = self.get_channel(Private.LOGS_COMMANDS_CHANNELID)
-        text =  "```\n\n"
-        text += "Time: {0}\n\n".format(time.strftime("%b %d %Y %H:%M:%S"))
-        try:
-            text += "Content: {0}\n\n".format(context.content)
-        except:
-            text += "Context: {0}\n\n".format(context)
-        text += "Exception: {0}\n\n```".format(exception)
         await channel.send(text)
 
     async def help(self, context):

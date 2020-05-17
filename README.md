@@ -19,11 +19,15 @@ All minigames are played by clicking on emojis, currently there are 5 minigames.
 ?hangman
 
 ?connect4
+
+?help
+
+?info
 ```
 
 There are currently 5 categories in the quiz minigame: General knowledge, Sports, Video Games, Music, Films.
-Connect4 takes 2 arguments, i.e. the two players that want to play: ?connect4 [@player1] [@player2] .
 
+Connect4 takes 2 arguments, i.e. the two players that want to play: ?connect4 [@player1] [@player2] .
 
 
 ## Requirements
