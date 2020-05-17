@@ -3,6 +3,7 @@ _site
 vendor
 loop.sh
 stats.txt
+Other/discordbotlist.py
 Other/private.py
 Commands/__pycache__
 MiniGames/__pycache__
