@@ -1,7 +1,6 @@
 _site
 .sass-cache
 vendor
-README.md
 loop.sh
 stats.txt
 Other/private.py
