@@ -1,7 +1,5 @@
 _site
 .sass-cache
-.jekyll-cache
-.jekyll-metadata
 vendor
 README.md
 loop.sh
@@ -14,6 +12,5 @@ __pycache__
 .idea
 scheduler.py
 requirements.txt
-Procfile
 temp.py
 _site/
