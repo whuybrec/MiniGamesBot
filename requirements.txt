@@ -1,5 +1,5 @@
 aiohttp
 pydealer
-discord
+discord.py
 numpy
 
