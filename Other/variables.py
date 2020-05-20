@@ -3,6 +3,7 @@ import random
 import datetime
 import time
 import json
+from Other.private import Private
 
 games_names_short = ["hm", "c4", "sc", "gw", "bj", "qz"]
 game_names = ["hangman", "connect4", "scramble", "guessword", "blackjack", "quiz"]
@@ -157,6 +158,11 @@ def on_startup():
     json1_file = open('Data/questions.json')
     json1_str = json1_file.read()
     Variables.questions_dict = json.loads(json1_str)
+    json1_file.close()
+
+    json1_file = open('Data/prefixes.json')
+    json1_str = json1_file.read()
+    Private.prefixes = json.loads(json1_str)
     json1_file.close()
 
     with open("Data/10k words.txt") as f:

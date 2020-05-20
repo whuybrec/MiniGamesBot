@@ -7,6 +7,7 @@ from Other.statistics import Statistics
 import Commands.devcommands
 import discord
 import re
+import json
 import time
 import asyncio
 
@@ -29,12 +30,14 @@ class MiniGamesBot(Bot):
         self.command(name="renewstats", brief="<dev> resets the stats")(self.stats.renew)
         self.command(name="temp", brief="<dev> gets temp of RPI")(Commands.devcommands.temp)
         self.command(name="exec", brief="<dev> exec belleketrek")(self.execbelleketrek)
-        self.devcmdsstr = ["exit", "say", "del", "servers", "stats", "temp"]
+        self.command(name="leave", brief="[guildID] | <dev> leave a guild from given id")(self.leave)
+        self.devcmdsstr = ["exit", "say", "del", "servers", "stats", "temp", "leave"]
         self.devcmds = []
 
         self.command(name="help", brief="Gives this message", help="Gives a list of all commands")(self.help)
         self.command(name="info", brief="Displays some information about the bot", help="Gives a short message from the developper")(self.info)
-        self.othercmdsstr = ["help", "info"]
+        self.command(name="set_prefix", brief="\"[prefix]\" | <admin> sets a new prefix for minigamesbot in this server.", help="Admins can use this command to set a different prefix to minigamesbot")(self.set_prefix)
+        self.othercmdsstr = ["help", "info", "set_prefix"]
         self.othercmds = []
 
         self.command(name="blackjack", brief="Start a game of blackjack", help=Variables.BJRULES)(self.blackjack_game)
@@ -56,11 +59,17 @@ class MiniGamesBot(Bot):
 
     async def on_message(self, message):
         # command handling
+        if str(message.channel.guild.id) in Private.prefixes.keys():
+            if message.content.startswith(Private.prefixes[str(message.channel.guild.id)]):
+                message.content = self.prefix+message.content[len(Private.prefixes[str(message.channel.guild.id)]):]
+            else:
+                return
+
         ctx = await self.get_context(message)
         await self.invoke(ctx)
 
     async def on_ready(self):
-        await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=self.prefix + "help"))
+        #await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=self.prefix + "help"))
         if not self.called:
             channel = self.get_channel(Private.PRIM_CHANNELID)
             await channel.send("Reading some data...")
@@ -77,6 +86,23 @@ class MiniGamesBot(Bot):
 
     async def on_reaction_add(self, reaction, user):
         await self.game_manager.update_game(reaction, user)
+
+    async def set_prefix(self, context, prefix):
+        if not context.channel.permissions_for(context.author).administrator:
+            await context.channel.send("Invalid command: only admins can change the prefix.")
+            return
+
+        if len(prefix) > 15:
+            await context.channel.send("Invalid prefix: prefix can not be larger than 15 characters.")
+            return
+
+        Private.prefixes[str(context.guild.id)] = prefix
+        f = open('Data/prefixes.json', 'w')
+        tmp = json.dumps(Private.prefixes)
+        f.write(tmp)
+        f.close()
+        await context.channel.send("The prefix of minigamesbot is now set to '" + prefix + "'")
+
 
     async def blackjack_game(self, context):
         await self.game_manager.add_game(context, "blackjack", context.author.id)
@@ -139,29 +165,43 @@ class MiniGamesBot(Bot):
     #           "```".format(time.strftime("%b %d %Y %H:%M:%S"),event_method, str(args), str(kwargs))
     #    await channel.send(text)
 
+    async def leave(self, context, guildID):
+        if context.message.author.id == Private.DEVALPHA_ID:
+            guild = self.get_guild(int(guildID))
+            if guild is None:
+                await context.send("I don't recognize that guild.")
+                return
+            await guild.leave()
+            await context.send(f":ok_hand: Left guild: {guild.name} ({guild.id})")
+
     async def help(self, context):
+        if str(context.channel.guild.id) in Private.prefixes.keys():
+            prefix = Private.prefixes[str(context.channel.guild.id)]
+        else:
+            prefix = self.prefix
+        print(prefix)
         if context.message.content == self.prefix+"help":
             text = "```md\n"
             text +="/* MINIGAMESBOT */\n"
             text +="\n<minigames>"
             for command in self.minigamescmds:
                 if command.usage is not None:
-                    text += "\n   {0} {1}\n\t\t{2}".format("< " + self.prefix + str(command.name), str(command.usage) + " >", str(command.brief))
+                    text += "\n   {0} {1}\n\t\t{2}".format("< " + prefix + str(command.name), str(command.usage) + " >", str(command.brief))
                 else:
-                    text += "\n   {0} \n\t\t{1}".format("< " + self.prefix + str(command.name)+" >", str(command.brief))
+                    text += "\n   {0} \n\t\t{1}".format("< " + prefix + str(command.name)+" >", str(command.brief))
             text += "\n<other>"
             for command in self.othercmds:
-                text += "\n   {0} \n\t\t{1:70s}".format("< " + self.prefix + str(command.name)+" >", str(command.brief))
-            text += "\n\nType " +self.prefix+"help [minigame] to see the rules of that minigame."
+                text += "\n   {0} \n\t\t{1:70s}".format("< " + prefix + str(command.name)+" >", str(command.brief))
+            text += "\n\nType " + prefix+"help [minigame] to see the rules of that minigame."
             text += Variables.EXTRA
             text += "\n```"
             await context.message.channel.send(text)
         else:
-            called = context.message.content[len(self.prefix+"help")+1:]
+            called = context.message.content[len(self.prefix+"help "):]
             for command in self.minigamescmds:
                 if command.name == called:
                     text  = "```md\n"
-                    text += "/* " + self.prefix + called +" */\n"
+                    text += "/* " + prefix + called +" */\n"
                     if command.usage is not None:
                         text += "\n   < {0} > \n\t\t{1}".format("Arguments", str(command.usage))
                     text += "\n   < {0} > \n\t\t{1}".format("Description", str(command.brief))

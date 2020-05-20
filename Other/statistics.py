@@ -57,8 +57,7 @@ class Statistics:
             self.write_var()
             if context is None:
                 Variables.scheduler.add(60*10, self.update_stats, None)
-            await self.bot.change_presence(
-                activity=discord.Activity(type=discord.ActivityType.listening, name=self.bot.prefix + "help"))
+            #await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=self.bot.prefix + "help"))
 
     """Called every 24 hours"""
     async def renew(self, context):

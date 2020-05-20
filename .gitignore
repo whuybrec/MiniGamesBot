@@ -13,3 +13,5 @@ __pycache__
 scheduler.py
 temp.py
 _site/
+Data/prefixes.json
+
