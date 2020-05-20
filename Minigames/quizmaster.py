@@ -1,5 +1,6 @@
 from Other.private import Private
 from Other.variables import Variables, increment_game
+from string import ascii_lowercase
 import random
 import html
 
@@ -11,7 +12,7 @@ class QuizMaster:
         self.count_right = 0
         self.count_wrong = 0
         self.answers = []
-        self.possabilities = {Variables.DICT_ALFABET['a']: 0, Variables.DICT_ALFABET['b']: 0, Variables.DICT_ALFABET['c']: 0, Variables.DICT_ALFABET['d']: 0}
+        self.possabilities = dict()
         self.question = None
         self.category = None
 
@@ -19,11 +20,12 @@ class QuizMaster:
         text =  "```\n"
         text += "Categories:\n"
         for i in range(len(Variables.quiz_categories)):
-            text += "{0}\t{1}\n".format(Variables.NUMBERS[i+1], Variables.quiz_categories[i])
             await self.msg.add_reaction(Variables.NUMBERS[i+1])
+            text += "{0}\t{1}\n".format(Variables.NUMBERS[i+1], Variables.quiz_categories[i])
         text += "\n```"
         await self.msg.edit(content=text)
         await self.msg.add_reaction(Variables.STOP_EMOJI)
+
 
     async def start_quiz(self):
         questions = Variables.questions_dict[self.category]
@@ -33,16 +35,12 @@ class QuizMaster:
         self.answers.append(self.question['correct_answer'])
         random.shuffle(self.answers)
 
-        count = 0
-        for key in self.possabilities.keys():
-            self.possabilities[key] = html.unescape(self.answers[count])
-            count += 1
+        for i in range(len(self.answers)):
+            self.possabilities[Variables.DICT_ALFABET[ascii_lowercase[i]]] = html.unescape(self.answers[i])
 
         await self.msg.edit(content=self.get_board())
-        await self.msg.add_reaction(Variables.DICT_ALFABET['a'])
-        await self.msg.add_reaction(Variables.DICT_ALFABET['b'])
-        await self.msg.add_reaction(Variables.DICT_ALFABET['c'])
-        await self.msg.add_reaction(Variables.DICT_ALFABET['d'])
+        for i in range(len(self.answers)):
+            await self.msg.add_reaction(Variables.DICT_ALFABET[ascii_lowercase[i]])
         await self.msg.add_reaction(Variables.STOP_EMOJI)
 
     async def end_game(self, message):
@@ -80,23 +78,17 @@ class QuizMaster:
         if reaction.emoji == Variables.NEXT_EMOJI:
             await self.msg.clear_reactions()
             increment_game("quiz")
+            self.possabilities = dict()
             await self.start_quiz()
             return
 
     def get_board(self):
         text = "```\n" \
                "{0}\n" \
-               "Question:\n{1}\n\n" \
-               "A: {2}\n" \
-               "B: {3}\n" \
-               "C: {4}\n" \
-               "D: {5}\n\n" \
-               "Correct answers: {6}\n" \
-               "Incorrect answers: {7}\n" \
-               "```".format(self.question['category'], html.unescape(self.question['question']),
-                            self.possabilities[Variables.DICT_ALFABET['a']],
-                            self.possabilities[Variables.DICT_ALFABET['b']],
-                            self.possabilities[Variables.DICT_ALFABET['c']],
-                            self.possabilities[Variables.DICT_ALFABET['d']],
-                            self.count_right, self.count_wrong)
+               "Question:\n{1}\n\n".format(self.question['category'], html.unescape(self.question['question']))
+        for i in range(len(self.possabilities.keys())):
+            text += "{0}: {1}\n".format(ascii_lowercase[i].upper(), self.possabilities[Variables.DICT_ALFABET[ascii_lowercase[i]]])
+        text += "\nCorrect answers: {0}\n" \
+               "Incorrect answers: {1}\n" \
+               "```".format(self.count_right, self.count_wrong)
         return text

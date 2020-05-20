@@ -129,15 +129,15 @@ class MiniGamesBot(Bot):
                 pass
             await self.logout()
 
-    async def on_error(self, event_method, *args, **kwargs):
-        channel = self.get_channel(Private.LOGS_CHANNELID)
-        text = "```\n\n" \
-               "Time: {0}\n\n" \
-               "Event: {1}\n\n" \
-               "Args: {2}\n\n" \
-               "Kwargs: {3}\n\n" \
-               "```".format(time.strftime("%b %d %Y %H:%M:%S"),event_method, str(args), str(kwargs))
-        await channel.send(text)
+    #async def on_error(self, event_method, *args, **kwargs):
+    #    channel = self.get_channel(Private.LOGS_CHANNELID)
+    #    text = "```\n\n" \
+    #           "Time: {0}\n\n" \
+    #           "Event: {1}\n\n" \
+    #           "Args: {2}\n\n" \
+    #           "Kwargs: {3}\n\n" \
+    #           "```".format(time.strftime("%b %d %Y %H:%M:%S"),event_method, str(args), str(kwargs))
+    #    await channel.send(text)
 
     async def help(self, context):
         if context.message.content == self.prefix+"help":
