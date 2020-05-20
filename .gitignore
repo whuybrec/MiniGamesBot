@@ -11,6 +11,5 @@ topgg.py
 __pycache__
 .idea
 scheduler.py
-requirements.txt
 temp.py
 _site/
