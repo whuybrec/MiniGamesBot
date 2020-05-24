@@ -104,7 +104,7 @@ class Variables:
                " |  /\n" \
                "_|_ _ _"
 
-    HANGMAN10 = "_____\n" \
+    HANGMAN10 = " _____\n" \
                 " |/  |\n" \
                 " |   o\n" \
                 " |  /|\ \n" \

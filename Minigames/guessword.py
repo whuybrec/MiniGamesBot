@@ -46,7 +46,7 @@ class GuessWord:
 
         if reaction.emoji == Variables.STOP_EMOJI:
             await self.msg2.delete()
-            await self.msg.edit(content="Game closed.")
+            await self.msg.edit(content="Game closed.\nThe word was \"" + "".join(self.word) + "\"")
             await self.end_game(self.msg)
             return
 

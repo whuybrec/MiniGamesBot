@@ -46,7 +46,7 @@ class Scramble:
                     self.guessedWord[i-1] = ""
                     break
         elif reaction.emoji == Variables.STOP_EMOJI:
-            await self.msg.edit(content="Game closed.")
+            await self.msg.edit(content="Game closed.\nThe word was \"" + "".join(self.word) + "\"")
             await self.gamemanager.close_game(self.msg)
             return
 

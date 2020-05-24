@@ -179,9 +179,8 @@ class Connect4:
                     await reaction.message.channel.send("<@"+str(self.players[0])+"> and <@"+ str(self.players[1]) + "> drawed because the board is full.")
                     await self.end_game(reaction.message)
                     return
-
-        except Exception as e:
-            await reaction.message.channel.send("Invalid move: " + str(e))
+        except:
+            pass
         await reaction.message.remove_reaction(reaction.emoji, user)
 
     async def end_game(self, message):

@@ -11,6 +11,7 @@ class HangMan:
         self.index = 1
         self.msg = msg
         self.msg2 = None
+        self.guesses = list()
 
     async def start_game(self):
         await self.msg.edit(content=self.get_board())
@@ -31,24 +32,30 @@ class HangMan:
             return
 
         if reaction.emoji == Variables.STOP_EMOJI:
-            await self.msg.edit(content="Game closed.")
+            await self.msg.edit(content="Game closed.\nThe word was \"" + "".join(self.word) + "\"")
             await self.end_game(self.msg)
             return
 
         letter = ""
         for letter, emoji in Variables.DICT_ALFABET.items():
-            if emoji == reaction.emoji and letter in self.word:
-                for i in range(len(self.word)):
-                    if self.word[i] == letter:
-                        self.guessed_word[i] = letter
+            if emoji == reaction.emoji:
                 break
-        if not letter in self.word:
-            self.index+=1
+
+        if letter in self.word:
+            self.guesses.append(letter)
+            for i in range(len(self.word)):
+                if self.word[i] == letter:
+                    self.guessed_word[i] = letter
+
+        else:
+            if not letter in self.guesses:
+                self.guesses.append(letter)
+                self.index += 1
 
         await self.msg.edit(content=self.get_board())
 
         if self.index == 10:
-            await reaction.message.channel.send("<@" +str(self.playerID) + "> lost the game!")
+            await reaction.message.channel.send("<@" +str(self.playerID) + "> lost the game!\nThe word was \"" + "".join(self.word) + "\"")
             await self.end_game(self.msg)
             return
 

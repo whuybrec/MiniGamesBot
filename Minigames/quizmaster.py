@@ -69,7 +69,7 @@ class QuizMaster:
                 self.count_right += 1
             else:
                 self.count_wrong += 1
-            await self.msg.edit(content=self.get_board())
+            await self.msg.edit(content=self.get_board(self.possabilities[reaction.emoji], html.unescape(self.question['correct_answer'])))
             await self.msg.clear_reactions()
             await self.msg.add_reaction(Variables.NEXT_EMOJI)
             await self.msg.add_reaction(Variables.STOP_EMOJI)
@@ -82,13 +82,20 @@ class QuizMaster:
             await self.start_quiz()
             return
 
-    def get_board(self):
+    def get_board(self, u_answer=None, correct_answer=None):
         text = "```\n" \
                "{0}\n" \
-               "Question:\n{1}\n\n".format(self.question['category'], html.unescape(self.question['question']))
+               "Question:\n{1}\n".format(self.question['category'], html.unescape(self.question['question']))
         for i in range(len(self.possabilities.keys())):
-            text += "{0}: {1}\n".format(ascii_lowercase[i].upper(), self.possabilities[Variables.DICT_ALFABET[ascii_lowercase[i]]])
-        text += "\nCorrect answers: {0}\n" \
-               "Incorrect answers: {1}\n" \
-               "```".format(self.count_right, self.count_wrong)
+            text += "\n{0}: {1}".format(ascii_lowercase[i].upper(), self.possabilities[Variables.DICT_ALFABET[ascii_lowercase[i]]])
+            if u_answer is not None and self.possabilities[Variables.DICT_ALFABET[ascii_lowercase[i]]] == u_answer:
+                text += "  <- YOUR ANSWER"
+        text += "\n\nCorrect answers: {0}\n" \
+               "Incorrect answers: {1}\n\n".format(self.count_right, self.count_wrong)
+        if u_answer is not None and correct_answer is not None:
+            if u_answer != correct_answer:
+                text += "Wrong! The correct answer was: {0}\n".format(correct_answer)
+            else:
+                text += "Nice! You answered correct!\n"
+        text += "```"
         return text

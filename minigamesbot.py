@@ -36,7 +36,7 @@ class MiniGamesBot(Bot):
 
         self.command(name="help", brief="Gives this message", help="Gives a list of all commands")(self.help)
         self.command(name="info", brief="Displays some information about the bot", help="Gives a short message from the developper")(self.info)
-        self.command(name="set_prefix", brief="\"[prefix]\" | <admin> sets a new prefix for minigamesbot in this server.", help="Admins can use this command to set a different prefix to minigamesbot")(self.set_prefix)
+        self.command(name="set_prefix", usage="\"[new prefix]\"", brief="\"[new prefix]\" | <admin> sets a new prefix for minigamesbot in this server.", help="Admins can use this command to set a different prefix to minigamesbot")(self.set_prefix)
         self.othercmdsstr = ["help", "info", "set_prefix"]
         self.othercmds = []
 
@@ -134,7 +134,6 @@ class MiniGamesBot(Bot):
         text += "- If you notice any bugs or have any suggestions, make a new issue on my github page to tell me!\n"
         text += "- Don't forget to give the bot permissions to manage reactions and messages.\n"
         text += "- Press " + Variables.STOP_EMOJI + " to close the game.\n"
-        text += "- ?help [minigame] displays more info and the rules of the minigame.\n"
         text += "- Every minigame has a time limit of " + str(int(Variables.DEADLINE/60)) + " minutes.\n"
         text += "- You can find the invite link to this bot on this page: <https://top.gg/bot/704677903182594119>\n"
         text += "- If you wish to make a donation: https://www.buymeacoffee.com/whuybrec\n"
@@ -154,6 +153,24 @@ class MiniGamesBot(Bot):
             except:
                 pass
             await self.logout()
+
+    async def on_command_error(self, context, exception):
+        """|coro|
+                The default command error handler provided by the bot.
+
+                By default this prints to :data:`sys.stderr` however it could be
+                overridden to have a different implementation.
+
+                This only fires if you do not specify any listeners for command error.
+                """
+        channel = self.get_channel(Private.LOGS_CHANNELID)
+        if self.extra_events.get('on_command_error', None):
+            return
+
+        if hasattr(context.command, 'on_error'):
+            return
+
+        await channel.send('Ignoring exception in command {}:'.format(context.command))
 
     #async def on_error(self, event_method, *args, **kwargs):
     #    channel = self.get_channel(Private.LOGS_CHANNELID)
