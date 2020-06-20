@@ -25,12 +25,15 @@ class Variables:
 
     quiz_categories = ["General Knowledge", "Sports", "Films", "Music", "Video Games"]
 
+    colors_uno = {"Blue": "🟦", "Green": "🟩", "Red":"🟥", "Yellow": "🟨"}
+    white = {"White": "⬜"}
 
     SPLIT_EMOJI = "↔️"
     INC_EMOJI1 = "⬆️"
     INC_EMOJI2 = "⏫"
     STOP_EMOJI = "❌"
     BACK_EMOJI = "◀"
+    FORWARD_EMOJI = "▶️"
     NEXT_EMOJI = "➡️"
     DICT_ALFABET = {'a': '🇦', 'b': '🇧', 'c': '🇨', 'd': '🇩', 'e': '🇪', 'f': '🇫', 'g': '🇬', 'h': '🇭',
                           'i': '🇮', 'j': '🇯',
@@ -147,6 +150,17 @@ class Variables:
               "You can get a new question after answering the previous one with " + NEXT_EMOJI + ".\n" \
               "Press the indicated reactions on the message to make your move.\n" \
               "Press " + STOP_EMOJI + " to close the game.\n"
+    UNORULES = "Every message you type in the bot DM will be visible to other players in the \"CHAT\" message.\n" \
+               "Only the person who's turn it is     can play.\n" \
+               "Playable cards are marked with an emoji.\n" \
+               "Match cards by color or value.\n" \
+               "Wild cards and Wild Draw 4 cards can be played without matching color or value.\n" \
+               "Press " + STOP_EMOJI + " to draw a card.\n" \
+               "If you need to draw multiple cards, use " + INC_EMOJI2 + " to take cards.\n" \
+               "After drawn a card, use " + NEXT_EMOJI + " to end turn.\n" \
+               "When you have on card remaining type \"uno\" in chat." \
+               "Players can type \"no uno\" in chat to catch someone not saying uno.\n" \
+               "The rest of the rules are according to the official Uno rules.\n"
 
 def on_startup():
     global randwords
@@ -154,16 +168,20 @@ def on_startup():
     json1_str = json1_file.read()
     Variables.eng_dict = json.loads(json1_str)
     json1_file.close()
-
     json1_file = open('Data/questions.json')
     json1_str = json1_file.read()
     Variables.questions_dict = json.loads(json1_str)
     json1_file.close()
-
     json1_file = open('Data/prefixes.json')
     json1_str = json1_file.read()
     Private.prefixes = json.loads(json1_str)
     json1_file.close()
+    json1_file = open('Data/stats.json')
+    json1_str = json1_file.read()
+    dictionary = json.loads(json1_str)
+    json1_file.close()
+    Variables.amtPlayedGames = dictionary["Today"]
+    Variables.history = dictionary["History"]
 
     with open("Data/10k words.txt") as f:
         randwords = f.readlines()
@@ -179,5 +197,8 @@ def get_next_midnight_stamp():
     unixtime = time.mktime(unix_next.timetuple())
     return unixtime
 
-def increment_game(game):
-    Variables.amtPlayedGames[game] = int(Variables.amtPlayedGames[game]) + 1
+def increment_game(game: str):
+    try:
+        Variables.amtPlayedGames[game] = int(Variables.amtPlayedGames[game]) + 1
+    except:
+        Variables.amtPlayedGames[game] = 1

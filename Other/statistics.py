@@ -1,7 +1,7 @@
+import math
 import time
 from Other.private import Private
 from Other.variables import Variables, get_next_midnight_stamp
-import ast
 import json
 import discord
 
@@ -10,6 +10,9 @@ class Statistics:
     def __init__(self, bot):
         self.bot = bot
         self.msgID = Private.STATS_MSGID
+        self.average = 0
+        Variables.scheduler.at(get_next_midnight_stamp(), self.renew, None)
+        Variables.scheduler.add(60 * 10, self.update_stats, None)
 
     def get_stats(self):
         total_played = 0
@@ -29,20 +32,12 @@ class Statistics:
         text += "<History>\n"
         for i in range(len(Variables.history)):
             text += "\t{0:5s}   {1}\n".format(Variables.history[i][0], Variables.history[i][1])
+            if i == 15:
+                break
+        text += "\n<Average>   {0}\n".format(self.get_average())
         text += "\n{0}: {1}\n".format("Updated", time.strftime("%H:%M:%S"))
         text += "```"
         return text
-
-    async def on_startup(self):
-        self._read_var()
-        channel = self.bot.get_channel(Private.STATS_CHANNELID)
-        if self.msgID == 0:
-            msg = await channel.send(self.get_stats())
-            self.msgID = msg.id
-        else:
-            await self.update_stats(None)
-        Variables.scheduler.at(get_next_midnight_stamp(), self.renew, None)
-        Variables.scheduler.add(60 * 10, self.update_stats, None)
 
     """Called every 10 minutes"""
     async def update_stats(self, context):
@@ -62,15 +57,15 @@ class Statistics:
     """Called every 24 hours"""
     async def renew(self, context):
         if context is None or context.message.author.id == Private.DEVALPHA_ID:
-            channel = self.bot.get_channel(Private.STATS_CHANNELID)
-            msg = await channel.fetch_message(self.msgID)
-            await msg.edit(content=self.get_stats())
-
             total_played = 0
             for key, value in Variables.amtPlayedGames.items():
                 total_played += int(value)
             Variables.history.insert(0, [time.strftime("%d/%m"), total_played])
             Variables.amtPlayedGames = {Variables.game_names[i]: 0 for i in range(len(Variables.game_names))}
+
+            channel = self.bot.get_channel(Private.STATS_CHANNELID)
+            msg = await channel.fetch_message(self.msgID)
+            await msg.edit(content=self.get_stats())
 
             self.write_var()
             Variables.scheduler.at(get_next_midnight_stamp(), self.renew, None)
@@ -83,14 +78,14 @@ class Statistics:
         f.write(tmp)
         f.close()
 
-    """Read stats on init"""
-    def _read_var(self):
-        json1_file = open('Data/stats.json')
-        json1_str = json1_file.read()
-        dictionary = json.loads(json1_str)
-        json1_file.close()
-        Variables.amtPlayedGames = dictionary["Today"]
-        Variables.history = dictionary["History"]
+    def get_average(self):
+        self.average = 0
+        for couple in Variables.history:
+            self.average += int(couple[1])
+        try:
+            return math.floor(self.average / len(Variables.history))
+        except ZeroDivisionError:
+            return self.average
 
     def get_server_count(self):
         count_s = 0

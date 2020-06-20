@@ -3,15 +3,15 @@ from Other.variables import Variables, increment_game
 from string import ascii_lowercase
 import random
 import html
+from Commands.minigame import MiniGame
 
-class QuizMaster:
-    def __init__(self, gamemanager, msg, playerID):
-        self.gamemanager = gamemanager
-        self.msg = msg
+class QuizMaster(MiniGame):
+    def __init__(self, game_manager, msg, playerID):
+        super().__init__(game_manager, msg)
         self.playerID = playerID
         self.count_right = 0
         self.count_wrong = 0
-        self.answers = []
+        self.answers = set()
         self.possabilities = dict()
         self.question = None
         self.category = None
@@ -26,25 +26,22 @@ class QuizMaster:
         await self.msg.edit(content=text)
         await self.msg.add_reaction(Variables.STOP_EMOJI)
 
-
     async def start_quiz(self):
         questions = Variables.questions_dict[self.category]
         random.shuffle(questions)
         self.question = questions[random.randint(0, len(Variables.questions_dict)-1)]
-        self.answers =  self.question['incorrect_answers']
-        self.answers.append(self.question['correct_answer'])
-        random.shuffle(self.answers)
+        self.answers = set(self.question['incorrect_answers'])
+        self.answers.add(self.question['correct_answer'])
+        random.shuffle(list(self.answers))
 
-        for i in range(len(self.answers)):
-            self.possabilities[Variables.DICT_ALFABET[ascii_lowercase[i]]] = html.unescape(self.answers[i])
-
+        i = 0
+        for answer in self.answers:
+            self.possabilities[Variables.DICT_ALFABET[ascii_lowercase[i]]] = html.unescape(answer)
+            i+=1
         await self.msg.edit(content=self.get_board())
         for i in range(len(self.answers)):
             await self.msg.add_reaction(Variables.DICT_ALFABET[ascii_lowercase[i]])
         await self.msg.add_reaction(Variables.STOP_EMOJI)
-
-    async def end_game(self, message):
-        await self.gamemanager.close_game(message)
 
     async def update_game(self, reaction, user):
         if user.id in Private.BOT_ID: return
@@ -53,8 +50,8 @@ class QuizMaster:
             return
 
         if reaction.emoji == Variables.STOP_EMOJI:
-            await self.end_game(self.msg)
             await self.msg.edit(content="Game closed.")
+            await self.end_game()
             return
 
         if reaction.emoji in Variables.NUMBERS:

@@ -11,12 +11,12 @@ import copy
 import numpy
 from Other.variables import Variables
 from Other.private import Private
+from Commands.minigame import MiniGame
 
 coin = [1,2]
-class Connect4:
-    def __init__(self, gamemanager, msg, p1, p2):
-        self.gamemanager = gamemanager
-        self.msg = msg
+class Connect4(MiniGame):
+    def __init__(self, game_manager, msg, p1, p2):
+        super().__init__(game_manager, msg)
         self.p1start = False
         self.p2start = False
         self.finished = False
@@ -172,16 +172,13 @@ class Connect4:
 
                 if res == 1: # A player has won
                     await reaction.message.channel.send("<@" + str(user.id) + "> has won!")
-                    await self.end_game(reaction.message)
+                    await self.end_game()
                     return
 
                 if res == 2: # There is no winner, board is full
                     await reaction.message.channel.send("<@"+str(self.players[0])+"> and <@"+ str(self.players[1]) + "> drawed because the board is full.")
-                    await self.end_game(reaction.message)
+                    await self.end_game()
                     return
         except:
             pass
         await reaction.message.remove_reaction(reaction.emoji, user)
-
-    async def end_game(self, message):
-        await self.gamemanager.close_game(message)

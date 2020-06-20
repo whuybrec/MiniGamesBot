@@ -1,11 +1,11 @@
 import pydealer
 from Other.private import Private
 from Other.variables import Variables
+from Commands.minigame import MiniGame
 
-class BlackJack:
-    def __init__(self, gamemanager, msg, playerID):
-        self.gamemanager = gamemanager
-        self.msg = msg
+class BlackJack(MiniGame):
+    def __init__(self, game_manager, msg, playerID):
+        super().__init__(game_manager, msg)
         self.playerID = playerID
         self.splitted = False
         self.splittable = False
@@ -34,11 +34,7 @@ class BlackJack:
                 await self.msg.channel.send("Congratulations! <@" + str(self.playerID) + "> got BlackJack and won the game!")
             self.bankTurn = True
             await self.msg.edit(content=self.get_board())
-            await self.end_game(self.msg)
-            await self.gamemanager.close_game(self.msg.id)
-
-    async def end_game(self, message):
-        await self.gamemanager.close_game(message)
+            await self.end_game()
 
     async def update_game(self, reaction, user):
         if user.id in Private.BOT_ID: return
@@ -95,12 +91,12 @@ class BlackJack:
 
         if self.hand_player.busted and not self.splitted:
             await reaction.message.channel.send("<@" + str(self.playerID) + "> lost the game by having more than 21!")
-            await self.end_game(reaction.message)
+            await self.end_game()
             return
 
         if self.splitted and self.hand_player.busted and self.hand_player_2.busted:
             await reaction.message.channel.send("<@" + str(self.playerID) + "> lost the game by having more than 21 in both hands!")
-            await self.end_game(reaction.message)
+            await self.end_game()
             return
 
     async def dealer_plays(self):
@@ -114,7 +110,7 @@ class BlackJack:
 
         if points_dealer[0] > 21:
             await self.msg.channel.send("Congratulations! <@" + str(self.playerID) + "> won the game, because the dealer got more than 21!")
-            await self.end_game(self.msg)
+            await self.end_game()
             return
 
         dealer_max = points_dealer[1]
@@ -133,7 +129,7 @@ class BlackJack:
         else:
             await self.msg.channel.send(
                 "<@" + str(self.playerID) + "> lost because the dealer has more points!")
-        await self.end_game(self.msg)
+        await self.end_game()
 
     def get_board(self):
         player_points = self.hand_player.get_points()

@@ -1,14 +1,18 @@
-from discord.ext.commands import Bot
+import json
+import re
+import time
+import traceback
+
+import discord
+import discord.client
+from discord.ext.commands import Bot, Cog, CommandNotFound
 from discord.utils import find
+
+import Commands.devcommands
 from Commands.minigamemanager import MiniGameManager
 from Other.private import Private
-from Other.variables import Variables, on_startup
 from Other.statistics import Statistics
-import Commands.devcommands
-import discord
-import re
-import json
-import time
+from Other.variables import Variables, on_startup
 import asyncio
 
 ctx = None
@@ -16,10 +20,11 @@ _self = None
 
 class MiniGamesBot(Bot):
     def __init__(self, prefix):
-        self.called = False
         self.prefix = prefix
         self.stats = Statistics(self)
         self.game_manager = MiniGameManager(self)
+        self.on_startup()
+        self.called = False
 
         super().__init__(command_prefix=self.prefix)
         self.remove_command("help")
@@ -30,13 +35,12 @@ class MiniGamesBot(Bot):
         self.command(name="renewstats", brief="<dev> resets the stats")(self.stats.renew)
         self.command(name="temp", brief="<dev> gets temp of RPI")(Commands.devcommands.temp)
         self.command(name="exec", brief="<dev> exec belleketrek")(self.execbelleketrek)
-        self.command(name="leave", brief="[guildID] | <dev> leave a guild from given id")(self.leave)
-        self.devcmdsstr = ["exit", "say", "del", "servers", "stats", "temp", "leave"]
+        self.devcmdsstr = ["exit", "say", "del", "servers", "stats", "temp"]
         self.devcmds = []
 
         self.command(name="help", brief="Gives this message", help="Gives a list of all commands")(self.help)
         self.command(name="info", brief="Displays some information about the bot", help="Gives a short message from the developper")(self.info)
-        self.command(name="set_prefix", usage="\"[new prefix]\"", brief="\"[new prefix]\" | <admin> sets a new prefix for minigamesbot in this server.", help="Admins can use this command to set a different prefix to minigamesbot")(self.set_prefix)
+        self.command(name="set_prefix", usage="\"[new prefix]\"", brief="\"new prefix\" | <admin> sets a new prefix for minigamesbot in this server.", help="Admins can use this command to set a different prefix to minigamesbot")(self.set_prefix)
         self.othercmdsstr = ["help", "info", "set_prefix"]
         self.othercmds = []
 
@@ -46,7 +50,7 @@ class MiniGamesBot(Bot):
         self.command(name="scramble", brief="Start a game of scramble", help=Variables.SCRULES)(self.scramble_game)
         self.command(name="guessword", brief="Start a game of guessword", help=Variables.GWRULES)(self.guessword_game)
         self.command(name="quiz", brief="Start a quiz", help=Variables.QZRULES)(self.quiz_game)
-        self.minigamescmdsstr = ["connect4", "hangman", "scramble", "guessword", "blackjack", "quiz"]
+        #self.command(name="uno", brief="Start a game of uno",  usage="[@player1] ... [@player10]", help=Variables.UNORULES)(self.uno_game)
         self.minigamescmds = []
 
         for command in self.commands:
@@ -54,10 +58,15 @@ class MiniGamesBot(Bot):
                 self.devcmds.append(command)
             elif command.name in self.othercmdsstr:
                 self.othercmds.append(command)
-            elif command.name in self.minigamescmdsstr:
+            elif command.name in Variables.game_names:
                 self.minigamescmds.append(command)
 
     async def on_message(self, message):
+        if isinstance(message.channel, discord.channel.DMChannel):
+            if message.author.bot: return
+            await self.game_manager.dm_update(message)
+            return
+
         # command handling
         if str(message.channel.guild.id) in Private.prefixes.keys():
             if message.content.startswith(Private.prefixes[str(message.channel.guild.id)]):
@@ -65,19 +74,8 @@ class MiniGamesBot(Bot):
             else:
                 return
 
-        ctx = await self.get_context(message)
-        await self.invoke(ctx)
-
-    async def on_ready(self):
-        #await self.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=self.prefix + "help"))
-        if not self.called:
-            channel = self.get_channel(Private.PRIM_CHANNELID)
-            await channel.send("Reading some data...")
-            on_startup()
-            await channel.send("Getting statistics...")
-            await self.stats.on_startup()
-            self.called = True
-            await channel.send("Ready!")
+        ctxt = await self.get_context(message)
+        await self.invoke(ctxt)
 
     async def on_guild_join(self, guild):
         general = find(lambda x: 'general' in x.name, guild.text_channels)
@@ -103,19 +101,38 @@ class MiniGamesBot(Bot):
         f.close()
         await context.channel.send("The prefix of minigamesbot is now set to '" + prefix + "'")
 
-
     async def blackjack_game(self, context):
         await self.game_manager.add_game(context, "blackjack", context.author.id)
 
+    def on_startup(self):
+        print("Getting data...")
+        on_startup()
+        print("Done!")
+
+    async def on_ready(self):
+        if not self.called:
+            self.called = True
+            channel = self.get_channel(Private.PRIM_CHANNELID)
+            await channel.send("READY.")
+
     async def connect4_game(self, context, p1, p2):
-        try:
-            temp = re.findall(r'\d+', p1)
-            p1id = int(list(map(int, temp))[0])
-            temp = re.findall(r'\d+', p2)
-            p2id = int(list(map(int, temp))[0])
-            await self.game_manager.add_game(context, "connect4", p1id, p2id)
-        except:
-            return
+        ids = [p1, p2]
+        players = list()
+        player_names = set()
+        for ID in ids:
+            temp = re.findall(r'\d+', ID)
+            try:
+                pid = int(list(map(int, temp))[0])
+                player = self.get_user(pid)
+                players.append(player)
+                player_names.add(player.name)
+                if len(player_names) != len(players):
+                    await context.message.channel.send("Invalid command: tag unique players to start connect4 game.")
+                    return
+            except:
+                await context.message.channel.send("Invalid command: tag unique players to start connect4 game.")
+        await self.game_manager.add_game(context, "connect4", players[0].id, players[1].id)
+
 
     async def scramble_game(self, context):
         await self.game_manager.add_game(context, "scramble", context.author.id)
@@ -129,6 +146,29 @@ class MiniGamesBot(Bot):
     async def quiz_game(self, context):
         await self.game_manager.add_game(context, "quiz", context.author.id)
 
+    async def uno_game(self, context, *args):
+        players = list()
+        player_names = set()
+        for arg in args:
+            temp = re.findall(r'\d+', arg)
+            try:
+                pid = int(list(map(int, temp))[0])
+                player = self.get_user(pid)
+                players.append(player)
+                player_names.add(player.name)
+                if len(player_names) != len(players):
+                    await context.message.channel.send("Invalid command: tag unique players to start uno game.")
+                    return
+            except:
+                await context.message.channel.send("Invalid command: tag unique players to start uno game.")
+                return
+
+        if not 1 < len(players) < 11:
+            await context.message.channel.send("Invalid amount of players: minimum of 2 and maximum of 10 players allowed.")
+            return
+        await self.game_manager.add_game(context, "uno", players)
+
+
     async def info(self, context):
         text =  "- Check out my github page with the source code, you can sponsor me there too.\n"
         text += "- If you notice any bugs or have any suggestions, make a new issue on my github page to tell me!\n"
@@ -141,18 +181,19 @@ class MiniGamesBot(Bot):
         text += "- My website: <https://whuybrec.github.io/>"
         await context.message.channel.send(text)
 
-    async def shut_down(self, ctx):
-        if ctx.author.id in Private.DEV_IDS.keys():
-            await ctx.send("Closing all games...")
-            await self.game_manager.force_close_all()
-            await ctx.send("Saving statisticss...")
+    async def shut_down(self, context):
+        if context.author.id in Private.DEV_IDS.keys():
+            await context.send("Saving statisticss...")
             self.stats.write_var()
-            await ctx.send("Rebooting...")
+            await context.send("Closing all games...")
+            await self.game_manager.force_close_all()
+            await context.send("Rebooting...")
             try:
                 await self.close()
             except:
                 pass
             await self.logout()
+
 
     async def on_command_error(self, context, exception):
         """|coro|
@@ -163,40 +204,34 @@ class MiniGamesBot(Bot):
 
                 This only fires if you do not specify any listeners for command error.
                 """
-        channel = self.get_channel(Private.LOGS_CHANNELID)
+        if isinstance(exception, CommandNotFound):
+            return
         if self.extra_events.get('on_command_error', None):
             return
-
         if hasattr(context.command, 'on_error'):
             return
 
-        await channel.send('Ignoring exception in command {}:'.format(context.command))
-
-    #async def on_error(self, event_method, *args, **kwargs):
-    #    channel = self.get_channel(Private.LOGS_CHANNELID)
-    #    text = "```\n\n" \
-    #           "Time: {0}\n\n" \
-    #           "Event: {1}\n\n" \
-    #           "Args: {2}\n\n" \
-    #           "Kwargs: {3}\n\n" \
-    #           "```".format(time.strftime("%b %d %Y %H:%M:%S"),event_method, str(args), str(kwargs))
-    #    await channel.send(text)
-
-    async def leave(self, context, guildID):
-        if context.message.author.id == Private.DEVALPHA_ID:
-            guild = self.get_guild(int(guildID))
-            if guild is None:
-                await context.send("I don't recognize that guild.")
+        cog = context.cog
+        if cog:
+            if Cog._get_overridden_method(cog.cog_command_error) is not None:
                 return
-            await guild.leave()
-            await context.send(f":ok_hand: Left guild: {guild.name} ({guild.id})")
+
+        text = "```\n\n" \
+               "Time: {0}\n\n" \
+               "Ignoring exception in command {1}:\n\n" \
+               "Exception: {2}\n\n" \
+               "```".format(time.strftime("%b %d %Y %H:%M:%S"), context.command, exception)
+        channel = self.get_channel(Private.LOGS_COMMANDS_CHANNELID)
+        await channel.send(text)
+        result = traceback.format_exception(type(exception), exception, exception.__traceback__)
+        result = "".join(result)
+        await channel.send("```"+result+"```")
 
     async def help(self, context):
         if str(context.channel.guild.id) in Private.prefixes.keys():
             prefix = Private.prefixes[str(context.channel.guild.id)]
         else:
             prefix = self.prefix
-        print(prefix)
         if context.message.content == self.prefix+"help":
             text = "```md\n"
             text +="/* MINIGAMESBOT */\n"
@@ -209,7 +244,7 @@ class MiniGamesBot(Bot):
             text += "\n<other>"
             for command in self.othercmds:
                 text += "\n   {0} \n\t\t{1:70s}".format("< " + prefix + str(command.name)+" >", str(command.brief))
-            text += "\n\nType " + prefix+"help [minigame] to see the rules of that minigame."
+            text += "\n\nType \"" + prefix+"help [minigame]\" to see the rules of that minigame."
             text += Variables.EXTRA
             text += "\n```"
             await context.message.channel.send(text)
@@ -226,21 +261,22 @@ class MiniGamesBot(Bot):
                     text += "\n```"
                     await context.message.channel.send(text)
                     return
-            await context.message.channel.send("Illegal command: " + called)
 
     async def execbelleketrek(self, context):
+        global ctx, _self
+        ctx = context
+        _self = self
         if context.message.author.id == Private.DEVALPHA_ID:
-            global ctx, _self
-            _self = self
-            ctx = context
-            string = str(context.message.content[len("?exec "):])
-            lines = string.split("\n")
+            lines = context.message.content[len("?exec "):].split("\n")
             func = ["async def get():",
-                    "    global returnv",
-                    "    returnv = None",
-                    "    returnv = await func()",
-                    "    if returnv is not None:",
-                    "        await ctx.send(f'```python\\n{repr(returnv)}\\n```')",
+                    "    try:",
+                    "        global returnv",
+                    "        returnv = None",
+                    "        returnv = await func()",
+                    "        if returnv is not None:",
+                    "            await ctx.send(f'```python\\n{repr(returnv)}\\n```')",
+                    "    except Exception as e:",
+                    "        await ctx.send(f'```python\\n{e}\\n```')",
                     "asyncio.Task(get())",
                     "async def func():",
                     "    " + "\n    ".join(lines[:-1])]
@@ -253,7 +289,8 @@ class MiniGamesBot(Bot):
                         "def ",
                         "else "]
 
-            if lines[-1].startswith(" ") or lines[-1].startswith("\t") or any(lines[-1].startswith(s) for s in keywords):
+            if lines[-1].startswith(" ") or lines[-1].startswith("\t") or any(
+                    lines[-1].startswith(s) for s in keywords):
                 func.append("    " + lines[-1])
             else:
                 func += ["    try:",
@@ -263,8 +300,8 @@ class MiniGamesBot(Bot):
 
             try:
                 exec("\n".join(func), globals())
-            except SyntaxError as e:
-                await context.message.channel.send("```" + str(e) + "```")
+            except Exception as e:
+                await context.send("```python\n"+ str(e) +"\n```")
 
 
 

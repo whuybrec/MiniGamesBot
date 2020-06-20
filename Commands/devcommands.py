@@ -16,4 +16,4 @@ async def say(context):
 
 async def temp(ctx=None):
     if ctx.message.author.id in Private.DEV_IDS.keys():
-        await ctx.channel.send(CPUTemperature())
+        await ctx.channel.send(str(CPUTemperature().temperature) + "°C")
