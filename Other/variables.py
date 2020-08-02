@@ -5,27 +5,25 @@ import time
 import json
 from Other.private import Private
 
-games_names_short = ["hm", "c4", "sc", "gw", "bj", "qz"]
-game_names = ["hangman", "connect4", "scramble", "guessword", "blackjack", "quiz"]
-randwords = list()
-
 class Variables:
-    EXTRA = ""
+    game_names = ["hangman", "connect4", "scramble", "guessword", "blackjack", "quiz", "uno", "chess"]
+    amtPlayedGames = {name: 0 for name in game_names}
+
+    EXTRA = "\nNew MiniGame: CHESS! If you encounter any bugs/suggestions, " \
+            "let me know on my github page or use the bug command!\n"
     DEADLINE = 600 * 2
     scheduler = scheduler.Scheduler()
     eng_dict = None
     questions_dict = None
+    randwords = list()
 
-    game_names = ["hangman", "connect4", "scramble", "guessword", "blackjack", "quiz"]
-
-    amtPlayedGames = {game_names[i]: 0 for i in range(len(game_names))}
     history = list()
 
-    games_names_short = ["hm", "c4", "sc", "gw", "bj", "qz"]
+    games_names_short = ["hm", "c4", "sc", "gw", "bj", "qz", "uno", "chess"]
 
     quiz_categories = ["General Knowledge", "Sports", "Films", "Music", "Video Games"]
 
-    colors_uno = {"Blue": "🟦", "Green": "🟩", "Red":"🟥", "Yellow": "🟨"}
+    colors_uno = {"Blue": "🟦", "Green": "🟩", "Red": "🟥", "Yellow": "🟨"}
     white = {"White": "⬜"}
 
     SPLIT_EMOJI = "↔️"
@@ -36,11 +34,11 @@ class Variables:
     FORWARD_EMOJI = "▶️"
     NEXT_EMOJI = "➡️"
     DICT_ALFABET = {'a': '🇦', 'b': '🇧', 'c': '🇨', 'd': '🇩', 'e': '🇪', 'f': '🇫', 'g': '🇬', 'h': '🇭',
-                          'i': '🇮', 'j': '🇯',
-                          'k': '🇰', 'l': '🇱', 'm': '🇲', 'n': '🇳', 'o': '🇴', 'p': '🇵', 'q': '🇶', 'r': '🇷',
-                          's': '🇸', 't': '🇹',
-                          'u': '🇺', 'v': '🇻', 'w': '🇼', 'x': '🇽', 'y': '🇾', 'z': '🇿'}  # letter: emoji
-    NUMBERS = ["0️⃣","1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣"]
+                    'i': '🇮', 'j': '🇯',
+                    'k': '🇰', 'l': '🇱', 'm': '🇲', 'n': '🇳', 'o': '🇴', 'p': '🇵', 'q': '🇶', 'r': '🇷',
+                    's': '🇸', 't': '🇹',
+                    'u': '🇺', 'v': '🇻', 'w': '🇼', 'x': '🇽', 'y': '🇾', 'z': '🇿'}  # letter: emoji
+    NUMBERS = ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣"]
     REACTIONS_CONNECT4 = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣"]
 
     HANGMAN0 = ""
@@ -114,7 +112,8 @@ class Variables:
                 " |  / \ \n" \
                 "_|_ _ _"
 
-    hangmen = [HANGMAN0, HANGMAN1, HANGMAN2, HANGMAN3, HANGMAN4, HANGMAN5, HANGMAN6, HANGMAN7, HANGMAN8, HANGMAN9, HANGMAN10]
+    hangmen = [HANGMAN0, HANGMAN1, HANGMAN2, HANGMAN3, HANGMAN4,
+               HANGMAN5, HANGMAN6, HANGMAN7, HANGMAN8, HANGMAN9, HANGMAN10]
 
     BJRULES = "Ace is worth either 1 or 11 points.\n" \
               "Jack, Queen and King are worth 10 points.\n" \
@@ -131,7 +130,8 @@ class Variables:
               "Press " + STOP_EMOJI + " to close the game.\n"
     C4RULES = "Who starts is chosen randomly.\n" \
               "You can only play when it is your turn.\n" \
-              "A player wins when there are 4 coins of his or hers color diagonally/horizontally/vertically next to eachother.\n" \
+              "A player wins when there are 4 coins of his or hers color " \
+              "diagonally/horizontally/vertically next to eachother.\n" \
               "Press the indicated reactions on the message to make your move.\n"
     GWRULES = "Guess the word from the given definition.\n" \
               "Press the indicated reactions on the message to make your move.\n" \
@@ -151,7 +151,7 @@ class Variables:
               "Press the indicated reactions on the message to make your move.\n" \
               "Press " + STOP_EMOJI + " to close the game.\n"
     UNORULES = "Every message you type in the bot DM will be visible to other players in the \"CHAT\" message.\n" \
-               "Only the person who's turn it is     can play.\n" \
+               "Only the person who's turn it is can play.\n" \
                "Playable cards are marked with an emoji.\n" \
                "Match cards by color or value.\n" \
                "Wild cards and Wild Draw 4 cards can be played without matching color or value.\n" \
@@ -161,9 +161,9 @@ class Variables:
                "When you have on card remaining type \"uno\" in chat." \
                "Players can type \"no uno\" in chat to catch someone not saying uno.\n" \
                "The rest of the rules are according to the official Uno rules.\n"
+    CHESSRULES = "Start a game of chess with 2 players, one game per channel allowed"
 
 def on_startup():
-    global randwords
     json1_file = open('Data/dictionary.json')
     json1_str = json1_file.read()
     Variables.eng_dict = json.loads(json1_str)
@@ -184,12 +184,11 @@ def on_startup():
     Variables.history = dictionary["History"]
 
     with open("Data/10k words.txt") as f:
-        randwords = f.readlines()
+        Variables.randwords = f.readlines()
     f.close()
 
-def getRandomWord():
-    global randwords
-    return randwords[random.randint(0,5458)].rstrip()
+def get_random_word():
+    return Variables.randwords[random.randint(0,5458)].rstrip()
 
 def get_next_midnight_stamp():
     datenow = datetime.date.today() + datetime.timedelta(days=1)

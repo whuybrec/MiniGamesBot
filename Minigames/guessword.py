@@ -1,4 +1,4 @@
-from Other.variables import getRandomWord
+from Other.variables import get_random_word
 from string import ascii_lowercase
 from Other.private import Private
 from Other.variables import Variables
@@ -12,7 +12,7 @@ class GuessWord(MiniGame):
         self.guessed_word = ""
         self.definition = None
         while self.definition is None:
-            self.word = getRandomWord()
+            self.word = get_random_word()
             if self.word.lower() in Variables.eng_dict.keys():
                 defi = Variables.eng_dict[self.word.lower()]
                 if 200 < len(defi) < 1000:

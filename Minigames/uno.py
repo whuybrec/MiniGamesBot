@@ -114,8 +114,12 @@ class Player:
                                                    self.hand[i].value)
                 await self.game_dm.add_reaction(Variables.DICT_ALFABET[ascii_lowercase[i]])
             else:
-                game += "        {0} {1}\n".format(Variables.colors_uno[self.hand[i].color],
+                try:
+                    game += "        {0} {1}\n".format(Variables.colors_uno[self.hand[i].color],
                                                 self.hand[i].value)
+                except:
+                    game += "        {0} {1}\n".format(Variables.white["White"],
+                                                       self.hand[i].value)
         if self.choosing_color:
             for color in Variables.colors_uno.values():
                 await self.game_dm.add_reaction(color)
@@ -215,10 +219,11 @@ class Uno(MiniGame):
 
     async def update_game(self, reaction, user):
         p = self.players[self.turn]
+        print("yeeees")
         if reaction.count != 2: return
         if user.id in Private.BOT_ID: return
         if user.id != p.player.id: return
-
+        print("yes")
         if reaction.emoji == Variables.INC_EMOJI2:
             for i in range(self.cards_to_draw):
                 p.draw(self.deck.draw())
@@ -239,14 +244,13 @@ class Uno(MiniGame):
                 self.action_on_startup = False
                 await self.update_game_dms()
                 return
-
-        # SPECIAL EMOJIS: pijltjes enz
-
         elif reaction.emoji in Variables.DICT_ALFABET.values():
+            print("ye")
             letter = self.get_letter_from_emoji(reaction.emoji)
             card_index = ascii_lowercase.index(letter)
             card = self.players[self.turn].hand[card_index]
             if self.isValidMove(card):
+                print("yeze")
                 self.players[self.turn].hand.remove(card)
                 self.deck.discard_pile.insert(0, card)
                 self.top_color = card.color
@@ -271,6 +275,7 @@ class Uno(MiniGame):
             await self.game_won()
             return
 
+        print("here")
         self.turn = (self.turn + 1) % len(self.players)
         if self.players[self.turn].skipped:
             self.players[self.turn].skipped = False
@@ -297,7 +302,6 @@ class Uno(MiniGame):
     async def wild_card(self):
         self.players[self.turn].choosing_color = True
         self.players[self.turn].check_uno()
-
         if self.players[self.turn].has_won():
             await self.game_won()
             return

@@ -35,22 +35,46 @@ class MiniGamesBot(Bot):
         self.command(name="renewstats", brief="<dev> resets the stats")(self.stats.renew)
         self.command(name="temp", brief="<dev> gets temp of RPI")(Commands.devcommands.temp)
         self.command(name="exec", brief="<dev> exec belleketrek")(self.execbelleketrek)
-        self.devcmdsstr = ["exit", "say", "del", "servers", "stats", "temp"]
+        self.command(name="drill", brief="<dev> do the drill bot")(self.drill)
+        self.devcmdsstr = ["exit", "say", "del", "servers", "stats", "temp", "drill"]
         self.devcmds = []
 
         self.command(name="help", brief="Gives this message", help="Gives a list of all commands")(self.help)
-        self.command(name="info", brief="Displays some information about the bot", help="Gives a short message from the developper")(self.info)
-        self.command(name="set_prefix", usage="\"[new prefix]\"", brief="\"new prefix\" | <admin> sets a new prefix for minigamesbot in this server.", help="Admins can use this command to set a different prefix to minigamesbot")(self.set_prefix)
-        self.othercmdsstr = ["help", "info", "set_prefix"]
+        self.command(name="info", brief="Displays some information about the bot",
+                     help="Gives a short message from the developper")(self.info)
+        self.command(name="set_prefix", usage="\"[new prefix]\"",
+                     brief="\"new prefix\" | <admin> sets a new prefix for minigamesbot in this server.",
+                     help="Admins can use this command to set a different prefix to minigamesbot")(self.set_prefix)
+        self.command(name="bug", usage="[bug description]",
+                     brief="Let the dev know you found a bug by giving detailed information as the argument.",
+                     help="Let the dev know you found a bug by giving detailed information so it can be resolved."
+                          "\nInformation that is required: game, last action, status of the game "
+                          "(picture or discription)")(self.bug)
+        self.command(name="request", usage="[request description]",
+                     brief="You have an idea for a new minigame or for an existing minigame "
+                           "and you would like to let the dev know.",
+                     help="You have an idea for a new minigame or for an existing minigame "
+                          "and you would like to let the dev know. "
+                          "Give a discription as argument to the command.")(self.request)
+        self.othercmdsstr = ["help", "info", "set_prefix", "bug", "request"]
         self.othercmds = []
 
-        self.command(name="blackjack", brief="Start a game of blackjack", help=Variables.BJRULES)(self.blackjack_game)
-        self.command(name="connect4", brief="Start a game of connect4", usage="[@player1] [@player2]", help=Variables.C4RULES)(self.connect4_game)
-        self.command(name="hangman", brief="Start a game of hangman", help=Variables.HMRULES)(self.hangman_game)
-        self.command(name="scramble", brief="Start a game of scramble", help=Variables.SCRULES)(self.scramble_game)
-        self.command(name="guessword", brief="Start a game of guessword", help=Variables.GWRULES)(self.guessword_game)
-        self.command(name="quiz", brief="Start a quiz", help=Variables.QZRULES)(self.quiz_game)
-        #self.command(name="uno", brief="Start a game of uno",  usage="[@player1] ... [@player10]", help=Variables.UNORULES)(self.uno_game)
+        self.command(name="blackjack", brief="Start a game of blackjack",
+                     help=Variables.BJRULES)(self.blackjack_game)
+        self.command(name="connect4", brief="Start a game of connect4", usage="[@player2]",
+                     help=Variables.C4RULES)(self.connect4_game)
+        self.command(name="hangman", brief="Start a game of hangman",
+                     help=Variables.HMRULES)(self.hangman_game)
+        self.command(name="scramble", brief="Start a game of scramble",
+                     help=Variables.SCRULES)(self.scramble_game)
+        self.command(name="guessword", brief="Start a game of guessword",
+                     help=Variables.GWRULES)(self.guessword_game)
+        self.command(name="quiz", brief="Start a quiz",
+                     help=Variables.QZRULES)(self.quiz_game)
+        self.command(name="uno", brief="Start a game of uno",  usage="[@player1] ... [@player10]",
+                     help=Variables.UNORULES)(self.uno_game)
+        self.command(name="chess", brief="Start a game of chess", usage="[@player2]",
+                     help=Variables.CHESSRULES)(self.chess_game)
         self.minigamescmds = []
 
         for command in self.commands:
@@ -73,6 +97,8 @@ class MiniGamesBot(Bot):
                 message.content = self.prefix+message.content[len(Private.prefixes[str(message.channel.guild.id)]):]
             else:
                 return
+
+        await self.game_manager.channel_update(message)
 
         ctxt = await self.get_context(message)
         await self.invoke(ctxt)
@@ -115,24 +141,31 @@ class MiniGamesBot(Bot):
             channel = self.get_channel(Private.PRIM_CHANNELID)
             await channel.send("READY.")
 
-    async def connect4_game(self, context, p1, p2):
-        ids = [p1, p2]
-        players = list()
-        player_names = set()
-        for ID in ids:
-            temp = re.findall(r'\d+', ID)
-            try:
-                pid = int(list(map(int, temp))[0])
-                player = self.get_user(pid)
-                players.append(player)
-                player_names.add(player.name)
-                if len(player_names) != len(players):
-                    await context.message.channel.send("Invalid command: tag unique players to start connect4 game.")
-                    return
-            except:
+    async def connect4_game(self, context, p2):
+        players = [context.author.id]
+        temp = re.findall(r'\d+', p2)
+        try:
+            pid = int(list(map(int, temp))[0])
+            if pid == players[0]:
                 await context.message.channel.send("Invalid command: tag unique players to start connect4 game.")
-        await self.game_manager.add_game(context, "connect4", players[0].id, players[1].id)
+                return
+            players.append(pid)
+        except:
+            await context.message.channel.send("Invalid command: tag unique players to start connect4 game.")
+        await self.game_manager.add_game(context, "connect4", players[0], players[1])
 
+    async def chess_game(self, context, p2):
+        players = [context.author.id]
+        temp = re.findall(r'\d+', p2)
+        try:
+            pid = int(list(map(int, temp))[0])
+            if pid == players[0]:
+                await context.message.channel.send("Invalid command: tag unique players to start chess game.")
+                return
+            players.append(pid)
+        except:
+            await context.message.channel.send("Invalid command: tag unique players to start chess game.")
+        await self.game_manager.add_game(context, "chess", players[0], players[1])
 
     async def scramble_game(self, context):
         await self.game_manager.add_game(context, "scramble", context.author.id)
@@ -168,22 +201,32 @@ class MiniGamesBot(Bot):
             return
         await self.game_manager.add_game(context, "uno", players)
 
+    async def drill(self, context):
+        if context.author.id in Private.DEV_IDS.keys():
+            for game in Variables.game_names:
+                if game == "connect4":
+                    await self.game_manager.add_game(context, game, context.author.id, Private.TEST_ACC_ID)
+                elif game == "uno":
+                    await self.game_manager.add_game(context, game, [self.get_user(context.author.id), self.get_user(Private.TEST_ACC_ID)])
+                elif game == "chess":
+                    await self.game_manager.add_game(context, game, context.author.id, Private.TEST_ACC_ID)
+                else:
+                    await self.game_manager.add_game(context, game, context.author.id)
 
     async def info(self, context):
-        text =  "- Check out my github page with the source code, you can sponsor me there too.\n"
-        text += "- If you notice any bugs or have any suggestions, make a new issue on my github page to tell me!\n"
+        text = "- Check out my github page with the source code, you can sponsor me there too.\n"
+        text += "- If you notice any bugs or have any suggestions, make a new issue on my github page or tell me with the bug command!\n"
         text += "- Don't forget to give the bot permissions to manage reactions and messages.\n"
         text += "- Press " + Variables.STOP_EMOJI + " to close the game.\n"
         text += "- Every minigame has a time limit of " + str(int(Variables.DEADLINE/60)) + " minutes.\n"
         text += "- You can find the invite link to this bot on this page: <https://top.gg/bot/704677903182594119>\n"
         text += "- If you wish to make a donation: https://www.buymeacoffee.com/whuybrec\n"
         text += "- Github link: <https://github.com/whuybrec/whuybrec.github.io>\n"
-        text += "- My website: <https://whuybrec.github.io/>"
         await context.message.channel.send(text)
 
     async def shut_down(self, context):
         if context.author.id in Private.DEV_IDS.keys():
-            await context.send("Saving statisticss...")
+            await context.send("Saving statistics...")
             self.stats.write_var()
             await context.send("Closing all games...")
             await self.game_manager.force_close_all()
@@ -194,6 +237,20 @@ class MiniGamesBot(Bot):
                 pass
             await self.logout()
 
+    async def bug(self, context):
+        channel = self.get_channel(Private.USER_REPORTS_CHANNELID)
+        try:
+            picture = context.message.attachments[0].url
+            await channel.send(picture)
+            await channel.send(context.author.name +": " + context.message.content)
+        except:
+            await channel.send(context.author.name +": " + context.message.content)
+        await context.channel.send("Bug succesfully reported!")
+
+    async def request(self, context):
+        channel = self.get_channel(Private.USER_REPORTS_CHANNELID)
+        await channel.send(context.author.name + ": " + context.message.content)
+        await context.channel.send("Request succesfully delivered!")
 
     async def on_command_error(self, context, exception):
         """|coro|
@@ -225,7 +282,18 @@ class MiniGamesBot(Bot):
         await channel.send(text)
         result = traceback.format_exception(type(exception), exception, exception.__traceback__)
         result = "".join(result)
-        await channel.send("```"+result+"```")
+        if len(result) > 1800:
+            i = 0
+            l = len(result)
+            while l > 1800:
+                try:
+                    await channel.send("```" + result[1800*i:1800*(i+1)] + "```")
+                    i += 1
+                except:
+                    await channel.send("```" + result[1800*i:] + "```")
+                l -= 18000
+        else:
+            await channel.send("```"+result+"```")
 
     async def help(self, context):
         if str(context.channel.guild.id) in Private.prefixes.keys():
@@ -233,17 +301,17 @@ class MiniGamesBot(Bot):
         else:
             prefix = self.prefix
         if context.message.content == self.prefix+"help":
-            text = "```md\n"
-            text +="/* MINIGAMESBOT */\n"
-            text +="\n<minigames>"
+            text = "```diff\n"
+            text += "- MINIGAMESBOT\n"
+            text += "\n+ minigames"
             for command in self.minigamescmds:
                 if command.usage is not None:
-                    text += "\n   {0} {1}\n\t\t{2}".format("< " + prefix + str(command.name), str(command.usage) + " >", str(command.brief))
+                    text += "\n   {0} {1}\n\t\t{2}".format("- " + prefix + str(command.name), str(command.usage), str(command.brief))
                 else:
-                    text += "\n   {0} \n\t\t{1}".format("< " + prefix + str(command.name)+" >", str(command.brief))
-            text += "\n<other>"
+                    text += "\n   {0} \n\t\t{1}".format("- " + prefix + str(command.name), str(command.brief))
+            text += "\n+ other"
             for command in self.othercmds:
-                text += "\n   {0} \n\t\t{1:70s}".format("< " + prefix + str(command.name)+" >", str(command.brief))
+                text += "\n   {0} \n\t\t{1:70s}".format("- " + prefix + str(command.name), str(command.brief))
             text += "\n\nType \"" + prefix+"help [minigame]\" to see the rules of that minigame."
             text += Variables.EXTRA
             text += "\n```"
@@ -252,12 +320,12 @@ class MiniGamesBot(Bot):
             called = context.message.content[len(self.prefix+"help "):]
             for command in self.minigamescmds:
                 if command.name == called:
-                    text  = "```md\n"
-                    text += "/* " + prefix + called +" */\n"
+                    text = "```diff\n"
+                    text += "- " + prefix + called + "\n"
                     if command.usage is not None:
-                        text += "\n   < {0} > \n\t\t{1}".format("Arguments", str(command.usage))
-                    text += "\n   < {0} > \n\t\t{1}".format("Description", str(command.brief))
-                    text += "\n   < {0} > \n{1}".format("Rules", "\t\t" + "\n        ".join(str(command.help).split("\n")))
+                        text += "\n   + {0}  \n\t\t{1}".format("Arguments", str(command.usage))
+                    text += "\n   + {0}  \n\t\t{1}".format("Description", str(command.brief))
+                    text += "\n   + {0}  \n{1}".format("Rules", "\t\t" + "\n        ".join(str(command.help).split("\n")))
                     text += "\n```"
                     await context.message.channel.send(text)
                     return
@@ -301,9 +369,5 @@ class MiniGamesBot(Bot):
             try:
                 exec("\n".join(func), globals())
             except Exception as e:
-                await context.send("```python\n"+ str(e) +"\n```")
-
-
-
-
+                await context.send("```python\n"+ str(e) + "\n```")
 

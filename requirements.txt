@@ -1,5 +1,8 @@
+python-chess
+pillow
 aiohttp
 pydealer
-discord.py
+discord
 numpy
-
+gpiozero
+dblpy

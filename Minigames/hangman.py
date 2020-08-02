@@ -6,7 +6,7 @@ class HangMan(MiniGame):
     def __init__(self, game_manager, msg, playerID):
         super().__init__(game_manager, msg)
         self.playerID = playerID
-        self.word = getRandomWord()
+        self.word = get_random_word()
         self.guessed_word = ["" for i in range(len(self.word))]
         self.index = 1
         self.guesses = list()

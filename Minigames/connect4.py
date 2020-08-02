@@ -13,7 +13,7 @@ from Other.variables import Variables
 from Other.private import Private
 from Commands.minigame import MiniGame
 
-coin = [1,2]
+coin = [1, 2]
 class Connect4(MiniGame):
     def __init__(self, game_manager, msg, p1, p2):
         super().__init__(game_manager, msg)

@@ -1,4 +1,4 @@
-from Other.variables import Variables, getRandomWord
+from Other.variables import Variables, get_random_word
 from Other.private import Private
 import random
 from Commands.minigame import MiniGame
@@ -7,7 +7,7 @@ class Scramble(MiniGame):
     def __init__(self, game_manager, msg, playerID):
         super().__init__(game_manager, msg)
         self.playerID = playerID
-        self.word = getRandomWord()
+        self.word = get_random_word()
         self.scrambledLetters = list(self.word)
         random.shuffle(self.scrambledLetters)
         self.guessedWord = [""]*(len(self.word)+1)
