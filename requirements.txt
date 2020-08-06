@@ -6,3 +6,4 @@ discord
 numpy
 gpiozero
 dblpy
+python-chess

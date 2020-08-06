@@ -54,18 +54,22 @@ class MiniGameManager:
         for game in self.open_games.values():
             game.force_quit()
         self.open_games = dict()
+        for game in self.open_chess_games.values():
+            game.force_quit()
+        self.open_chess_games = dict()
 
     async def update_game(self, reaction, user):
+        if reaction.message.channel.id in self.open_chess_games.keys():
+            await self.open_chess_games[reaction.message.channel.id].update_game(reaction, user)
         for game in self.open_games.values():
             if isinstance(game, Uno):
                 if reaction.message.id in game.dms:
                     game.reschedule()
                     await game.update_game(reaction, user)
                     return
-        try:
+        if reaction.message.id in self.open_games.keys():
+            self.open_games[reaction.message.id].reschedule()
             await self.open_games[reaction.message.id].update_game(reaction, user)
-        except:
-            pass
 
     async def dm_update(self, message):
         for game in self.open_games.values():
@@ -76,10 +80,8 @@ class MiniGameManager:
                         game.reschedule()
                         await game.update_chat(message)
 
-    async def channel_update(self, message):
-        if message.channel.id in self.open_chess_games.keys():
-            import re
-            if re.match(r"^\D\d to \D\d$", message.content):
-                game = self.open_chess_games[message.channel.id]
-                game.reschedule()
-                await game.update_game(message.content.lower(), message.author)
+    async def restart_game(self, msg, name, *args):
+        if self.restarting:
+            return
+        ctx = await self.bot.get_context(msg)
+        await self.add_game(ctx, name, args)

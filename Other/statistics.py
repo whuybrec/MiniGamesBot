@@ -7,6 +7,7 @@ import discord
 
 class Statistics:
     serverCount = 0
+
     def __init__(self, bot):
         self.bot = bot
         self.msgID = Private.STATS_MSGID
@@ -45,14 +46,13 @@ class Statistics:
             channel = self.bot.get_channel(Private.STATS_CHANNELID)
             try:
                 msg = await channel.fetch_message(self.msgID)
-                await msg.edit(content = self.get_stats())
+                await msg.edit(content=self.get_stats())
             except:
                 msg = await channel.send(self.get_stats())
                 self.msgID = msg.id
             self.write_var()
             if context is None:
                 Variables.scheduler.add(60*10, self.update_stats, None)
-            #await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=self.bot.prefix + "help"))
 
     """Called every 24 hours"""
     async def renew(self, context):

@@ -1,12 +1,20 @@
 from Other.variables import Variables, get_random_word
 from Other.private import Private
 import random
-from Commands.minigame import MiniGame
+from Minigames.minigame import MiniGame
 
 class Scramble(MiniGame):
-    def __init__(self, game_manager, msg, playerID):
+    def __init__(self, game_manager, msg, player_id):
         super().__init__(game_manager, msg)
-        self.playerID = playerID
+        self.player_id = player_id
+        self.word = None
+        self.scrambledLetters = None
+        self.guessedWord = None
+        self.wordEmojis = []
+        self.wrong_word = False
+        self.terminated = False
+
+    async def start_game(self):
         self.word = get_random_word()
         self.scrambledLetters = list(self.word)
         random.shuffle(self.scrambledLetters)
@@ -15,8 +23,7 @@ class Scramble(MiniGame):
         self.wrong_word = False
         self.terminated = False
 
-    async def start_game(self):
-        text = self.getBoard()
+        text = self.get_board()
         await self.msg.edit(content=text)
         for letter in self.scrambledLetters:
             self.wordEmojis.append(Variables.DICT_ALFABET[letter])
@@ -25,10 +32,9 @@ class Scramble(MiniGame):
         await self.msg.add_reaction(Variables.STOP_EMOJI)
 
     async def update_game(self, reaction, user):
-        if self.terminated: return
-        if user.id in Private.BOT_ID: return
-        if reaction.count != 2: return
-        if not user.id == self.playerID:
+        if self.terminated or user.id in Private.BOT_ID:
+            return
+        if reaction.count != 2 or not user.id == self.player_id:
             await reaction.message.remove_reaction(reaction.emoji, user)
             return
 
@@ -42,15 +48,17 @@ class Scramble(MiniGame):
                                 self.scrambledLetters.remove(key)
                             break
                     break
+
         elif reaction.emoji == Variables.BACK_EMOJI:
             for i in range(len(self.guessedWord)):
                 if self.guessedWord[i] == "":
                     self.scrambledLetters.append(self.guessedWord[i-1])
                     self.guessedWord[i-1] = ""
                     break
+
         elif reaction.emoji == Variables.STOP_EMOJI:
             await self.msg.edit(content="Game closed.\nThe word was \"" + "".join(self.word) + "\"")
-            await self.end_game()
+            await self.restart()
             return
 
         if len(''.join(self.guessedWord)) == len(self.word) and ''.join(self.guessedWord) != self.word:
@@ -58,19 +66,19 @@ class Scramble(MiniGame):
         elif len(''.join(self.guessedWord)) != len(self.word):
             self.wrong_word = False
 
-        text = self.getBoard()
+        text = self.get_board()
         await reaction.message.edit(content=text)
-
-        if ''.join(self.guessedWord) == self.word:
-            self.terminated = True
-            await self.end_game()
-            await reaction.message.channel.send("Congratulations! <@" + str(self.playerID) + "> found the scrambled word!")
-
         await reaction.message.remove_reaction(reaction.emoji, user)
 
-    def getBoard(self):
-        text  = "```SCRAMBLE\n"
-        text += "Letters left: " +  ' '.join(self.scrambledLetters) +"\n"
+        if ''.join(self.guessedWord) == self.word:
+            await reaction.message.edit(content="Congratulations! <@" + str(self.player_id) +
+                                                "> found the scrambled word!\nThe word was \"" + self.word + "\".")
+            await self.restart()
+            return
+
+    def get_board(self):
+        text = "```SCRAMBLE\n"
+        text += "Letters left: " +  ' '.join(self.scrambledLetters) + "\n"
         for i in range(len(self.word)):
             if self.guessedWord[i] != "":
                 text += str(self.guessedWord[i]) + " "
@@ -80,4 +88,3 @@ class Scramble(MiniGame):
             text += "\nWrong word, try again!"
         text += "\n```"
         return text
-

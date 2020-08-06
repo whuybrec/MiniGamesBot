@@ -11,7 +11,7 @@ import copy
 import numpy
 from Other.variables import Variables
 from Other.private import Private
-from Commands.minigame import MiniGame
+from Minigames.minigame import MiniGame
 
 coin = [1, 2]
 class Connect4(MiniGame):

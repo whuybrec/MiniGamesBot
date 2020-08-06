@@ -9,9 +9,10 @@ class Variables:
     game_names = ["hangman", "connect4", "scramble", "guessword", "blackjack", "quiz", "uno", "chess"]
     amtPlayedGames = {name: 0 for name in game_names}
 
-    EXTRA = "\nNew MiniGame: CHESS! If you encounter any bugs/suggestions, " \
+    EXTRA = "New MiniGame: CHESS! If you encounter any bugs/suggestions, " \
             "let me know on my github page or use the bug command!\n"
-    DEADLINE = 600 * 2
+    DEADLINE = 1200
+    TIMEOUT = 360
     scheduler = scheduler.Scheduler()
     eng_dict = None
     questions_dict = None
@@ -32,6 +33,7 @@ class Variables:
     STOP_EMOJI = "❌"
     BACK_EMOJI = "◀"
     FORWARD_EMOJI = "▶️"
+    REPEAT_EMOJI = "🔁"
     NEXT_EMOJI = "➡️"
     DICT_ALFABET = {'a': '🇦', 'b': '🇧', 'c': '🇨', 'd': '🇩', 'e': '🇪', 'f': '🇫', 'g': '🇬', 'h': '🇭',
                     'i': '🇮', 'j': '🇯',
@@ -161,7 +163,7 @@ class Variables:
                "When you have on card remaining type \"uno\" in chat." \
                "Players can type \"no uno\" in chat to catch someone not saying uno.\n" \
                "The rest of the rules are according to the official Uno rules.\n"
-    CHESSRULES = "Start a game of chess with 2 players, one game per channel allowed"
+    CHESSRULES = "Start a game of chess with 2 players, one game per channel allowed."
 
 def on_startup():
     json1_file = open('Data/dictionary.json')

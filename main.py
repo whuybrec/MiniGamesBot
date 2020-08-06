@@ -4,6 +4,7 @@ from Other.topgg import setup_1
 
 TESTING = False
 
+
 if TESTING:  # for testing
     bot = MiniGamesBot("!")
     bot.run(Private.TOKENTEST)

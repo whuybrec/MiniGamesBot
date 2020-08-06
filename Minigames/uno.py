@@ -27,11 +27,9 @@
 #TODO:
 # sort cards according to playable color -> number, playable action
 
-import random
-import re
 from string import ascii_lowercase
 from Other.variables import *
-from Commands.minigame import MiniGame
+from Minigames.minigame import MiniGame
 
 class Card:
     def __init__(self, color, value):
@@ -91,8 +89,6 @@ class Player:
         channel = await self.player.create_dm()
         self.chat_dm = await channel.send("updating chat...")
         self.game_dm = await channel.send("updating game...")
-        #while self.page_max * 15 < len(self.hand):
-        #    self.page_max += 1
         for i in range(len(self.hand)):
             # if i == 15:
             #    break
@@ -215,7 +211,6 @@ class Uno(MiniGame):
             player.game_dm = await channel.send("updating game...")
             self.dms.append(player.game_dm.id)
         await self.update_game_dms()
-
 
     async def update_game(self, reaction, user):
         p = self.players[self.turn]

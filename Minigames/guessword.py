@@ -2,13 +2,20 @@ from Other.variables import get_random_word
 from string import ascii_lowercase
 from Other.private import Private
 from Other.variables import Variables
-from Commands.minigame import MiniGame
+from Minigames.minigame import MiniGame
 import re
 
 class GuessWord(MiniGame):
-    def __init__(self, game_manager, msg, playerID):
+    def __init__(self, game_manager, msg, player_id):
         super().__init__(game_manager, msg)
-        self.playerID = playerID
+        self.player_id = player_id
+        self.guessed_word = None
+        self.definition = None
+        self.terminated = False
+        self.word = None
+
+    async def start_game(self):
+        self.terminated = False
         self.guessed_word = ""
         self.definition = None
         while self.definition is None:
@@ -18,8 +25,6 @@ class GuessWord(MiniGame):
                 if 200 < len(defi) < 1000:
                     self.definition = re.sub(self.word, "*" * len(self.word), defi.lower())
 
-
-    async def start_game(self):
         await self.msg.edit(content=self.get_board())
         self.msg2 = await self.msg.channel.send("** **")
         self.game_manager.open_games[self.msg2.id] = self
@@ -32,9 +37,13 @@ class GuessWord(MiniGame):
         await self.msg2.add_reaction(Variables.STOP_EMOJI)
 
     async def update_game(self, reaction, user):
-        if user.id in Private.BOT_ID: return
-
-        if not user.id == self.playerID:
+        if self.terminated:
+            return
+        if user.id in Private.BOT_ID:
+            return
+        if reaction.count != 2:
+            return
+        if not user.id == self.player_id:
             await reaction.message.remove_reaction(reaction.emoji, user)
             return
 
@@ -47,7 +56,7 @@ class GuessWord(MiniGame):
         if reaction.emoji == Variables.STOP_EMOJI:
             await self.msg2.delete()
             await self.msg.edit(content="Game closed.\nThe word was \"" + "".join(self.word) + "\"")
-            await self.end_game()
+            await self.restart()
             return
 
         for letter, emoji in Variables.DICT_ALFABET.items():
@@ -60,9 +69,9 @@ class GuessWord(MiniGame):
         await self.msg.edit(content=self.get_board())
 
         if self.guessed_word == self.word:
-            await reaction.message.channel.send("Congratulations <@" +str(self.playerID) + ">, you found the word!")
             await self.msg2.delete()
-            await self.end_game()
+            await self.msg.edit(content=self.get_board() + "\nCongratulations <@" + str(self.player_id) + ">, you found the word!")
+            await self.restart()
 
     def get_board(self):
         text = "```\nDefinition:\n"

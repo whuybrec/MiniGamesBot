@@ -3,7 +3,7 @@ from Other.variables import Variables, increment_game
 from string import ascii_lowercase
 import random
 import html
-from Commands.minigame import MiniGame
+from Minigames.minigame import MiniGame
 
 class QuizMaster(MiniGame):
     def __init__(self, game_manager, msg, playerID):
@@ -68,16 +68,12 @@ class QuizMaster(MiniGame):
                 self.count_wrong += 1
             await self.msg.edit(content=self.get_board(self.possabilities[reaction.emoji], html.unescape(self.question['correct_answer'])))
             await self.msg.clear_reactions()
-            await self.msg.add_reaction(Variables.NEXT_EMOJI)
+            await self.msg.add_reaction(Variables.REPEAT_EMOJI)
             await self.msg.add_reaction(Variables.STOP_EMOJI)
             return
 
-        if reaction.emoji == Variables.NEXT_EMOJI:
-            await self.msg.clear_reactions()
-            increment_game("quiz")
-            self.possabilities = dict()
-            await self.start_quiz()
-            return
+        if reaction.emoji == Variables.REPEAT_EMOJI:
+            await self.restart()
 
     def get_board(self, u_answer=None, correct_answer=None):
         text = "```\n" \
@@ -96,3 +92,9 @@ class QuizMaster(MiniGame):
                 text += "Nice! You answered correct!\n"
         text += "```"
         return text
+
+    async def restart(self):
+        await self.msg.clear_reactions()
+        increment_game("quiz")
+        self.possabilities = dict()
+        await self.start_quiz()

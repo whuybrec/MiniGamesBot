@@ -1,17 +1,24 @@
 from Other.variables import *
 from string import ascii_lowercase
-from Commands.minigame import MiniGame
+from Minigames.minigame import MiniGame
 
 class HangMan(MiniGame):
-    def __init__(self, game_manager, msg, playerID):
+    def __init__(self, game_manager, msg, player_id):
         super().__init__(game_manager, msg)
-        self.playerID = playerID
+        self.player_id = player_id
+        self.word = get_random_word()
+        self.guessed_word = None
+        self.index = None
+        self.guesses = list()
+        self.terminated = False
+
+    async def start_game(self):
+        self.terminated = False
         self.word = get_random_word()
         self.guessed_word = ["" for i in range(len(self.word))]
         self.index = 1
         self.guesses = list()
 
-    async def start_game(self):
         await self.msg.edit(content=self.get_board())
         self.msg2 = await self.msg.channel.send("** **")
         self.game_manager.open_games[self.msg2.id] = self
@@ -23,16 +30,20 @@ class HangMan(MiniGame):
         await self.msg2.add_reaction(Variables.STOP_EMOJI)
 
     async def update_game(self, reaction, user):
-        if user.id in Private.BOT_ID: return
-
-        if not user.id == self.playerID:
+        if self.terminated:
+            return
+        if user.id in Private.BOT_ID:
+            return
+        if reaction.count != 2:
+            return
+        if not user.id == self.player_id:
             await reaction.message.remove_reaction(reaction.emoji, user)
             return
 
         if reaction.emoji == Variables.STOP_EMOJI:
-            await self.msg.edit(content="Game closed.\nThe word was \"" + "".join(self.word) + "\"")
             await self.msg2.delete()
-            await self.end_game()
+            await self.msg.edit(content="Game closed.\nThe word was \"" + "".join(self.word) + "\"")
+            await self.restart()
             return
 
         letter = ""
@@ -54,15 +65,17 @@ class HangMan(MiniGame):
         await self.msg.edit(content=self.get_board())
 
         if self.index == 10:
-            await reaction.message.channel.send("<@" +str(self.playerID) + "> lost the game!\nThe word was \"" + "".join(self.word) + "\"")
             await self.msg2.delete()
-            await self.end_game()
+            await self.msg.edit(content=self.get_board() + "\n<@" + str(self.player_id) + "> lost the game!"
+                                        "\nThe word was \"" + "".join(self.word) + "\"")
+            await self.restart()
             return
 
         if "".join(self.guessed_word) == self.word:
-            await reaction.message.channel.send("Congratulations <@" +str(self.playerID) + ">, you found the word!")
             await self.msg2.delete()
-            await self.end_game()
+            await self.msg.edit(content=self.get_board() + "\nCongratulations <@" + str(self.player_id) +
+                                        ">, you found the word!")
+            await self.restart()
 
     def get_word_status(self):
         text = ""
@@ -79,4 +92,3 @@ class HangMan(MiniGame):
         text += "\n\nWord: " + self.get_word_status()
         text += "\n```"
         return text
-
