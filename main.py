@@ -3,5 +3,5 @@ from Other.private import Private
 
 
 
-bot = MiniGamesBot("!", False)
+bot = MiniGamesBot("!")
 bot.run(Private.TOKEN)
