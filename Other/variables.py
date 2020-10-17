@@ -1,4 +1,3 @@
-from Other import scheduler
 import random
 import json
 from Other.private import Private
@@ -11,7 +10,6 @@ class Variables:
             "let me know on my github page or use the bug command!\n"
 
     TIMEOUT = 360
-    scheduler = scheduler.Scheduler()
     eng_dict = None
     questions_dict = None
     randwords = list()

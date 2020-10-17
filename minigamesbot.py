@@ -38,18 +38,6 @@ class MiniGamesBot(Bot):
         ctxt = await self.get_context(message)
         await self.invoke(ctxt)
 
-    async def on_guild_remove(self, guild):
-        channel = self.get_channel(Private.STACK_CHANNELID)
-        await channel.send("LEFT GUILD '{0}' ({1}).".format(guild.name, guild.id))
-
-    async def on_guild_join(self, guild):
-        general = find(lambda x: 'general' in x.name, guild.text_channels)
-        if general and general.permissions_for(guild.me).send_messages:
-            await general.send('Hello {}! The command prefix for this bot is "?".\n'
-                               'Type ?help for a list of commands.'.format(guild.name))
-        channel = self.get_channel(Private.STACK_CHANNELID)
-        await channel.send("JOINED GUILD '{0}' ({1}).".format(guild.name, guild.id))
-
     def on_startup(self):
         print("Loading database...")
         DataBase.initialize(self)
@@ -57,8 +45,3 @@ class MiniGamesBot(Bot):
         on_startup()
         print("Done!")
 
-    async def on_ready(self):
-        if not self.called:
-            self.called = True
-            channel = self.get_channel(Private.STACK_CHANNELID)
-            await channel.send("READY.")
