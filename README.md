@@ -5,7 +5,7 @@ A Python Discord bot that has different kinds of minigames
 
 ## MiniGames
 
-All minigames are played by clicking on emojis, currently there are 5 minigames. Commands are displayed below.
+All minigames are played by clicking on emojis or sending short messages, currently there are 8 minigames. All commands are displayed below.
 
 ```
 ?scramble
@@ -20,14 +20,24 @@ All minigames are played by clicking on emojis, currently there are 5 minigames.
 
 ?connect4
 
+?chess
+
+?uno
+
 ?help
 
 ?info
+
+?bug
+
+?request
 ```
 
-There are currently 5 categories in the quiz minigame: General knowledge, Sports, Video Games, Music, Films.
+There are 5 categories in the quiz minigame: General knowledge, Sports, Video Games, Music, Films.
 
-Connect4 takes 2 arguments, i.e. the two players that want to play: ?connect4 [@player1] [@player2] .
+Connect4 and chess take 1 argument, i.e. the second player to play with: ?connect4 [@player2] .
+
+Uno can be played with at most 10 players, tag every player as argument, i.e. ?uno [@player1] ... [@player10]
 
 
 ## Requirements
@@ -56,5 +66,5 @@ Files and folders you won't need: index.html, assets (for my github pages link)
 
 I study computer science at the KU Leuven in Belgium.
 In my free time I work on coding projects, play games and enjoy watching a good movie or series.
-I play badminton and go cycling every week. I also enjoy watching it on tv.
+I play badminton and go cycling every week. I also enjoy watching sports (cycling, cyclocross, tennis, snooker) on tv.
 
