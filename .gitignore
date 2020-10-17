@@ -1,3 +1,10 @@
+Commands/developer/temperature_command.py
+Commands/miscellaneous/info_command.py
+Commands/miscellaneous/bug_command.py
+Commands/miscellaneous/request_command.py
+Commands/miscellaneous/stats_command.py
+Commands/miscellaneous/announcements_command.py
+Statistics/
 Data/user_statistics.db
 Data/stats.json
 _site
