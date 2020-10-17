@@ -10,7 +10,7 @@ class DeleteCommand(DiscordCommand):
     category = "developer"
 
     @classmethod
-    async def handler(cls, context, *args: int, **kwargs):
+    async def handler(cls, context, *args: int):
         if context.message.author.id in Private.DEV_IDS.keys():
             msg = await context.message.channel.fetch_message(args[0])
             await msg.delete()

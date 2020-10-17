@@ -10,61 +10,46 @@ import random
 import copy
 import numpy
 from Other.variables import Variables
-from Other.private import Private
-from Minigames.minigame import MiniGame
+from Minigames.multiplayer_minigame import MultiMiniGame
+import asyncio
 
 coin = [1, 2]
-class Connect4(MiniGame):
-    def __init__(self, game_manager, msg, p1, p2):
-        super().__init__(game_manager, msg)
-        self.p1start = False
-        self.p2start = False
-        self.finished = False
-        n = random.randint(1,2)
-        if n == 1:
-            self.players = [p1, p2]
-        else:
-            self.players = [p2, p1]
-        self.turn = self.players[0]
+
+class Connect4(MultiMiniGame):
+    def __init__(self, bot, game_name, msg, players):
+        super().__init__(bot, game_name, msg, players)
+        self.terminated = False
+        n = random.randint(0, 1)
+        self.turn = n
         self.board = [[0 for x in range(7)] for y in range(6)]
 
-    def getTurn(self):
-        return self.turn
-
-    def getBoard(self):
+    def get_board(self):
         return copy.deepcopy(self.board)
 
-    def getPlayers(self):
-        return self.players
-
-    def isLegalMove(self, c, player):
-        if player not in self.players:
-            raise Exception("Illegal player: " + str(player) + " is not part of the game")
-        if self.finished:
-            raise Exception("Illegal move: game is finished")
-        if self.turn != player:
-            raise Exception("Illegal move: not your turn to play "+ str(player))
+    def is_legal_move(self, c):
+        if self.terminated:
+            return False
         if c < 0 or c > 6:
-            raise Exception("Illegal column: columns ∈ [0,6], your move was " + str(c))
+            return False
         if self.board[0][c] != 0:
-            raise Exception("Illegal row: row is full")
+            return False
         return True
 
-    def move(self, c, player):
-        if self.isLegalMove(c, player):
+    def move(self, c, player_id):
+        if self.is_legal_move(c):
             if self.board[5][c] == 0:
-                self.board[5][c] = player
+                self.board[5][c] = player_id
             else:
                 for i in range(len(self.board)):
                     if self.board[i][c] != 0:
-                        self.board[i-1][c] = player
+                        self.board[i - 1][c] = player_id
                         break
-            if self.hasWon(player):
-                self.finished = True
+            if self.hasWon(player_id):
+                self.terminated = True
                 return 1
-            self.turn = self.players[(self.players.index(player)+1)%2]
+            self.toggle()
         if self.isFull():
-            self.finished = True
+            self.terminated = True
             return 2
         return 0
 
@@ -77,7 +62,7 @@ class Connect4(MiniGame):
             for n in range(4):
                 counter = 0
                 for i in range(4):
-                    if self.board[r][n+i] == player:
+                    if self.board[r][n + i] == player:
                         counter += 1
                 if counter == 4:
                     return 1
@@ -93,7 +78,7 @@ class Connect4(MiniGame):
                     if flipBoard[r][n + i] == player:
                         counter += 1
                 if counter == 4:
-                   return 1
+                    return 1
         return 0
 
     def checkD(self, player):
@@ -102,21 +87,21 @@ class Connect4(MiniGame):
             for c in range(len(self.board[r])):
                 try:
                     if self.board[r][c] == n:
-                        if self.board[r+1][c+1] == n:
-                            if self.board[r+2][c+2] == n:
-                                if self.board[r+3][c+3] == n:
+                        if self.board[r + 1][c + 1] == n:
+                            if self.board[r + 2][c + 2] == n:
+                                if self.board[r + 3][c + 3] == n:
                                     return 1
-                except:
+                except IndexError:
                     pass
         for r in range(len(self.board)):
             for c in range(len(self.board[r])):
                 try:
-                    if self.board[r][c] == n:
+                    if not (c - 3) < 0 and self.board[r][c] == n:
                         if self.board[r + 1][c - 1] == n:
                             if self.board[r + 2][c - 2] == n:
                                 if self.board[r + 3][c - 3] == n:
                                     return 1
-                except:
+                except IndexError:
                     pass
         return 0
 
@@ -129,56 +114,61 @@ class Connect4(MiniGame):
 
     def updateBoard(self):
         text = "Board: \n"
-        board = self.getBoard()
-        players = self.getPlayers()
-        text += "1⃣"+"2⃣"+"3⃣"+"4⃣"+"5⃣"+"6⃣"+"7⃣"+"\n"
+        board = self.get_board()
+        text += "1⃣" + "2⃣" + "3⃣" + "4⃣" + "5⃣" + "6⃣" + "7⃣" + "\n"
         for i in range(len(board)):
             for j in range(len(board[i])):
-                if board[i][j] == players[0]:
+                if board[i][j] == self.players[0].id:
                     text += ":red_circle:"
-                elif board[i][j] == players[1]:
+                elif board[i][j] == self.players[1].id:
                     text += ":yellow_circle:"
                 else:
                     text += ":black_circle:"
             text += "\n"
-        text += "\nTurn: <@" + str(self.getTurn())+">"
+        text += "\nTurn: <@" + str(self.players[self.turn].id) + ">"
         return text
 
-
-    def toggle(self, uid):
-        index = self.players.index(uid)
-        if index == 0:
-            self.p1start = True
-        else:
-            self.p2start = True
+    def toggle(self):
+        self.turn = (self.turn + 1) % 2
 
     async def start_game(self):
         await self.msg.edit(content=self.updateBoard())
         for emo in Variables.REACTIONS_CONNECT4:
             await self.msg.add_reaction(emo)
 
+        await self.wait_for_player()
+
     async def update_game(self, reaction, user):
-        if reaction.message.author.id not in Private.BOT_ID: return
-        if user.id in Private.BOT_ID: return
-        if not user.id in self.getPlayers():
-            await reaction.message.remove_reaction(reaction.emoji, user)
+        if self.terminated:
             return
-        try:
-            if reaction.emoji in Variables.REACTIONS_CONNECT4:
-                self.toggle(user.id)
-                res = self.move(Variables.REACTIONS_CONNECT4.index(reaction.emoji), user.id)
-                text = self.updateBoard()
-                await reaction.message.edit(content=text)
 
-                if res == 1: # A player has won
-                    await reaction.message.channel.send("<@" + str(user.id) + "> has won!")
-                    await self.end_game()
-                    return
+        if reaction.emoji in Variables.REACTIONS_CONNECT4:
+            res = self.move(Variables.REACTIONS_CONNECT4.index(reaction.emoji), user.id)
+            text = self.updateBoard()
+            await reaction.message.edit(content=text)
 
-                if res == 2: # There is no winner, board is full
-                    await reaction.message.channel.send("<@"+str(self.players[0])+"> and <@"+ str(self.players[1]) + "> drawed because the board is full.")
-                    await self.end_game()
-                    return
-        except:
-            pass
+            if res == 1:  # A player has won
+                await reaction.message.channel.send("<@" + str(user.id) + "> has won!")
+                self.index_winner = self.turn
+                await self.end_game()
+                return
+
+            if res == 2:  # There is no winner, board is full
+                self.index_winner = -1
+                await reaction.message.channel.send("<@" + str(self.players[0].id) + "> and <@" + str(
+                    self.players[1].id) + "> drawed because the board is full.")
+                await self.end_game()
+                return
+
         await reaction.message.remove_reaction(reaction.emoji, user)
+        await self.wait_for_player()
+
+    async def wait_for_player(self):
+        try:
+            reaction, user = await self.bot.wait_for("reaction_add",
+                                                                  check=lambda r, u: u.id == self.players[self.turn].id
+                                                                                     and r.message.id == self.msg.id,
+                                                                  timeout=Variables.TIMEOUT)
+            await self.update_game(reaction, user)
+        except asyncio.TimeoutError:
+            await self.end_game(True)

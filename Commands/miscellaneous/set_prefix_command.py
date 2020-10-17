@@ -11,7 +11,7 @@ class SetPrefixCommand(DiscordCommand):
     category = "miscellaneous"
 
     @classmethod
-    async def handler(cls, context, *args: str, **kwargs):
+    async def handler(cls, context, *args: str):
         if not args or len(args) > 1:
             return
 
@@ -26,9 +26,11 @@ class SetPrefixCommand(DiscordCommand):
             return
 
         Private.prefixes[str(context.guild.id)] = prefix
+        cls.add_new_prefix()
         await context.channel.send("The prefix of minigamesbot is now set to '" + prefix + "'")
 
-    def add_new_prefix(self):
+    @classmethod
+    def add_new_prefix(cls):
         f = open('Data/prefixes.json', 'w')
         tmp = json.dumps(Private.prefixes)
         f.write(tmp)

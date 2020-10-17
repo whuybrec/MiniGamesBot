@@ -1,6 +1,7 @@
 from Other.variables import Variables
 from Commands.discord_command import DiscordCommand
 from discord.member import Member
+from Minigames.uno import Uno
 
 class UnoCommand(DiscordCommand):
     bot = None
@@ -11,15 +12,21 @@ class UnoCommand(DiscordCommand):
     category = "minigame"
 
     @classmethod
-    async def handler(cls, context, *args: Member, **kwargs):
-        players = set()
-        for arg in args:
-            players.add(arg)
-        if len(players) != len(args):
-            await context.message.channel.send("Invalid command: tag unique players to start uno game.")
+    async def handler(cls, context, *args):
+        import re
+        try:
+            player_ids = re.findall(r'\d+', args[0])
+            player_ids.append(context.author.id)
+            player_ids = set(player_ids)
+            players = [context.message.guild.get_member(int(p_id)) for p_id in player_ids]
+        except:
+            await cls.illegal_command(context)
             return
-        players.add(cls.bot.get_user(context.author.id))
+
         if not 1 < len(players) < 11:
             await context.message.channel.send("Invalid command: minimum of 2 and maximum of 10 players allowed.")
             return
-        await cls.bot.game_manager.add_game(context, "uno", list(players))
+
+        msg = await context.channel.send("Starting a game of Uno...")
+        tmp = Uno(cls.bot, "uno", msg, players)
+        await tmp.start_game()

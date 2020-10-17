@@ -1,24 +1,20 @@
 from Other import scheduler
 import random
-import datetime
-import time
 import json
 from Other.private import Private
 
 class Variables:
     game_names = ["hangman", "connect4", "scramble", "guessword", "blackjack", "quiz", "uno", "chess"]
-    amtPlayedGames = {name: 0 for name in game_names}
+    database_file = "Data/user_statistics.db"
 
     EXTRA = "New MiniGame: CHESS! If you encounter any bugs/suggestions, " \
             "let me know on my github page or use the bug command!\n"
-    DEADLINE = 1200
+
     TIMEOUT = 360
     scheduler = scheduler.Scheduler()
     eng_dict = None
     questions_dict = None
     randwords = list()
-
-    history = list()
 
     games_names_short = ["hm", "c4", "sc", "gw", "bj", "qz", "uno", "chess"]
 
@@ -163,7 +159,12 @@ class Variables:
                "When you have on card remaining type \"uno\" in chat." \
                "Players can type \"no uno\" in chat to catch someone not saying uno.\n" \
                "The rest of the rules are according to the official Uno rules.\n"
-    CHESSRULES = "Start a game of chess with 2 players, one game per channel allowed."
+    CHESSRULES = "Start a game of chess with 2 players, one game per channel allowed.\n" \
+                 "Making moves is done by typing the coordinates in the chat, for example: A7 to A5.\n" \
+                 "Close the game by clicking on the " + STOP_EMOJI + " ."
+    CHECKERSRULES = "Start a game of checkers (English draughts) with 2 players, one game per channel allowed.\n" \
+                 "Making moves is done by typing the coordinates in the chat, for example: B6 to C5.\n" \
+                 "Close the game by clicking on the " + STOP_EMOJI + " ."
 
 def on_startup():
     json1_file = open('Data/dictionary.json')
@@ -178,28 +179,38 @@ def on_startup():
     json1_str = json1_file.read()
     Private.prefixes = json.loads(json1_str)
     json1_file.close()
-    json1_file = open('Data/stats.json')
-    json1_str = json1_file.read()
-    dictionary = json.loads(json1_str)
-    json1_file.close()
-    Variables.amtPlayedGames = dictionary["Today"]
-    Variables.history = dictionary["History"]
-
     with open("Data/10k words.txt") as f:
         Variables.randwords = f.readlines()
     f.close()
 
 def get_random_word():
-    return Variables.randwords[random.randint(0,5458)].rstrip()
+    word = Variables.randwords[random.randint(0,1524)].rstrip()
+    while len(word) < 5:
+        word = Variables.randwords[random.randint(0, 1524)].rstrip()
+    return word
 
-def get_next_midnight_stamp():
-    datenow = datetime.date.today() + datetime.timedelta(days=1)
-    unix_next = datetime.datetime(datenow.year, datenow.month, datenow.day, 0)
-    unixtime = time.mktime(unix_next.timetuple())
-    return unixtime
-
-def increment_game(game: str):
+def convert(seconds: int):
     try:
-        Variables.amtPlayedGames[game] = int(Variables.amtPlayedGames[game]) + 1
+        day = str(int(seconds // (24 * 3600)))
+        seconds = seconds % (24 * 3600)
+        hour = seconds // 3600
+        if hour < 10:
+            hour = "0" + str(int(hour))
+        else:
+            hour = str(int(hour))
+        seconds %= 3600
+        minutes = seconds // 60
+        if minutes < 10:
+            minutes = "0" + str(int(minutes))
+        else:
+            minutes = str(int(minutes))
+        seconds %= 60
+        if seconds < 10:
+            seconds = "0" + str(int(seconds))
+        else:
+            seconds = str(int(seconds))
+        if day == "0":
+            return "{0}:{1}:{2}".format(hour, minutes, seconds)
+        return "{0} days {1}:{2}:{3}".format(day, hour, minutes, seconds)
     except:
-        Variables.amtPlayedGames[game] = 1
+        return "00:00:00"

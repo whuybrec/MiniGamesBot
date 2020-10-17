@@ -6,7 +6,7 @@ TESTING = False
 
 
 if TESTING:  # for testing
-    bot = MiniGamesBot("!")
+    bot = MiniGamesBot("!", TESTING)
     bot.run(Private.TOKENTEST)
 else:
     bot = MiniGamesBot("?")

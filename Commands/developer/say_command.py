@@ -10,7 +10,7 @@ class SayCommand(DiscordCommand):
     category = "developer"
 
     @classmethod
-    async def handler(cls, context, *args: str, **kwargs):
+    async def handler(cls, context, *args: str):
         if context.message.author.id in Private.DEV_IDS.keys():
             await context.channel.send(context.message.content[len("?say "):])
             await context.message.delete()

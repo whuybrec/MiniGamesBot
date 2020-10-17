@@ -11,15 +11,12 @@ class BugCommand(DiscordCommand):
     category = "miscellaneous"
 
     @classmethod
-    async def handler(cls, context, *args: str, **kwargs):
+    async def handler(cls, context, *args: str):
         if not args:
             return
 
-        bug = args[0]
-        channel = cls.bot.get_channel(Private.USER_REPORTS_CHANNELID)
-        if bug is None:
-            await context.channel.send("Not allowed to send empty bug report, try: ?bug [your report here]")
-            return
+        bug = " ".join(args)
+        channel = cls.bot.get_channel(Private.BUGS_CHANNELID)
         try:
             picture = context.message.attachments[0].url
             await channel.send(picture)
@@ -29,4 +26,6 @@ class BugCommand(DiscordCommand):
                            + "id: " + str(context.author.id) + "\n"
                            + "guild: " + str(context.guild.id) + "\n"
                            + "channel: " + str(context.channel.id) + "\n")
+        channel = cls.bot.get_channel(Private.PUBLIC_BUGS_CHANNELID)
+        await channel.send(context.author.name + " reports: \"" + bug + "\"")
         await context.channel.send("Bug succesfully reported!")

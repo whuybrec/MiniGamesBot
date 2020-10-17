@@ -11,7 +11,7 @@ class TemperatureCommand(DiscordCommand):
     category = "developer"
 
     @classmethod
-    async def handler(cls, context, *args, **kwargs):
+    async def handler(cls, context, *args):
         if context.message.author.id in Private.DEV_IDS.keys():
             await context.channel.send(str(CPUTemperature().temperature) + "°C")
 

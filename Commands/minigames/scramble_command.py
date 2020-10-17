@@ -1,5 +1,6 @@
 from Other.variables import Variables
 from Commands.discord_command import DiscordCommand
+from Minigames.scramble import Scramble
 
 class ScrambleCommand(DiscordCommand):
     bot = None
@@ -10,6 +11,7 @@ class ScrambleCommand(DiscordCommand):
     category = "minigame"
 
     @classmethod
-    async def handler(cls, context, *args, **kwargs):
-        # CONNECTION CLASS
-        await cls.bot.game_manager.add_game(context, "scramble", context.author.id)
+    async def handler(cls, context, *args):
+        msg = await context.channel.send("Starting a game of Scramble...")
+        tmp = Scramble(cls.bot, "scramble", msg, context.author.id)
+        await tmp.start_game()
