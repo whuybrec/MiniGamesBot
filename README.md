@@ -48,11 +48,9 @@ Check requirements.txt for a list of all the packages that you need.
 pip install [package]
 ```
 
+## How to use?
 
-## Ignored files
-
-All private variables, such as discord token and IDs of my own channels and messages, are listed in class called Private in an ignored file private.py . You can replace those with your own IDs.  
-Other things that are in ignored are either files needed to update webhooks or that are not mine to make public.
+All private variables, such as discord bot token and IDs of my own channels and messages, are in private.py which is ignored by git. To get the bot up and running for yourself you'll need to fill in your bot's Discord token, your Discord ID and your bot's Discord ID in private.py .
 Files and folders you won't need: index.html, assets (for my github pages link)
 
  
