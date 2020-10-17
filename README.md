@@ -5,7 +5,7 @@ A Python Discord bot that has different kinds of minigames
 
 ## MiniGames
 
-All minigames are played by clicking on emojis or sending short messages, currently there are 8 minigames. All commands are displayed below.
+All minigames are played by clicking on emojis or sending short messages, currently there are 9 minigames. All commands are displayed below.
 
 ```
 ?scramble
@@ -22,20 +22,17 @@ All minigames are played by clicking on emojis or sending short messages, curren
 
 ?chess
 
+?checkers
+
 ?uno
 
 ?help
 
-?info
-
-?bug
-
-?request
 ```
 
 There are 5 categories in the quiz minigame: General knowledge, Sports, Video Games, Music, Films.
 
-Connect4 and chess take 1 argument, i.e. the second player to play with: ?connect4 [@player2] .
+Connect4, chess and checkers take 1 argument, i.e. the second player to play with: ?connect4 [@player2] .
 
 Uno can be played with at most 10 players, tag every player as argument, i.e. ?uno [@player1] ... [@player10]
 
