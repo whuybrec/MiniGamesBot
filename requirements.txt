@@ -1,9 +1,6 @@
-python-chess
 pillow
-aiohttp
-pydealer
-discord
-numpy
-gpiozero
-dblpy
-python-chess
+pydealer~=1.4.0
+discord~=1.0.1
+gpiozero~=1.5.1
+numpy~=1.19.1
+imparaai-checkers
