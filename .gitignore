@@ -1,5 +1,6 @@
 bin
 util/scheduler.py
+discordbot/private.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
