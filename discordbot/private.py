@@ -1,5 +1,5 @@
 DISCORD = {
-    "TOKEN": "NjExNTYwMTY4MDY4NDgxMDMw.XVVlyg.NtuPmYVnmha_F8mR9xdK2XPN1L0",
-    "DEVS": [246674799005401108],
-    "BOT_ID": 611560168068481030
+    "TOKEN": "YOUR DISCORD TOKEN HERE",
+    "DEVS": [11111],  # your discord ID here
+    "BOT_ID": 22222   # bot discord ID here
 }
