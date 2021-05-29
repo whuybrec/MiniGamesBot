@@ -69,6 +69,8 @@ class HelpCommand(Command):
                 await help_msg.edit(content=content)
                 await help_msg.remove_reaction(reaction.emoji, user)
             except asyncio.TimeoutError:
+                await help_msg.clear_reaction(ARROW_UP)
+                await help_msg.clear_reaction(ARROW_DOWN)
                 break
 
     @classmethod

@@ -13,6 +13,7 @@ class MiniGamesBot(Bot):
         self.categories = [
             Miscellaneous,
             Developer,
+            Minigame
         ]
         self.my_commands = [SayCommand, HelpCommand, DeleteCommand, ClearCommand, TemperatureCommand, ExecuteCommand,
                             RestartCommand, InfoCommand]
