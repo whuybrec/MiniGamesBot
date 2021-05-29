@@ -1,6 +1,5 @@
-pillow
-pydealer~=1.4.0
 discord~=1.0.1
+Pillow~=8.2.0
+numpy~=1.19.5
+pydealer~=1.4.0
 gpiozero~=1.5.1
-numpy~=1.19.1
-imparaai-checkers
