@@ -1,7 +1,8 @@
 import sys
-from discordbot.commands.command import Command
-from discordbot.private import DISCORD
+
 from discordbot.categories.developer import Developer
+from discordbot.commands.command import Command
+from discordbot.utils.private import DISCORD
 
 
 class RestartCommand(Command):

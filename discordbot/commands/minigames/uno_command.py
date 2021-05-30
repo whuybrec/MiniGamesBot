@@ -1,6 +1,7 @@
-from discordbot.variables import Variables
 from discordbot.commands.command import Command
-from games.Minigames.uno import Uno
+from discordbot.user.variables import Variables
+from minigames.Minigames.uno import Uno
+
 
 class UnoCommand(Command):
     bot = None

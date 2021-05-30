@@ -6,12 +6,14 @@
 #    [0, 0, 0, 0, 0, 0, 0]]
 #     0  1  2  3  4  5  6
 
-import random
-import copy
-import numpy
-from discordbot.variables import Variables
-from games.Minigames.multiplayer_minigame import MultiMiniGame
 import asyncio
+import copy
+import random
+
+import numpy
+
+from discordbot.user.variables import Variables
+from minigames.Minigames.multiplayer_minigame import MultiMiniGame
 
 coin = [1, 2]
 

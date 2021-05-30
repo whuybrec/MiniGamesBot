@@ -1,8 +1,10 @@
 import asyncio
+
 import discord
-from ..command import Command
+
 from discordbot.categories.miscellaneous import Miscellaneous
-from discordbot.emojis import *
+from discordbot.commands.command import Command
+from discordbot.utils.emojis import ARROW_UP, ARROW_DOWN
 
 
 class HelpCommand(Command):
@@ -45,7 +47,9 @@ class HelpCommand(Command):
     async def wait_for_reaction(cls, context, help_msg, page=0):
         while True:
             def check(r, u):
-                return u == context.message.author and (r.emoji == ARROW_DOWN or r.emoji == ARROW_UP)
+                return u == context.message.author \
+                       and (r.emoji == ARROW_DOWN or r.emoji == ARROW_UP) \
+                       and r.message.id == help_msg.id
             try:
                 reaction, user = await cls.bot.wait_for('reaction_add', timeout=60.0, check=check)
 

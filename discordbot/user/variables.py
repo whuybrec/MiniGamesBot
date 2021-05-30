@@ -1,25 +1,13 @@
-import random
-import json
+TIMEOUT = 60*5
+WIN = 0
+LOSE = 1
+DRAW = 2
 
 
 class Variables:
-    game_names = ["hangman", "connect4", "scramble", "guessword", "blackjack", "quiz", "uno", "chess"]
-    database_file = "bin/user_statistics.db"
-
-    EXTRA = "New MiniGame: CHESS! If you encounter any bugs/suggestions, " \
-            "let me know on my github page or use the bug command!\n"
-
-    TIMEOUT = 360
-    eng_dict = None
-    questions_dict = None
-    randwords = list()
-
-    games_names_short = ["hm", "c4", "sc", "gw", "bj", "qz", "uno", "chess"]
+    # database_file = "bin/user_statistics.db"
 
     quiz_categories = ["General Knowledge", "Sports", "Films", "Music", "Video Games"]
-
-    colors_uno = {"Blue": "🟦", "Green": "🟩", "Red": "🟥", "Yellow": "🟨"}
-    white = {"White": "⬜"}
 
     SPLIT_EMOJI = "↔️"
     INC_EMOJI1 = "⬆️"
@@ -29,87 +17,9 @@ class Variables:
     FORWARD_EMOJI = "▶️"
     REPEAT_EMOJI = "🔁"
     NEXT_EMOJI = "➡️"
-    DICT_ALFABET = {'a': '🇦', 'b': '🇧', 'c': '🇨', 'd': '🇩', 'e': '🇪', 'f': '🇫', 'g': '🇬', 'h': '🇭',
-                    'i': '🇮', 'j': '🇯',
-                    'k': '🇰', 'l': '🇱', 'm': '🇲', 'n': '🇳', 'o': '🇴', 'p': '🇵', 'q': '🇶', 'r': '🇷',
-                    's': '🇸', 't': '🇹',
-                    'u': '🇺', 'v': '🇻', 'w': '🇼', 'x': '🇽', 'y': '🇾', 'z': '🇿'}  # letter: emoji
+
     NUMBERS = ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣"]
     REACTIONS_CONNECT4 = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣"]
-
-    HANGMAN0 = ""
-
-    HANGMAN1 = "  |\n" \
-               "  |\n" \
-               "  |\n" \
-               "  |\n" \
-               " _|_ _ _"
-
-    HANGMAN2 = " _____\n" \
-               " |\n" \
-               " |\n" \
-               " |\n" \
-               " |\n" \
-               "_|_ _ _"
-
-    HANGMAN3 = " _____\n" \
-               " |/\n" \
-               " |\n" \
-               " |\n" \
-               " |\n" \
-               "_|_ _ _"
-
-    HANGMAN4 = " _____\n" \
-               " |/  |\n" \
-               " |\n" \
-               " |\n" \
-               " |\n" \
-               "_|_ _ _"
-
-    HANGMAN5 = " _____\n" \
-               " |/  |\n" \
-               " |   0\n" \
-               " |\n" \
-               " |\n" \
-               "_|_ _ _"
-
-    HANGMAN6 = " _____\n" \
-               " |/  |\n" \
-               " |   o\n" \
-               " |   |\n" \
-               " |\n" \
-               "_|_ _ _"
-
-    HANGMAN7 = " _____\n" \
-               " |/  |\n" \
-               " |   o\n" \
-               " |  /|\n" \
-               " |\n" \
-               "_|_ _ _"
-
-    HANGMAN8 = " _____\n" \
-               " |/  |\n" \
-               " |   o\n" \
-               " |  /|\ \n" \
-               " |\n" \
-               "_|_ _ _"
-
-    HANGMAN9 = " _____\n" \
-               " |/  |\n" \
-               " |   o\n" \
-               " |  /|\ \n" \
-               " |  /\n" \
-               "_|_ _ _"
-
-    HANGMAN10 = " _____\n" \
-                " |/  |\n" \
-                " |   o\n" \
-                " |  /|\ \n" \
-                " |  / \ \n" \
-                "_|_ _ _"
-
-    hangmen = [HANGMAN0, HANGMAN1, HANGMAN2, HANGMAN3, HANGMAN4,
-               HANGMAN5, HANGMAN6, HANGMAN7, HANGMAN8, HANGMAN9, HANGMAN10]
 
     BJRULES = "Ace is worth either 1 or 11 points.\n" \
               "Jack, Queen and King are worth 10 points.\n" \
@@ -166,52 +76,8 @@ class Variables:
 
 
 def on_startup():
-    json1_file = open('bin/dictionary.json')
-    json1_str = json1_file.read()
-    Variables.eng_dict = json.loads(json1_str)
-    json1_file.close()
-    json1_file = open('bin/questions.json')
-    json1_str = json1_file.read()
-    Variables.questions_dict = json.loads(json1_str)
-    json1_file.close()
-    json1_file = open('bin/prefixes.json')
+    # json1_file = open('bin/prefixes.json')
     # json1_str = json1_file.read()
     # Private.prefixes = json.loads(json1_str)
     # json1_file.close()
-    with open("bin/10k words.txt") as f:
-        Variables.randwords = f.readlines()
-    f.close()
-
-
-def get_random_word():
-    word = Variables.randwords[random.randint(0,1524)].rstrip()
-    while len(word) < 5:
-        word = Variables.randwords[random.randint(0, 1524)].rstrip()
-    return word
-
-
-def convert(seconds: int):
-    try:
-        day = str(int(seconds // (24 * 3600)))
-        seconds = seconds % (24 * 3600)
-        hour = seconds // 3600
-        if hour < 10:
-            hour = "0" + str(int(hour))
-        else:
-            hour = str(int(hour))
-        seconds %= 3600
-        minutes = seconds // 60
-        if minutes < 10:
-            minutes = "0" + str(int(minutes))
-        else:
-            minutes = str(int(minutes))
-        seconds %= 60
-        if seconds < 10:
-            seconds = "0" + str(int(seconds))
-        else:
-            seconds = str(int(seconds))
-        if day == "0":
-            return "{0}:{1}:{2}".format(hour, minutes, seconds)
-        return "{0} days {1}:{2}:{3}".format(day, hour, minutes, seconds)
-    except:
-        return "00:00:00"
+    pass

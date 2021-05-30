@@ -1,9 +1,9 @@
+from .developer.clear import ClearCommand
+from .developer.delete import DeleteCommand
+from .developer.restart import RestartCommand
+from .developer.say import SayCommand
+from .developer.temperature import TemperatureCommand
+from .developer.xec import ExecuteCommand
+from .minigames.hangman_cmd import HangmanCommand
 from .miscellaneous.help import HelpCommand
 from .miscellaneous.info import InfoCommand
-
-from .developer.say import SayCommand
-from .developer.delete import DeleteCommand
-from .developer.clear import ClearCommand
-from .developer.temperature import TemperatureCommand
-from .developer.exec import ExecuteCommand
-from .developer.restart import RestartCommand

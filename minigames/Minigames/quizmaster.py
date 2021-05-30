@@ -1,8 +1,9 @@
-from discordbot.variables import Variables
-from string import ascii_lowercase
-import random
 import html
-from games.Minigames.minigame import MiniGame
+import random
+from string import ascii_lowercase
+
+from discordbot.user.variables import Variables
+from minigames.Minigames.minigame import MiniGame
 
 
 class QuizMaster(MiniGame):

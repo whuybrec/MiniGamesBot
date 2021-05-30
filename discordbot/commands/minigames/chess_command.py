@@ -1,6 +1,7 @@
-from discordbot.variables import Variables
 from discordbot.commands.command import Command
-from games.Minigames.chess.chess import Chess
+from discordbot.user.variables import Variables
+from minigames.Minigames.chess.chess import Chess
+
 
 class ChessCommand(Command):
     bot = None

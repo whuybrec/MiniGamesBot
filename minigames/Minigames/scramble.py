@@ -1,6 +1,8 @@
-from discordbot.variables import Variables, get_random_word
 import random
-from games.Minigames.minigame import MiniGame
+
+from discordbot.user.variables import Variables, get_random_word
+from minigames.Minigames.minigame import MiniGame
+
 
 class Scramble(MiniGame):
     def __init__(self, bot, game_name, msg, player_id):

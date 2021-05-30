@@ -1,6 +1,7 @@
 import pydealer
-from discordbot.variables import Variables
-from games.Minigames.minigame import MiniGame
+
+from discordbot.user.variables import Variables
+from minigames.Minigames.minigame import MiniGame
 
 
 class BlackJack(MiniGame):

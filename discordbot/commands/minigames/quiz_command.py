@@ -1,6 +1,7 @@
-from discordbot.variables import Variables
 from discordbot.commands.command import Command
-from games.Minigames.quizmaster import QuizMaster
+from discordbot.user.variables import Variables
+from minigames.Minigames.quizmaster import QuizMaster
+
 
 class QuizCommand(Command):
     bot = None

@@ -1,12 +1,14 @@
 import asyncio
-import discord
-from games.Minigames.multiplayer_minigame import MultiMiniGame
-from games.Minigames.checkers.image_render import render
 import random
-from checkers.game import Game
 import re
-from discordbot.variables import Variables
 from string import ascii_lowercase
+
+import discord
+from checkers.game import Game
+
+from discordbot.user.variables import Variables
+from minigames.Minigames.checkers.image_render import render
+from minigames.Minigames.multiplayer_minigame import MultiMiniGame
 
 abs_rel_pos = {"01": 1, "03": 2, "05": 3, "07": 4, "10": 5, "12": 6, "14": 7, "16": 8, "21": 9, "23": 10, "25": 11,
                "27": 12, "30": 13, "32": 14, "34": 15, "36": 16, "41": 17, "43": 18, "45": 19, "47": 20, "50": 21,

@@ -1,6 +1,7 @@
-from discordbot.variables import Variables
 from discordbot.commands.command import Command
-from games.Minigames.checkers.checkers import Checkers
+from discordbot.user.variables import Variables
+from minigames.Minigames.checkers.checkers import Checkers
+
 
 class CheckersCommand(Command):
     bot = None

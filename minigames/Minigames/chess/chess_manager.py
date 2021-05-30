@@ -1,5 +1,7 @@
-from discordbot.variables import Variables
 from discord import Member
+
+from discordbot.user.variables import Variables
+
 
 class ChessManager:
     def __init__(self, bot):

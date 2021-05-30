@@ -1,6 +1,6 @@
-from discordbot.variables import Variables
 from discordbot.commands.command import Command
-from games.Minigames.connect4 import Connect4
+from discordbot.user.variables import Variables
+from minigames.Minigames.connect4 import Connect4
 
 
 class Connect4Command(Command):

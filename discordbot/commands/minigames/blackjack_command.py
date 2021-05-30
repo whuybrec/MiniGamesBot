@@ -1,6 +1,7 @@
-from discordbot.variables import Variables
 from discordbot.commands.command import Command
-from games.Minigames.blackjack import BlackJack
+from discordbot.user.variables import Variables
+from minigames.Minigames.blackjack import BlackJack
+
 
 class BlackjackCommand(Command):
     bot = None

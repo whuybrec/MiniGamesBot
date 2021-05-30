@@ -1,6 +1,7 @@
-from discordbot.variables import Variables
 from discordbot.commands.command import Command
-from games.Minigames.guessword import GuessWord
+from discordbot.user.variables import Variables
+from minigames.Minigames.guessword import GuessWord
+
 
 class GuesswordCommand(Command):
     bot = None

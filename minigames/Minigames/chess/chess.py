@@ -1,12 +1,14 @@
 import asyncio
-import discord
-from games.Minigames.multiplayer_minigame import MultiMiniGame
-from games.Minigames.chess.image_render import render
 import random
-import chess
-import chess.svg
 import re
-from discordbot.variables import Variables
+
+import chess.svg
+import discord
+
+import chess
+from discordbot.user.variables import Variables
+from minigames.Minigames.chess.image_render import render
+from minigames.Minigames.multiplayer_minigame import MultiMiniGame
 
 
 class Chess(MultiMiniGame):

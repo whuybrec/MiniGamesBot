@@ -1,6 +1,7 @@
-from discordbot.variables import Variables
 from discordbot.commands.command import Command
-from games.Minigames.scramble import Scramble
+from discordbot.user.variables import Variables
+from minigames.Minigames.scramble import Scramble
+
 
 class ScrambleCommand(Command):
     bot = None

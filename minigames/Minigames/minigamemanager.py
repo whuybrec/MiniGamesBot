@@ -1,12 +1,13 @@
-from games.Minigames.blackjack import BlackJack
-from games.Minigames.connect4 import Connect4
-from games.Minigames.guessword import GuessWord
-from games.Minigames.hangman import HangMan
-from games.Minigames.scramble import Scramble
-from games.Minigames.quizmaster import QuizMaster
-from games.Minigames.uno import Uno
-from games.Minigames.chess.chess import Chess
-from discordbot.variables import increment_game
+from minigames.Minigames.hangman import HangMan
+
+from discordbot.user.variables import increment_game
+from minigames.Minigames.blackjack import BlackJack
+from minigames.Minigames.chess.chess import Chess
+from minigames.Minigames.connect4 import Connect4
+from minigames.Minigames.guessword import GuessWord
+from minigames.Minigames.quizmaster import QuizMaster
+from minigames.Minigames.scramble import Scramble
+from minigames.Minigames.uno import Uno
 
 
 class MiniGameManager:

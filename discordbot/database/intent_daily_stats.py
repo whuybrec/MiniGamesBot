@@ -1,7 +1,8 @@
 import time
 
 from Database.database import DataBase
-from discordbot.variables import Variables
+
+from discordbot.user.variables import Variables
 
 
 class Intent_daily_stats:

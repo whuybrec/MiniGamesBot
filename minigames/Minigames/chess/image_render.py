@@ -1,6 +1,7 @@
-import os
-from PIL import Image
 import io
+import os
+
+from PIL import Image
 
 # 0 | b king
 # 1 | b queen

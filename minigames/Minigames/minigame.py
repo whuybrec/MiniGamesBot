@@ -2,7 +2,9 @@ import asyncio
 
 from Database.intent_daily_stats import Intent_daily_stats
 from Database.intent_master import Intent_master
-from discordbot.variables import Variables
+
+from discordbot.user.variables import Variables
+
 
 class MiniGame:
     def __init__(self, bot, game_name, msg, player_id):

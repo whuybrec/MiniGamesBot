@@ -28,8 +28,9 @@ from string import ascii_lowercase
 
 import discord
 
-from discordbot.variables import *
-from games.Minigames.multiplayer_minigame import MultiMiniGame
+from discordbot.user.variables import *
+from minigames.Minigames.multiplayer_minigame import MultiMiniGame
+
 
 class Card:
     def __init__(self, color, value):

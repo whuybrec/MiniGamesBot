@@ -1,4 +1,4 @@
-from .category import Category
+from discordbot.categories.category import Category
 
 
 class Miscellaneous(Category):

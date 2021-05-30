@@ -1,7 +1,9 @@
 import sqlite3
 from sqlite3 import Error
-from discordbot.variables import Variables
-from discordbot.private import Private
+
+from discordbot.user.variables import Variables
+from discordbot.utils.private import Private
+
 
 # DATABASE master ROW:
 # server_id | user_id | game_name |

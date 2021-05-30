@@ -1,5 +1,5 @@
-from .category import Category
-from discordbot.private import DISCORD
+from discordbot.categories.category import Category
+from discordbot.utils.private import DISCORD
 
 
 class Developer(Category):

@@ -1,8 +1,10 @@
-from discordbot.variables import get_random_word
-from string import ascii_lowercase
-from discordbot.variables import Variables
-from games.Minigames.minigame import MiniGame
 import re
+from string import ascii_lowercase
+
+from discordbot.user.variables import Variables
+from discordbot.user.variables import get_random_word
+from minigames.Minigames.minigame import MiniGame
+
 
 class GuessWord(MiniGame):
     def __init__(self, bot, game_name, msg, player_id):
