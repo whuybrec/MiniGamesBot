@@ -20,21 +20,22 @@ class HangmanDisc(MinigameDisc):
                 await self.session.message.add_reaction(ALPHABET[ascii_lowercase[i]])
             if i >= 13:
                 await self.session.message_extra.add_reaction(ALPHABET[ascii_lowercase[i]])
+            self.emojis.add(ALPHABET[ascii_lowercase[i]])
         await self.session.message_extra.add_reaction(STOP)
+        self.emojis.add(STOP)
 
         await self.wait_for_player()
 
     async def wait_for_player(self):
         while True:
             def check(r, u):
-                return u.id == self.session.context.author.id \
-                       and (r.emoji == STOP or r.emoji in ALPHABET.values()) \
-                       and (r.message.id in [self.session.message.id, self.session.message_extra.id])
+                return r.message.id in [self.session.message.id, self.session.message_extra.id] \
+                       and u.id != self.session.message.author.id
 
             try:
                 reaction, user = await self.session.bot.wait_for("reaction_add", check=check, timeout=TIMEOUT)
-                if reaction.emoji == STOP:
-                    self.status = LOSE
+                await self.validate(reaction, user)
+                if self.has_pressed_stop(reaction, user):
                     break
 
                 for letter, emoji in ALPHABET.items():
@@ -57,6 +58,7 @@ class HangmanDisc(MinigameDisc):
         await self.session.message.edit(content=self.get_content())
         await self.session.message.clear_reactions()
         await self.session.message_extra.clear_reactions()
+        self.emojis = set()
         if self.status == WIN:
             for v in self.session.stats_players.values():
                 v["wins"] += 1

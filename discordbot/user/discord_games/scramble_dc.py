@@ -19,26 +19,24 @@ class ScrambleDisc(MinigameDisc):
         await self.session.message.edit(content=self.get_content())
         await self.session.message.add_reaction(STOP)
         await self.session.message.add_reaction(ARROW_LEFT_2)
+        self.emojis.add(STOP)
+        self.emojis.add(ARROW_LEFT_2)
 
         for c in self.scramble_game.scrambled_word:
             await self.session.message.add_reaction(ALPHABET[c])
+            self.emojis.add(ALPHABET[c])
 
         await self.wait_for_player()
 
     async def wait_for_player(self):
         while True:
             def check(r, u):
-                for c, e in ALPHABET.items():
-                    if e == r.emoji and c in self.scramble_game.scrambled_word:
-                        return u.id == self.session.context.author.id and r.message.id == self.session.message.id
-                return u.id == self.session.context.author.id \
-                       and (r.emoji == STOP or r.emoji == ARROW_LEFT_2) \
-                       and r.message.id == self.session.message.id
+                return r.message.id == self.session.message.id and u.id != self.session.message.author.id
 
             try:
                 reaction, user = await self.session.bot.wait_for("reaction_add", check=check, timeout=TIMEOUT)
-                if reaction.emoji == STOP:
-                    self.status = LOSE
+                await self.validate(reaction, user)
+                if self.has_pressed_stop(reaction, user):
                     break
 
                 if reaction.emoji == ARROW_LEFT_2:
@@ -53,6 +51,7 @@ class ScrambleDisc(MinigameDisc):
                             self.scramble_game.guess(c)
                             if c not in self.scramble_game.scrambled_word:
                                 await self.session.message.clear_reaction(e)
+                                self.emojis.remove(e)
                             else:
                                 await self.session.message.remove_reaction(e, self.session.context.author)
                             break
@@ -69,6 +68,7 @@ class ScrambleDisc(MinigameDisc):
 
         await self.session.message.edit(content=self.get_content())
         await self.session.message.clear_reactions()
+        self.emojis = set()
         if self.status == WIN:
             for v in self.session.stats_players.values():
                 v["wins"] += 1

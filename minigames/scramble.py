@@ -33,8 +33,6 @@ class Scramble(Minigame):
         return c
 
     def has_won(self):
-        print("".join(self.word))
-        print("".join(self.current_word))
         return "".join(self.word) == "".join(self.current_word)
 
     def has_lost(self):
