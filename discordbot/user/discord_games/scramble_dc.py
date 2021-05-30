@@ -35,8 +35,11 @@ class ScrambleDisc(MinigameDisc):
 
             try:
                 reaction, user = await self.session.bot.wait_for("reaction_add", check=check, timeout=TIMEOUT)
-                await self.validate(reaction, user)
-                if self.has_pressed_stop(reaction, user):
+                result = await self.validate(reaction, user)
+                if not result:
+                    continue
+                if self.has_pressed_stop(reaction):
+                    self.status = LOSE
                     break
 
                 if reaction.emoji == ARROW_LEFT_2:
