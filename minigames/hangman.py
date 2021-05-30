@@ -31,9 +31,6 @@ class Hangman(Minigame):
     def has_drawn(self):
         pass  # can't draw in hangman
 
-    def get_board(self):
-        return self.current_word, HANGMEN[self.lives]
-
 
 HANGMAN0 = "_______"
 

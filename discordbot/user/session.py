@@ -4,7 +4,7 @@ import time
 from discord import Message
 from discord.ext.commands import Context
 
-from discordbot.gamemanager import GameManager
+from discordbot.user.gamemanager import GameManager
 
 
 class Session:
@@ -38,7 +38,8 @@ class Session:
 
     async def close(self):
         await self.message.clear_reactions()
-        await self.message_extra.clear_reactions()
+        if self.message_extra is not None:
+            await self.message_extra.clear_reactions()
         # save data to DB
 
     async def pause(self):

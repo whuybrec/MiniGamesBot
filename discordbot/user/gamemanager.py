@@ -1,14 +1,10 @@
 import asyncio
 
-from discordbot.user.hangman_dc import HangmanDisc
 from discordbot.utils.emojis import *
 
 
 class GameManager:
     bot = None
-    minigames = {
-        "hangman": HangmanDisc
-    }
 
     open_sessions = list()
     paused_sessions = list()

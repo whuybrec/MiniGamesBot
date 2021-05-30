@@ -1,10 +1,10 @@
 import asyncio
 from string import ascii_lowercase
 
-from discordbot.user.minigame_dc import MinigameDisc
+from discordbot.user.discord_games.minigame_dc import MinigameDisc
 from discordbot.user.variables import TIMEOUT, WIN, LOSE
 from discordbot.utils.emojis import ALPHABET, STOP
-from minigames import Hangman
+from minigames.hangman import Hangman, HANGMEN
 
 
 class HangmanDisc(MinigameDisc):
@@ -66,7 +66,8 @@ class HangmanDisc(MinigameDisc):
         await self.session.pause()
 
     def get_content(self):
-        word, hangman = self.hangman_game.get_board()
+        word = self.hangman_game.current_word
+        hangman = HANGMEN[self.hangman_game.lives]
         word_ = ""
         for c in word:
             if c == "_":

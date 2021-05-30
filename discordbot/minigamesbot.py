@@ -1,12 +1,13 @@
 from discord.ext.commands import Bot
 
 from commands import HelpCommand, SayCommand, DeleteCommand, ClearCommand, TemperatureCommand, ExecuteCommand, \
-    RestartCommand, InfoCommand, HangmanCommand
+    RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand
 from discordbot.categories.developer import Developer
 from discordbot.categories.minigames import Minigames
 from discordbot.categories.miscellaneous import Miscellaneous
-from discordbot.gamemanager import GameManager
+from discordbot.user.gamemanager import GameManager
 from discordbot.utils.private import DISCORD
+from discordbot.user.databasemanager import DataBaseManager
 from minigames.lexicon import Lexicon
 
 
@@ -20,11 +21,12 @@ class MiniGamesBot(Bot):
             Minigames
         ]
         self.my_commands = [SayCommand, HelpCommand, DeleteCommand, ClearCommand, TemperatureCommand, ExecuteCommand,
-                            RestartCommand, InfoCommand, HangmanCommand]
+                            RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand]
 
         self.load_commands()
 
         GameManager.on_startup(self)
+        DataBaseManager.on_startup()
         Lexicon.on_startup()
 
     async def on_message(self, message):
