@@ -1,4 +1,4 @@
-from discordbot.user.variables import WIN, LOSE
+from discordbot.user.variables import WIN, LOSE, DRAW
 
 
 class MinigameDisc:
@@ -17,6 +17,9 @@ class MinigameDisc:
         elif self.status == LOSE:
             for v in self.session.stats_players.values():
                 v["losses"] += 1
+        elif self.status == DRAW:
+            for v in self.session.stats_players.values():
+                v["draws"] += 1
         await self.session.pause()
 
     async def add_reaction(self, emoji, extra=False):

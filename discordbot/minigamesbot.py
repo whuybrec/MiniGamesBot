@@ -1,7 +1,7 @@
 from discord.ext.commands import Bot
 
 from commands import HelpCommand, SayCommand, DeleteCommand, ClearCommand, TemperatureCommand, ExecuteCommand, \
-    RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand, Connect4Command, QuizCommand
+    RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand, Connect4Command, QuizCommand, BlackjackCommand
 from discordbot.categories.developer import Developer
 from discordbot.categories.minigames import Minigames
 from discordbot.categories.miscellaneous import Miscellaneous
@@ -26,7 +26,7 @@ class MiniGamesBot(Bot):
         ]
         self.my_commands = [SayCommand, HelpCommand, DeleteCommand, ClearCommand, TemperatureCommand, ExecuteCommand,
                             RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand, Connect4Command,
-                            QuizCommand]
+                            QuizCommand, BlackjackCommand]
 
         self.load_commands()
 

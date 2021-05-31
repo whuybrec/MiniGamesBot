@@ -3,16 +3,11 @@ import random
 
 
 class Lexicon:
-    DICTIONARY = dict()
     QUESTIONS = dict()
     WORDS = []
 
     @classmethod
     def on_startup(cls):
-        f = open('../bin/dictionary.json')
-        cls.DICTIONARY = json.loads(f.read())
-        f.close()
-
         f = open('../bin/questions.json')
         cls.QUESTIONS = json.loads(f.read())
         f.close()
