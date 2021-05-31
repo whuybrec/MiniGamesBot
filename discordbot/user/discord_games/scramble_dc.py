@@ -69,16 +69,7 @@ class ScrambleDisc(MinigameDisc):
                 self.status = LOSE
                 break
 
-        await self.session.message.edit(content=self.get_content())
-        await self.session.message.clear_reactions()
-        self.emojis = set()
-        if self.status == WIN:
-            for v in self.session.stats_players.values():
-                v["wins"] += 1
-        else:
-            for v in self.session.stats_players.values():
-                v["losses"] += 1
-        await self.session.pause()
+        await self.end_game()
 
     def get_content(self):
         current_word = self.scramble_game.current_word

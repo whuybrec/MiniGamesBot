@@ -58,17 +58,8 @@ class HangmanDisc(MinigameDisc):
                 self.status = LOSE
                 break
 
-        await self.session.message.edit(content=self.get_content())
-        await self.session.message.clear_reactions()
         await self.session.message_extra.clear_reactions()
-        self.emojis = set()
-        if self.status == WIN:
-            for v in self.session.stats_players.values():
-                v["wins"] += 1
-        else:
-            for v in self.session.stats_players.values():
-                v["losses"] += 1
-        await self.session.pause()
+        await self.end_game()
 
     def get_content(self):
         word = self.hangman_game.current_word

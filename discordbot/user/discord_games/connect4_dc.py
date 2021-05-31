@@ -93,6 +93,9 @@ class Connect4Disc(MinigameDisc):
                 self.status = LOSE
                 break
 
+        await self.end_game()
+
+    async def end_game(self):
         await self.session.message.edit(content=self.get_content())
         await self.session.message.clear_reactions()
         self.emojis = set()
