@@ -14,65 +14,27 @@ class Connect4Disc(MinigameDisc):
         random.shuffle(self.player_ids)
 
     async def start(self):
-        if self.session.message_extra is not None:
-            await self.session.message_extra.delete()
-            self.session.message_extra = None
-
         await self.session.message.edit(content=self.get_content())
 
         for i in range(1, 8):
-            await self.session.message.add_reaction(NUMBERS[i])
-            self.emojis.add(NUMBERS[i])
-
-        await self.session.message.add_reaction(STOP)
-        self.emojis.add(STOP)
+            await self.add_reaction(NUMBERS[i])
+        await self.add_reaction(STOP)
 
         await self.wait_for_player()
 
-    def get_content(self):
-        board = self.connect4_game.get_board()
-        content = "Board:\n"
-        for i in range(1, 8):
-            content += NUMBERS[i]
-
-        content += "\n"
-        for i in range(len(board)):
-            for j in range(len(board[i])):
-                if board[i][j] == 0:
-                    content += ":red_circle:"
-                elif board[i][j] == 1:
-                    content += ":yellow_circle:"
-                else:
-                    content += ":black_circle:"
-            content += "\n"
-        if self.status == WIN:
-            content += f"\n<@{str(self.player_ids[self.connect4_game.turn])}> has won!"
-        elif self.status == LOSE:
-            content += f"\n<@{str(self.player_ids[self.connect4_game.turn])}> has lost!"
-        elif self.status == DRAW:
-            content += "\nGame ended in draw!"
-        else:
-            content += f"\nTurn: <@{str(self.player_ids[self.connect4_game.turn])}>"
-            if self.connect4_game.turn == 0:
-                content += " :red_circle:"
-            else:
-                content += " :yellow_circle:"
-        return content
-
     async def wait_for_player(self):
-        while True:
-            def check(r, u):
-                return r.message.id == self.session.message.id and u.id != self.session.message.author.id
+        def check(r, u):
+            return r.message.id == self.session.message.id \
+                   and reaction.emoji in self.emojis \
+                   and u.id == self.player_ids[self.connect4_game.turn]
 
-            try:
+        try:
+            while True:
                 reaction, user = await self.session.bot.wait_for("reaction_add", check=check, timeout=TIMEOUT)
-                result = await self.validate(reaction, user)
-                if not result:
-                    continue
-
-                if self.has_pressed_stop(reaction):
+                if reaction.emoji == STOP:
                     self.status = LOSE
                     break
+
                 for n, e in NUMBERS.items():
                     if e == reaction.emoji:
                         self.connect4_game.move(n-1)
@@ -89,9 +51,8 @@ class Connect4Disc(MinigameDisc):
 
                 await self.session.message.edit(content=self.get_content())
 
-            except asyncio.TimeoutError:
-                self.status = LOSE
-                break
+        except asyncio.TimeoutError:
+            self.status = LOSE
 
         await self.end_game()
 
@@ -124,5 +85,34 @@ class Connect4Disc(MinigameDisc):
         if user.id != self.player_ids[self.connect4_game.turn] and user.id != self.session.message.author.id:
             await self.session.message.remove_reaction(reaction.emoji, user)
             return False
-
         return True
+
+    def get_content(self):
+        board = self.connect4_game.get_board()
+        content = "Board:\n"
+        for i in range(1, 8):
+            content += NUMBERS[i]
+
+        content += "\n"
+        for i in range(len(board)):
+            for j in range(len(board[i])):
+                if board[i][j] == 0:
+                    content += ":red_circle:"
+                elif board[i][j] == 1:
+                    content += ":yellow_circle:"
+                else:
+                    content += ":black_circle:"
+            content += "\n"
+        if self.status == WIN:
+            content += f"\n<@{str(self.player_ids[self.connect4_game.turn])}> has won!"
+        elif self.status == LOSE:
+            content += f"\n<@{str(self.player_ids[self.connect4_game.turn])}> has lost!"
+        elif self.status == DRAW:
+            content += "\nGame ended in draw!"
+        else:
+            content += f"\nTurn: <@{str(self.player_ids[self.connect4_game.turn])}>"
+            if self.connect4_game.turn == 0:
+                content += " :red_circle:"
+            else:
+                content += " :yellow_circle:"
+        return content

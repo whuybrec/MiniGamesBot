@@ -12,40 +12,31 @@ class ScrambleDisc(MinigameDisc):
         self.scramble_game = Scramble()
 
     async def start(self):
-        if self.session.message_extra is not None:
-            await self.session.message_extra.delete()
-            self.session.message_extra = None
-
         await self.session.message.edit(content=self.get_content())
-        await self.session.message.add_reaction(STOP)
-        await self.session.message.add_reaction(ARROW_LEFT_2)
-        self.emojis.add(STOP)
-        self.emojis.add(ARROW_LEFT_2)
-
+        await self.add_reaction(STOP)
+        await self.add_reaction(ARROW_LEFT_2)
         for c in self.scramble_game.scrambled_word:
-            await self.session.message.add_reaction(ALPHABET[c])
-            self.emojis.add(ALPHABET[c])
+            await self.add_reaction(ALPHABET[c])
 
         await self.wait_for_player()
 
     async def wait_for_player(self):
-        while True:
-            def check(r, u):
-                return r.message.id == self.session.message.id and u.id != self.session.message.author.id
+        def check(r, u):
+            return r.message.id == self.session.message.id \
+                   and r.emoji in self.emojis \
+                   and u.id == self.session.context.author.id
 
-            try:
+        try:
+            while True:
                 reaction, user = await self.session.bot.wait_for("reaction_add", check=check, timeout=TIMEOUT)
-                result = await self.validate(reaction, user)
-                if not result:
-                    continue
-                if self.has_pressed_stop(reaction):
+                if reaction.emoji == STOP:
                     self.status = LOSE
                     break
 
-                if reaction.emoji == ARROW_LEFT_2:
+                elif reaction.emoji == ARROW_LEFT_2:
                     char = self.scramble_game.remove_last()
                     if char != "_":
-                        await self.session.message.add_reaction(ALPHABET[char])
+                        await self.add_reaction(ALPHABET[char])
                     await self.session.message.remove_reaction(reaction.emoji, self.session.context.author)
 
                 else:
@@ -53,8 +44,7 @@ class ScrambleDisc(MinigameDisc):
                         if e == reaction.emoji:
                             self.scramble_game.guess(c)
                             if c not in self.scramble_game.scrambled_word:
-                                await self.session.message.clear_reaction(e)
-                                self.emojis.remove(e)
+                                await self.clear_reaction(e)
                             else:
                                 await self.session.message.remove_reaction(e, self.session.context.author)
                             break
@@ -65,9 +55,8 @@ class ScrambleDisc(MinigameDisc):
 
                 await self.session.message.edit(content=self.get_content())
 
-            except asyncio.TimeoutError:
-                self.status = LOSE
-                break
+        except asyncio.TimeoutError:
+            self.status = LOSE
 
         await self.end_game()
 

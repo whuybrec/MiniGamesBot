@@ -21,42 +21,66 @@ class QuizDisc(MinigameDisc):
         self.categories = ["General Knowledge", "Sports", "Films", "Music", "Video Games"]
 
     async def start(self):
-        if self.session.message_extra is not None:
-            await self.session.message_extra.delete()
-            self.session.message_extra = None
-
         await self.session.message.edit(content=self.get_content())
 
         for i in range(1, len(self.categories)+1):
-            await self.session.message.add_reaction(NUMBERS[i])
-            self.emojis.add(NUMBERS[i])
-        await self.session.message.add_reaction(STOP)
-        self.emojis.add(STOP)
+            await self.add_reaction(NUMBERS[i])
+        await self.add_reaction(STOP)
 
         def check(r, u):
             return r.message.id == self.session.message.id \
-                   and u.id != self.session.message.author.id \
                    and r.emoji in self.emojis \
                    and u.id == self.session.context.author.id
 
         try:
             reaction, user = await self.session.bot.wait_for("reaction_add", check=check, timeout=TIMEOUT)
-            if self.has_pressed_stop(reaction):
-                self.status = LOSE
+            if reaction.emoji == STOP:
                 await self.end_game()
                 return
-            else:
-                for n, e in NUMBERS.items():
-                    if e == reaction.emoji:
-                        self.category = self.categories[n-1]
-                        break
+            for n, e in NUMBERS.items():
+                if e == reaction.emoji:
+                    self.category = self.categories[n-1]
+                    break
         except asyncio.TimeoutError:
             await self.end_game()
             return
+        await self.clear_reactions()
 
-        await self.session.message.clear_reactions()
-        self.emojis = set()
+        self.get_question()
+        await self.session.message.edit(content=self.get_content())
+        for i in range(len(self.answers)):
+            await self.add_reaction(ALPHABET[ascii_lowercase[i]])
+        await self.add_reaction(STOP)
 
+        await self.wait_for_player()
+
+    async def wait_for_player(self):
+        def check(r, u):
+            return r.message.id == self.session.message.id \
+                   and u.id != self.session.message.author.id \
+                   and u.id == self.session.context.author.id \
+                   and r.emoji in self.emojis
+
+        try:
+            reaction, user = await self.session.bot.wait_for("reaction_add", check=check, timeout=TIMEOUT)
+            if reaction.emoji == STOP:
+                self.status = LOSE
+            else:
+                for c, e in ALPHABET.items():
+                    if e == reaction.emoji:
+                        self.user_answer = ascii_lowercase.index(c)
+                        if self.user_answer == self.correct_answer:
+                            self.status = WIN
+                        else:
+                            self.status = LOSE
+                        break
+        except asyncio.TimeoutError:
+            self.status = LOSE
+
+        await self.session.message.edit(content=self.get_content())
+        await self.end_game()
+
+    def get_question(self):
         self.selecting_category = False
         questions = Lexicon.QUESTIONS[self.category]
         random.shuffle(questions)
@@ -65,43 +89,6 @@ class QuizDisc(MinigameDisc):
         self.answers = list(set(quiz['incorrect_answers']))
         self.correct_answer = random.randint(0, len(self.answers))
         self.answers.insert(self.correct_answer, quiz['correct_answer'])
-
-        await self.session.message.edit(content=self.get_content())
-        for i in range(len(self.answers)):
-            await self.session.message.add_reaction(ALPHABET[ascii_lowercase[i]])
-            self.emojis.add(ALPHABET[ascii_lowercase[i]])
-        await self.session.message.add_reaction(STOP)
-        self.emojis.add(STOP)
-
-        await self.wait_for_player()
-
-    async def wait_for_player(self):
-        while True:
-            def check(r, u):
-                return r.message.id == self.session.message.id \
-                       and u.id != self.session.message.author.id
-
-            try:
-                reaction, user = await self.session.bot.wait_for("reaction_add", check=check, timeout=TIMEOUT)
-                if await self.validate(reaction, user):
-                    if self.has_pressed_stop(reaction):
-                        self.status = LOSE
-                        break
-
-                    for c, e in ALPHABET.items():
-                        if e == reaction.emoji:
-                            self.user_answer = ascii_lowercase.index(c)
-                            if self.user_answer == self.correct_answer:
-                                self.status = WIN
-                            else:
-                                self.status = LOSE
-                            break
-                    break
-            except asyncio.TimeoutError:
-                self.status = LOSE
-
-        await self.session.message.edit(content=self.get_content())
-        await self.end_game()
 
     def get_content(self):
         content = "```"

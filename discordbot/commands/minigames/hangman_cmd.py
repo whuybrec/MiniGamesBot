@@ -17,5 +17,5 @@ class HangmanCommand(Command):
     async def handler(cls, context, *args):
         msg = await context.channel.send("Starting Hangman minigame")
 
-        session = Session(cls.bot, context, msg, HangmanDisc, [context.author])
+        session = Session(cls.bot, context, msg, HangmanDisc, [context.author], True)
         await GameManager.start_session(session)

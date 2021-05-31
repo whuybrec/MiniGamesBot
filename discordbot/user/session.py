@@ -8,12 +8,13 @@ from discordbot.user.gamemanager import GameManager
 
 
 class Session:
-    def __init__(self, bot, context: Context, message: Message, minigame_callback, players):
+    def __init__(self, bot, context: Context, message: Message, minigame_callback, players, extra=False):
         self.bot = bot
         self.context = context
         self.message = message
         self.minigame_callback = minigame_callback
         self.players = players
+        self.extra = extra
 
         self.start_time = 0
         self.session_time = 0
@@ -29,7 +30,7 @@ class Session:
 
     async def start(self):
         self.start_time = time.time()
-        if self.message_extra is None:
+        if self.extra and self.message_extra is None:
             self.message_extra = await self.message.channel.send("** **")
         await self.message.clear_reactions()
 
@@ -38,7 +39,7 @@ class Session:
 
     async def close(self):
         await self.message.clear_reactions()
-        if self.message_extra is not None:
+        if self.extra:
             await self.message_extra.clear_reactions()
         # save data to DB
 

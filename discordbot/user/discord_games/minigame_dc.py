@@ -1,5 +1,4 @@
 from discordbot.user.variables import WIN, LOSE
-from discordbot.utils.emojis import STOP
 
 
 class MinigameDisc:
@@ -7,22 +6,6 @@ class MinigameDisc:
         self.session = session
         self.status = -1
         self.emojis = set()
-
-    @staticmethod
-    def has_pressed_stop(reaction):
-        if reaction.emoji == STOP:
-            return True
-        return False
-
-    async def validate(self, reaction, user):
-        if reaction.emoji not in self.emojis:
-            await self.session.message.clear_reaction(reaction.emoji)
-            return False
-
-        if user.id != self.session.context.author.id and user.id != self.session.message.author.id:
-            await self.session.message.remove_reaction(reaction.emoji, user)
-            return False
-        return True
 
     async def end_game(self):
         await self.session.message.edit(content=self.get_content())
@@ -35,6 +18,34 @@ class MinigameDisc:
             for v in self.session.stats_players.values():
                 v["losses"] += 1
         await self.session.pause()
+
+    async def add_reaction(self, emoji, extra=False):
+        if not extra:
+            await self.session.message.add_reaction(emoji)
+        else:
+            await self.session.message_extra.add_reaction(emoji)
+        self.emojis.add(emoji)
+
+    async def remove_reaction(self, emoji, user, extra=False):
+        if not extra:
+            await self.session.message.remove_reaction(emoji, user)
+        else:
+            await self.session.message_extra.remove_reaction(emoji, user)
+        self.emojis.remove(emoji)
+
+    async def clear_reaction(self, emoji, extra=False):
+        if not extra:
+            await self.session.message.clear_reaction(emoji)
+        else:
+            await self.session.message_extra.clear_reaction(emoji)
+        self.emojis.remove(emoji)
+
+    async def clear_reactions(self, extra=False):
+        if not extra:
+            await self.session.message.clear_reactions()
+        else:
+            await self.session.message_extra.clear_reactions()
+        self.emojis = set()
 
     def get_content(self):
         pass
