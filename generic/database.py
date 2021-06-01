@@ -1,5 +1,5 @@
 """
-    database.py
+    database_old.py
         A wrapper around the sqlite3 python library.
 """
 
@@ -51,16 +51,18 @@ class Database:
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
 
-    def create_table(self, table: str, columns: list):
+    def create_table(self, table: str, columns: list, keys: list):
         """
         Function to create table in the database.
         :param table: The name of the new database's table.
         :param columns: The string of columns, comma-separated.
+        :param keys: The list with primary keys
         :return:
         """
 
         columns = ", ".join(columns)
-        query = "CREATE TABLE IF NOT EXISTS {0} ({1});".format(table, columns)
+        keys = ", ".join(keys)
+        query = "CREATE TABLE IF NOT EXISTS {0} ({1}, PRIMARY KEY ({2}));".format(table, columns, keys)
         self.cursor.execute(query)
         self.conn.commit()
 
@@ -84,8 +86,8 @@ class Database:
 
         where_clause = "WHERE "
         for key, value in where.items():
-            where_clause += f"{key}={value},"
-        where_clause = where_clause[:-1]
+            where_clause += f"{key}={value} AND "
+        where_clause = where_clause[:-5]
 
         columns = ", ".join(columns)
         if len(where) == 0:
@@ -133,23 +135,36 @@ class Database:
         with open(fname, 'a') as file:
             file.write(",".join([str(j) for i in data for j in i]))
 
-    def write(self, table, data):
+    def write(self, table, data, where=None):
         """
         Function to write data to the database.
         :param table: The name of the database's table to write to.
         :param data: The new data to insert, a dictionary with keys (as columns) and values
+        :param where: Dictionary to filter rows, keys are columns, values are database values.
         :return:
         """
 
-        columns = ""
-        values = ""
-        for column, value in data.items():
-            columns += f"{column}, "
-            values += f"{value}, "
-        columns = columns[:-2]
-        values = values[:-2]
+        if where is None:
+            columns = ""
+            values = ""
+            for column, value in data.items():
+                columns += f"{column}, "
+                values += f"{value}, "
+            columns = columns[:-2]
+            values = values[:-2]
 
-        query = "INSERT INTO {0} ({1}) VALUES ({2});".format(table, columns, values)
+            query = "INSERT INTO {0} ({1}) VALUES ({2});".format(table, columns, values)
+        else:
+            columns_clause = ""
+            for key, value in data.items():
+                columns_clause += f"{key} = {value}, "
+            columns_clause = columns_clause[:-2]
+
+            where_clause = ""
+            for key, value in where.items():
+                where_clause += f"{key}={value} AND "
+            where_clause = where_clause[:-5]
+            query = "UPDATE {0} SET {1} WHERE {2};".format(table, columns_clause, where_clause)
         self.cursor.execute(query)
         self.conn.commit()
 

@@ -14,8 +14,8 @@ class ScrambleCommand(Command):
     category = Minigames
 
     @classmethod
-    async def handler(cls, context, *args):
+    async def handler(cls, context):
         msg = await context.channel.send("Starting Scramble minigame")
 
-        session = Session(cls.bot, context, msg, ScrambleDisc, [context.author])
+        session = Session(cls.bot, context, msg, "scramble", ScrambleDisc, [context.author])
         await GameManager.start_session(session)

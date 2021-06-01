@@ -14,7 +14,7 @@ class Command:
         cls.bot.command(name=cls.name, brief=cls.brief, usage=cls.args)(cls.handler)
 
     @classmethod
-    async def handler(cls, context, *args):
+    async def handler(cls, context):
         pass
 
     @classmethod

@@ -14,8 +14,8 @@ class QuizCommand(Command):
     category = Minigames
 
     @classmethod
-    async def handler(cls, context, *args):
+    async def handler(cls, context):
         msg = await context.channel.send("Starting Quiz")
 
-        session = Session(cls.bot, context, msg, QuizDisc, [context.author])
+        session = Session(cls.bot, context, msg, "quiz", QuizDisc, [context.author])
         await GameManager.start_session(session)

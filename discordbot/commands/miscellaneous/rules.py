@@ -11,5 +11,5 @@ class RulesCommand(Command):
     category = Miscellaneous
 
     @classmethod
-    async def handler(cls, context, *args):
+    async def handler(cls, context):
         await context.message.channel.send("I NEED TO DO THIS")

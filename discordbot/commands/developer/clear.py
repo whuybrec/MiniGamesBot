@@ -12,9 +12,14 @@ class ClearCommand(Command):
     category = Developer
 
     @classmethod
-    async def handler(cls, context, *args: int):
-        if cls.has_permission(context.message.author.id):
-            await context.channel.purge(limit=args[0])
+    async def handler(cls, context):
+        args = context.message.content[len(cls.bot.prefix)+len(cls.name)+1:]
+        try:
+            if cls.has_permission(context.message.author.id):
+                await context.channel.purge(limit=int(args))
+        except Exception as e:
+            print(e)
+            await context.channel.send("Yeeeah you fucked up mate.")
 
     @classmethod
     def has_permission(cls, user_id):

@@ -14,8 +14,8 @@ class BlackjackCommand(Command):
     category = Minigames
 
     @classmethod
-    async def handler(cls, context, *args):
+    async def handler(cls, context):
         msg = await context.channel.send("Starting blackjack minigame")
 
-        session = Session(cls.bot, context, msg, BlackjackDisc, [context.author])
+        session = Session(cls.bot, context, msg, "blackjack", BlackjackDisc, [context.author])
         await GameManager.start_session(session)

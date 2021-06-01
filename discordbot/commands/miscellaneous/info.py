@@ -11,7 +11,7 @@ class InfoCommand(Command):
     category = Miscellaneous
 
     @classmethod
-    async def handler(cls, context, *args):
+    async def handler(cls, context):
         text = "Thanks for using MiniGamesBot! :)\n"
         text += "- If you notice any bugs or have any suggestions, then join my server to let me know!\n"
         text += "- Don't forget to give the bot permissions to manage reactions and messages.\n"

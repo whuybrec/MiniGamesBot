@@ -4,6 +4,7 @@ from .developer.restart import RestartCommand
 from .developer.say import SayCommand
 from .developer.temperature import TemperatureCommand
 from .developer.xec import ExecuteCommand
+from .developer.db import DbCommand
 from .minigames.hangman_cmd import HangmanCommand
 from .minigames.scramble_cmd import ScrambleCommand
 from .minigames.connect4_cmd import Connect4Command
@@ -12,3 +13,4 @@ from .minigames.blackjack_cmd import BlackjackCommand
 from .miscellaneous.help import HelpCommand
 from .miscellaneous.info import InfoCommand
 from .miscellaneous.rules import RulesCommand
+from .miscellaneous.stats import StatsCommand

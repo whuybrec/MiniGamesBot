@@ -1,4 +1,4 @@
-bin
+bin/minigames.db
 generic/scheduler.py
 discordbot/utils/private.py
 

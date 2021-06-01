@@ -12,11 +12,10 @@ class SayCommand(Command):
     category = Developer
 
     @classmethod
-    async def handler(cls, context, *args: str):
+    async def handler(cls, context):
+        args = context.message.content[len(cls.bot.prefix)+len(cls.name)+1:]
         if cls.has_permission(context.message.author.id):
-            content = context.message.content.split(" ")
-            content = " ".join(content[1:])
-            await context.channel.send(content)
+            await context.channel.send(args)
             await context.message.delete()
 
     @classmethod

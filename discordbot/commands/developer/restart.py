@@ -14,7 +14,7 @@ class RestartCommand(Command):
     category: str = Developer
 
     @classmethod
-    async def handler(cls, context, *args: str):
+    async def handler(cls, context):
         if not cls.has_permission(context.message.author.id):
             return
         await context.message.channel.send(f"Be right back!\n")

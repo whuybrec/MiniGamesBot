@@ -16,9 +16,10 @@ class HelpCommand(Command):
     category = Miscellaneous
 
     @classmethod
-    async def handler(cls, context, *args):
+    async def handler(cls, context):
         # check if user asked help for specific command
-        if args:
+        args = context.message.content[len(cls.bot.prefix)+len(cls.name)+1:].split(" ")
+        if len(args) == 0:
             await cls.extended_help(context, args[0])
             return
 

@@ -14,7 +14,7 @@ class TemperatureCommand(Command):
     category = Developer
 
     @classmethod
-    async def handler(cls, context, *args):
+    async def handler(cls, context):
         if cls.has_permission(context.message.author.id):
             await context.channel.send(str(CPUTemperature().temperature) + "°C")
 

@@ -17,13 +17,13 @@ class ExecuteCommand(Command):
     category: str = Developer
 
     @classmethod
-    async def handler(cls, context, *args: str):
+    async def handler(cls, context):
         if not cls.has_permission(context.message.author.id):
             return
 
-        global ctx, bot
-        ctx = context
+        global bot, ctx
         bot = cls.bot
+        ctx = context
 
         lines = context.message.content[len(cls.bot.prefix + cls.name)+1:].split("\n")
         func = ["async def get():",

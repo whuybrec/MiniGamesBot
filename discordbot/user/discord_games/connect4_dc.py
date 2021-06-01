@@ -25,7 +25,7 @@ class Connect4Disc(MinigameDisc):
     async def wait_for_player(self):
         def check(r, u):
             return r.message.id == self.session.message.id \
-                   and reaction.emoji in self.emojis \
+                   and r.emoji in self.emojis \
                    and u.id == self.player_ids[self.connect4_game.turn]
 
         try:

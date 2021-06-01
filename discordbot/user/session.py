@@ -8,14 +8,16 @@ from discordbot.user.gamemanager import GameManager
 
 
 class Session:
-    def __init__(self, bot, context: Context, message: Message, minigame_callback, players, extra=False):
+    def __init__(self, bot, context: Context, message: Message, minigame_name, minigame_callback, players, extra=False):
         self.bot = bot
         self.context = context
         self.message = message
+        self.minigame_name = minigame_name
         self.minigame_callback = minigame_callback
         self.players = players
         self.extra = extra
 
+        self.amount = 0
         self.start_time = 0
         self.session_time = 0
         self.minigame = None
@@ -29,6 +31,7 @@ class Session:
             }
 
     async def start(self):
+        self.amount += 1
         self.start_time = time.time()
         if self.extra and self.message_extra is None:
             self.message_extra = await self.message.channel.send("** **")
@@ -40,11 +43,35 @@ class Session:
     async def close(self):
         await self.message.clear_reactions()
         if self.extra:
-            await self.message_extra.clear_reactions()
+            await self.message_extra.delete()
+
         # save data to DB
+        wins = losses = draws = 0
+        for pid, stats in self.stats_players.items():
+            wins += stats["wins"]
+            losses += stats["losses"]
+            draws += stats["draws"]
+            self.bot.db.add_to_players_table(
+                pid,
+                f"\"{self.minigame_name}\"",
+                self.amount,
+                stats["wins"],
+                stats["losses"],
+                stats["draws"],
+                self.session_time
+            )
+        self.bot.db.add_to_minigames_table(
+            self.context.guild.id,
+            f"\"{self.minigame_name}\"",
+            self.amount,
+            wins,
+            losses,
+            draws,
+            self.session_time
+        )
 
     async def pause(self):
-        self.session_time += time.time() - self.start_time
+        self.session_time += round(time.time() - self.start_time)
         self.start_time = 0
 
         await GameManager.pause_session(self)
@@ -59,5 +86,5 @@ class Session:
                        f"{str(res['wins']).rjust(5)}" \
                        f"{str(res['losses']).rjust(7)}" \
                        f"{str(res['draws']).rjust(6)}\n"
-        summary += f"\nSession Time: {datetime.timedelta(seconds=round(self.session_time))}```"
+        summary += f"\nSession Time: {datetime.timedelta(seconds=self.session_time)}```"
         return summary
