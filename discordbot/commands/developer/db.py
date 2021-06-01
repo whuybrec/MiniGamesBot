@@ -3,6 +3,7 @@ import datetime
 from discordbot.categories.developer import Developer
 from discordbot.commands.command import Command
 from discordbot.utils.private import DISCORD
+from generic.formatting import creat_table
 
 
 class DbCommand(Command):
@@ -17,12 +18,18 @@ class DbCommand(Command):
     async def handler(cls, context):
         args = context.message.content[len(cls.bot.prefix)+len(cls.name)+1:]
         if cls.has_permission(context.message.author.id):
-            if len(args) == 0 or "daily" in args:
-                await context.channel.send(cls.get_daily_stats())
-            elif "monthly" in args:
-                await context.channel.send(cls.get_monthly_stats())
+            if "monthly" in args:
+                dict_ = cls.get_monthly_stats()
             elif "yearly" in args:
-                await context.channel.send(cls.get_yearly_stats())
+                dict_ = cls.get_yearly_stats()
+            else:
+                dict_ = cls.get_daily_stats()
+            content = "```\n"
+            lists = [["Game", "W", "L", "D", "Total", "Time"], *cls.get_lists_of_dict(dict_)]
+            table = creat_table(*lists)
+            content += table
+            content += "\n```"
+            await context.channel.send(content)
 
     @classmethod
     def has_permission(cls, user_id):
@@ -40,7 +47,7 @@ class DbCommand(Command):
                     and date_.year == datetime.date.today().year \
                     and date_.day == datetime.date.today().day:
                 daily = cls.aggregate_dicts(daily, row)
-        return cls.format_content(daily)
+        return daily
 
     @classmethod
     def get_monthly_stats(cls):
@@ -50,7 +57,7 @@ class DbCommand(Command):
             date_ = datetime.datetime.strptime(row["date"], "%Y-%m-%d")
             if date_.month == datetime.date.today().month and date_.year == datetime.date.today().year:
                 monthly = cls.aggregate_dicts(monthly, row)
-        return cls.format_content(monthly)
+        return monthly
 
     @classmethod
     def get_yearly_stats(cls):
@@ -60,7 +67,7 @@ class DbCommand(Command):
             date_ = datetime.datetime.strptime(row["date"], "%Y-%m-%d")
             if date_.year == datetime.date.today().year:
                 yearly = cls.aggregate_dicts(yearly, row)
-        return cls.format_content(yearly)
+        return yearly
 
     @classmethod
     def aggregate_dicts(cls, dict_, row):
@@ -80,15 +87,10 @@ class DbCommand(Command):
         return dict_
 
     @classmethod
-    def format_content(cls, dict_):
-        content = "```\n" \
-                  + "Game".ljust(10) + "W".rjust(4) + "L".rjust(4) + "D".rjust(4) + "Total".rjust(7) + "Time".rjust(9) + "\n"
+    def get_lists_of_dict(cls, dict_):
+        lists = []
         for key, value in dict_.items():
-            content += key.ljust(10) \
-                       + str(value['wins']).rjust(4) \
-                       + str(value['losses']).rjust(4) \
-                       + str(value['draws']).rjust(4) \
-                       + str(value['total_games']).rjust(7) \
-                       + str(datetime.timedelta(seconds=value['time_played'])).rjust(9) + "\n"
-        content += "```"
-        return content
+            lst = [key, value['wins'], value['losses'], value['draws'], value['total_games'],
+                   datetime.timedelta(seconds=value['time_played'])]
+            lists.append(lst)
+        return lists

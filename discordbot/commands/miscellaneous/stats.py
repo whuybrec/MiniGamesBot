@@ -2,6 +2,7 @@ import re
 
 from discordbot.categories.miscellaneous import Miscellaneous
 from discordbot.commands.command import Command
+from generic.formatting import creat_table
 import datetime
 
 
@@ -22,19 +23,19 @@ class StatsCommand(Command):
             player = await cls.bot.fetch_user(int(re.findall(r'\d+', args)[0]))
 
         stats = cls.bot.db.get_stats_for_player(player.id)
-        daily = cls.get_day_stats(stats)
-        monthly = cls.get_month_stats(stats)
-        yearly = cls.get_year_stats(stats)
-        content = f"```\n{player.name}\n\n"
-        content += "Period".ljust(8) + "Game".ljust(10) + "W".rjust(4) + "L".rjust(4) + "D".rjust(4) + "Total".rjust(7) + "Time".rjust(9) + "\n"
-        content += f"Today\n"
-        content += cls.format_content(daily)
-        content += f"\nMonth\n"
-        content += cls.format_content(monthly)
-        content += f"\nYear\n"
-        content += cls.format_content(yearly)
-        content += "\n```"
 
+        content = f"```\n{player.name}\n\n"
+        lists = [["Period", "Game", "W", "L", "D", "Total", "Time"],
+                 ["Today", "", "", "", "", "", ""],
+                 *cls.get_lists_of_dict(cls.get_day_stats(stats)),
+                 ["Month", "", "", "", "", "", ""],
+                 *cls.get_lists_of_dict(cls.get_month_stats(stats)),
+                 ["Year", "", "", "", "", "", ""],
+                 *cls.get_lists_of_dict(cls.get_year_stats(stats))
+                 ]
+        table = creat_table(*lists)
+        content += table
+        content += "\n```"
         await context.channel.send(content)
 
     @classmethod
@@ -84,14 +85,9 @@ class StatsCommand(Command):
         return dict_
 
     @classmethod
-    def format_content(cls, dict_):
-        content = ""
+    def get_lists_of_dict(cls, dict_):
+        lists = []
         for key, value in dict_.items():
-            content += "".ljust(8) \
-                       + key.ljust(10) \
-                       + str(value['wins']).rjust(4) \
-                       + str(value['losses']).rjust(4) \
-                       + str(value['draws']).rjust(4) \
-                       + str(value['total_games']).rjust(7) \
-                       + str(datetime.timedelta(seconds=value['time_played'])).rjust(9) + "\n"
-        return content
+            lst = ["", key, value['wins'], value['losses'], value['draws'], value['total_games'], datetime.timedelta(seconds=value['time_played'])]
+            lists.append(lst)
+        return lists
