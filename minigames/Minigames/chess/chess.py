@@ -4,11 +4,11 @@ import re
 
 import chess.svg
 import discord
+from minigames.Minigames.multiplayer_minigame import MultiMiniGame
 
 import chess
 from discordbot.user.variables import Variables
 from minigames.Minigames.chess.image_render import render
-from minigames.Minigames.multiplayer_minigame import MultiMiniGame
 
 
 class Chess(MultiMiniGame):

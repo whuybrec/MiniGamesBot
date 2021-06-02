@@ -1,6 +1,5 @@
 import asyncio
 import json
-import sys
 import time
 import traceback
 from zipfile import ZipFile
@@ -9,12 +8,14 @@ import discord
 from discord.ext.commands import Bot, CommandNotFound, Cog
 from discord.utils import find
 
-from discordbot.commands import HelpCommand, SayCommand, DeleteCommand, ClearCommand, TemperatureCommand, ExecuteCommand, \
-    RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand, Connect4Command, QuizCommand, BlackjackCommand, \
-    DbCommand, StatsCommand, SetPrefixCommand, BugCommand
 from discordbot.categories.developer import Developer
 from discordbot.categories.minigames import Minigames
 from discordbot.categories.miscellaneous import Miscellaneous
+from discordbot.commands import HelpCommand, SayCommand, DeleteCommand, ClearCommand, TemperatureCommand, \
+    ExecuteCommand, \
+    RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand, Connect4Command, QuizCommand, \
+    BlackjackCommand, \
+    DbCommand, StatsCommand, SetPrefixCommand, BugCommand
 from discordbot.user.gamemanager import GameManager
 from discordbot.user.minigamesdb import MinigamesDB
 from discordbot.utils.private import DISCORD

@@ -1,5 +1,6 @@
 import asyncio
 import random
+
 from discordbot.user.discord_games.minigame_dc import MinigameDisc
 from discordbot.user.variables import LOSE, WIN, DRAW, TIMEOUT
 from discordbot.utils.emojis import NUMBERS, STOP

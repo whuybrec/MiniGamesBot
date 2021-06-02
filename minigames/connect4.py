@@ -1,6 +1,8 @@
 import copy
 import random
+
 import numpy
+
 
 # p1 = 0
 # p2 = 1
