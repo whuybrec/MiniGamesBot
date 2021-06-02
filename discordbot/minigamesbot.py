@@ -1,9 +1,12 @@
 import asyncio
 import json
+import sys
+import time
+import traceback
 from zipfile import ZipFile
 
 import discord
-from discord.ext.commands import Bot
+from discord.ext.commands import Bot, CommandNotFound, Cog
 from discord.utils import find
 
 from discordbot.commands import HelpCommand, SayCommand, DeleteCommand, ClearCommand, TemperatureCommand, ExecuteCommand, \
@@ -20,8 +23,6 @@ from minigames.lexicon import Lexicon
 
 # TODO: edit readme to remove scheduler things
 # TODO: UPDATE PRIVATE.PY
-# TODO: custom send?
-# TODO: on_errors
 # TODO: minigames: checkers, uno, chess
 
 PREFIXES_FILE = "bin/server_prefixes.json"
@@ -101,12 +102,32 @@ class MiniGamesBot(Bot):
         for command in self.my_commands:
             command.add_command(self)
 
-    async def send(self, msg, channel_id=None):
+    async def send(self, content, channel_id=None):
+        max_length = 1900
+        message_length = len(content)
+        j = 0
+        formatted = False
+        if content.startswith("```"):
+            content = content[3:-3]
+            formatted = True
+
         if channel_id is not None:
-            channel = self.fetch_channel(channel_id)
-            await channel.send(msg)
+            channel = await self.fetch_channel(channel_id)
         else:
-            await self.ctx.send(msg)
+            channel = self.ctx.channel
+
+        while max_length < message_length:
+            if formatted:
+                await channel.send("```\n" + content[j * max_length:(j + 1) * max_length] + "```\n")
+            else:
+                await channel.send(content[j * max_length:(j + 1) * max_length])
+            message_length -= max_length
+            j += 1
+
+        if formatted:
+            await channel.send("```\n" + content[j * max_length:] + "```\n")
+        else:
+            await channel.send(content[j * max_length:])
 
     async def routine_updates(self):
         while True:
@@ -124,3 +145,35 @@ class MiniGamesBot(Bot):
             zip_f.write(PREFIXES_FILE)
         channel = await self.fetch_channel(DISCORD["STACK_CHANNEL"])
         await channel.send(file=discord.File("bin/prefixes_backup.zip"))
+
+    async def on_error(self, event_method, *args, **kwargs):
+        text = "Time: {0}\n\n" \
+               "Ignoring exception in command {1}:\n\n" \
+               "args: {2}\n\n" \
+               "kwargs: {3}\n\n" \
+               "e: {4}\n\n"\
+            .format(time.strftime("%b %d %Y %H:%M:%S"), event_method, args, kwargs, traceback.format_exc())
+        channel = self.get_channel(DISCORD["ERROR_CHANNEL"])
+        await self.send("```"+text+"```", channel.id)
+
+    async def on_command_error(self, context, exception):
+        if isinstance(exception, CommandNotFound):
+            return
+        if self.extra_events.get('on_command_error', None):
+            return
+        if hasattr(context.command, 'on_error'):
+            return
+
+        cog = context.cog
+        if cog and Cog._get_overridden_method(cog.cog_command_error) is not None:
+            return
+
+        text = "Time: {0}\n\n" \
+               "Ignoring exception in command {1}:\n\n" \
+               "Exception: {2}\n\n" \
+            .format(time.strftime("%b %d %Y %H:%M:%S"), context.command, exception)
+        channel = self.get_channel(DISCORD["ERROR_CHANNEL"])
+        await self.send("```"+text+"```", channel.id)
+        result = traceback.format_exception(type(exception), exception, exception.__traceback__)
+        result = "".join(result)
+        await self.send("```"+result+"```", channel.id)
