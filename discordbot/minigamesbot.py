@@ -8,7 +8,7 @@ from discord.utils import find
 
 from discordbot.commands import HelpCommand, SayCommand, DeleteCommand, ClearCommand, TemperatureCommand, ExecuteCommand, \
     RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand, Connect4Command, QuizCommand, BlackjackCommand, \
-    DbCommand, StatsCommand, SetPrefixCommand
+    DbCommand, StatsCommand, SetPrefixCommand, BugCommand
 from discordbot.categories.developer import Developer
 from discordbot.categories.minigames import Minigames
 from discordbot.categories.miscellaneous import Miscellaneous
@@ -20,11 +20,9 @@ from minigames.lexicon import Lexicon
 
 # TODO: edit readme to remove scheduler things
 # TODO: UPDATE PRIVATE.PY
-# TODO: custom prefixes
 # TODO: custom send?
 # TODO: on_errors
 # TODO: minigames: checkers, uno, chess
-# TODO: bug reports
 
 PREFIXES_FILE = "bin/server_prefixes.json"
 
@@ -47,7 +45,7 @@ class MiniGamesBot(Bot):
         ]
         self.my_commands = [SayCommand, HelpCommand, DeleteCommand, ClearCommand, TemperatureCommand, ExecuteCommand,
                             RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand, Connect4Command,
-                            QuizCommand, BlackjackCommand, DbCommand, StatsCommand, SetPrefixCommand]
+                            QuizCommand, BlackjackCommand, DbCommand, StatsCommand, SetPrefixCommand, BugCommand]
         self.load_commands()
 
         # load managers

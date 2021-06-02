@@ -15,3 +15,4 @@ from .miscellaneous.info import InfoCommand
 from .miscellaneous.rules import RulesCommand
 from .miscellaneous.stats import StatsCommand
 from .miscellaneous.set_prefix import SetPrefixCommand
+from .miscellaneous.bug_report import BugCommand
