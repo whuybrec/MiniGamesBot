@@ -13,7 +13,7 @@ class DeleteCommand(Command):
 
     @classmethod
     async def handler(cls, context):
-        args = context.message.content[len(cls.bot.prefix)+len(cls.name)+1:]
+        args = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:]
 
         if cls.has_permission(context.message.author.id):
             msg = await context.message.channel.fetch_message(int(args))

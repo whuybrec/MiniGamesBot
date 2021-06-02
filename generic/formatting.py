@@ -1,5 +1,5 @@
 
-def creat_table(*lists):
+def create_table(*lists):
     PADDING = 2
     column_sizes = [0 for e in lists[0]]
     for i in range(len(lists)):

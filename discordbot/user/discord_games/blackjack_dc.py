@@ -23,7 +23,7 @@ class BlackjackDisc(MinigameDisc):
         def check(r, u):
             return r.message.id == self.session.message.id \
                    and u.id != self.session.message.author.id \
-                   and u.id == self.session.context.author.id \
+                   and u.id == self.session.message.author.id \
                    and r.emoji in self.emojis
 
         try:

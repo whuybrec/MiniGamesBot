@@ -177,6 +177,9 @@ class Database:
 
         self.cursor.execute(sql)
 
+        # fetch data
+        return self.cursor.fetchall()
+
     @staticmethod
     def summary(rows):
         """

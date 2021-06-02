@@ -24,7 +24,7 @@ class ScrambleDisc(MinigameDisc):
         def check(r, u):
             return r.message.id == self.session.message.id \
                    and r.emoji in self.emojis \
-                   and u.id == self.session.context.author.id
+                   and u.id == self.session.message.author.id
 
         try:
             while True:
@@ -37,7 +37,7 @@ class ScrambleDisc(MinigameDisc):
                     char = self.scramble_game.remove_last()
                     if char != "_":
                         await self.add_reaction(ALPHABET[char])
-                    await self.session.message.remove_reaction(reaction.emoji, self.session.context.author)
+                    await self.session.message.remove_reaction(reaction.emoji, self.session.message.author)
 
                 else:
                     for c, e in ALPHABET.items():
@@ -46,7 +46,7 @@ class ScrambleDisc(MinigameDisc):
                             if c not in self.scramble_game.scrambled_word:
                                 await self.clear_reaction(e)
                             else:
-                                await self.session.message.remove_reaction(e, self.session.context.author)
+                                await self.session.message.remove_reaction(e, self.session.message.author)
                             break
 
                 if self.scramble_game.has_won():

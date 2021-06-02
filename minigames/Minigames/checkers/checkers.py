@@ -129,6 +129,6 @@ class Checkers(MultiMiniGame):
 
     async def await_reaction(self):
         reaction, user = await self.bot.wait_for("reaction_add", check=lambda r, u: u.id in self._players.values() and
-                                                                              r.message.id == self.board_msg.id and
-                                                              r.emoji == Variables.STOP_EMOJI)
+                                                                                    r.message.id == self.board_msg.id and
+                                                                                    r.emoji == Variables.STOP_EMOJI)
         return reaction, user

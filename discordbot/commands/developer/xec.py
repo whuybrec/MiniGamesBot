@@ -25,7 +25,7 @@ class ExecuteCommand(Command):
         bot = cls.bot
         ctx = context
 
-        lines = context.message.content[len(cls.bot.prefix + cls.name)+1:].split("\n")
+        lines = context.message.content[len(cls.bot.prefix + cls.name) + 1:].split("\n")
         func = ["async def get():",
                 "    try:",
                 "        global returnv",

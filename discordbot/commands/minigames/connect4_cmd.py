@@ -15,7 +15,7 @@ class Connect4Command(Command):
 
     @classmethod
     async def handler(cls, context):
-        args = context.message.content[len(cls.bot.prefix)+len(cls.name)+1:]
+        args = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:]
         if len(args) == 0:
             await context.channel.send("You need to tag a second player to play with.")
             return

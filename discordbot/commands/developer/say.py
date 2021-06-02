@@ -13,7 +13,7 @@ class SayCommand(Command):
 
     @classmethod
     async def handler(cls, context):
-        args = context.message.content[len(cls.bot.prefix)+len(cls.name)+1:]
+        args = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:]
         if cls.has_permission(context.message.author.id):
             await context.channel.send(args)
             await context.message.delete()
