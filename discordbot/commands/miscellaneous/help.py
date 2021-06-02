@@ -12,7 +12,7 @@ class HelpCommand(Command):
     name = "help"
     help = "Displays the help message with a list of all commands."
     brief = "Gives this message."
-    args = ""
+    args = "*command*"
     category = Miscellaneous
 
     @classmethod
@@ -32,13 +32,18 @@ class HelpCommand(Command):
 
     @classmethod
     async def extended_help(cls, context, command_name):
+        if str(context.channel.guild.id) in cls.bot.prefixes.keys():
+            prefix = cls.bot.prefixes[str(context.channel.guild.id)]
+        else:
+            prefix = cls.bot.prefix
+
         content = ""
         for command in cls.bot.my_commands:
             if command.name == command_name and command.category.has_permission(context.author.id):
                 content += "```diff\n" \
                            f"+ {command.category.name}\n" \
                            "```"
-                content += f"**{cls.bot.prefix}{command.name}** {command.args}\n" \
+                content += f"**{prefix}{command.name}** {command.args}\n" \
                            f"  —  {command.brief}\n" \
                            f"\n{command.help}"
                 await context.message.channel.send(content)
@@ -80,6 +85,11 @@ class HelpCommand(Command):
 
     @classmethod
     def get_content(cls, context, page):
+        if str(context.channel.guild.id) in cls.bot.prefixes.keys():
+            prefix = cls.bot.prefixes[str(context.channel.guild.id)]
+        else:
+            prefix = cls.bot.prefix
+
         content = "```fix\nMiniGamesBot```"
         for i in range(len(cls.bot.categories)):
             if not cls.bot.categories[i].has_permission(context.author.id):
@@ -90,7 +100,7 @@ class HelpCommand(Command):
                            "```"
                 for command in cls.bot.my_commands:
                     if command.category.name == cls.bot.categories[page].name:
-                        content += f"**{cls.bot.prefix}{command.name}** {command.args}\n" \
+                        content += f"**{prefix}{command.name}** {command.args}\n" \
                                    f"  —  {command.brief}\n"
             else:
                 content += "```diff\n" \

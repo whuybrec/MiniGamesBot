@@ -4,10 +4,6 @@ LOSE = 1
 DRAW = 2
 
 
-# database_file = "bin/user_statistics.db"
-
-# quiz_categories = ["General Knowledge", "Sports", "Films", "Music", "Video Games"]
-
 # BJRULES = "Ace is worth either 1 or 11 points.\n" \
 #           "Jack, Queen and King are worth 10 points.\n" \
 #           "The other cards are worth their number.\n" \

@@ -8,7 +8,7 @@ class DeleteCommand(Command):
     name = "delete"
     help = "It should be pretty damn clear you boomer...."
     brief = "Deletes the message with given msg id."
-    args = "*message_id*"
+    args = "message_id"
     category = Developer
 
     @classmethod

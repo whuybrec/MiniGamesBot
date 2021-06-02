@@ -8,7 +8,7 @@ class ClearCommand(Command):
     name = "clear"
     help = "SKIBIDI BOP MM DADA"
     brief = "Deletes the last x messages in this channel."
-    args = "*amount*"
+    args = "amount"
     category = Developer
 
     @classmethod
@@ -19,7 +19,7 @@ class ClearCommand(Command):
                 await context.channel.purge(limit=int(args))
         except Exception as e:
             print(e)
-            await context.channel.send("Yeeeah you fucked up mate.")
+            await context.channel.send("Yeah you fucked up mate.")
 
     @classmethod
     def has_permission(cls, user_id):

@@ -7,7 +7,7 @@ class RulesCommand(Command):
     name = "rules"
     help = "Shows the rules for the minigame given as argument to the command."
     brief = "Shows for the a given minigame."
-    args = "*minigame*"
+    args = "minigame"
     category = Miscellaneous
 
     @classmethod

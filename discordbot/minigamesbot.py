@@ -1,11 +1,14 @@
 import asyncio
+import json
+from zipfile import ZipFile
 
+import discord
 from discord.ext.commands import Bot
 from discord.utils import find
 
 from discordbot.commands import HelpCommand, SayCommand, DeleteCommand, ClearCommand, TemperatureCommand, ExecuteCommand, \
     RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand, Connect4Command, QuizCommand, BlackjackCommand, \
-    DbCommand, StatsCommand
+    DbCommand, StatsCommand, SetPrefixCommand
 from discordbot.categories.developer import Developer
 from discordbot.categories.minigames import Minigames
 from discordbot.categories.miscellaneous import Miscellaneous
@@ -23,6 +26,8 @@ from minigames.lexicon import Lexicon
 # TODO: minigames: checkers, uno, chess
 # TODO: bug reports
 
+PREFIXES_FILE = "bin/server_prefixes.json"
+
 
 class MiniGamesBot(Bot):
     def __init__(self, prefix):
@@ -34,6 +39,7 @@ class MiniGamesBot(Bot):
         self.db = MinigamesDB
         self.lexicon = Lexicon
 
+        # load commands
         self.categories = [
             Miscellaneous,
             Developer,
@@ -41,18 +47,36 @@ class MiniGamesBot(Bot):
         ]
         self.my_commands = [SayCommand, HelpCommand, DeleteCommand, ClearCommand, TemperatureCommand, ExecuteCommand,
                             RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand, Connect4Command,
-                            QuizCommand, BlackjackCommand, DbCommand, StatsCommand]
-
+                            QuizCommand, BlackjackCommand, DbCommand, StatsCommand, SetPrefixCommand]
         self.load_commands()
 
+        # load managers
         self.game_manager.on_startup(self)
         self.db.on_startup(self)
         self.lexicon.on_startup()
 
+        # load prefixes
+        try:
+            file = open(PREFIXES_FILE)
+            json_strings = file.read()
+            self.prefixes = json.loads(json_strings)
+            file.close()
+        except FileNotFoundError:
+            self.prefixes = {}
+            f = open(PREFIXES_FILE, 'w')
+            prefixes_json = json.dumps(self.prefixes)
+            f.write(prefixes_json)
+            f.close()
+
+        # Next 2 lines are for showing stats in my own server, ignore this
         self.scheduler = Scheduler()  # REMOVE THIS LINE
         self.scheduler.add(10, self.routine_updates)  # REMOVE THIS LINE
 
     async def on_message(self, message):
+        if str(message.channel.guild.id) in self.prefixes.keys() \
+                and message.content.startswith(self.prefixes[str(message.channel.guild.id)]):
+            message.content = self.prefix + message.content[len(self.prefixes[str(message.channel.guild.id)]):]
+
         context = await self.get_context(message)
         self.ctx = context
         await self.invoke(context)
@@ -72,7 +96,7 @@ class MiniGamesBot(Bot):
         if general and general.permissions_for(guild.me).send_messages:
             await general.send('Hello {}! The command prefix for this bot is "?".\n'
                                'Type ?help for a list of commands.'.format(guild.name))
-        channel =  await self.fetch_channel(DISCORD["STACK_CHANNEL"])
+        channel = await self.fetch_channel(DISCORD["STACK_CHANNEL"])
         await channel.send("JOINED GUILD '{0}' ({1}).".format(guild.name, guild.id))
 
     def load_commands(self):
@@ -89,4 +113,16 @@ class MiniGamesBot(Bot):
     async def routine_updates(self):
         while True:
             await self.db.update()
+            await self.save_prefixes()
             await asyncio.sleep(60*20)
+
+    async def save_prefixes(self):
+        f = open(PREFIXES_FILE, 'w')
+        prefixes_json = json.dumps(self.prefixes)
+        f.write(prefixes_json)
+        f.close()
+
+        with ZipFile("bin/prefixes_backup.zip", "w") as zip_f:
+            zip_f.write(PREFIXES_FILE)
+        channel = await self.fetch_channel(DISCORD["STACK_CHANNEL"])
+        await channel.send(file=discord.File("bin/prefixes_backup.zip"))

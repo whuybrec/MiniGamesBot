@@ -14,3 +14,4 @@ from .miscellaneous.help import HelpCommand
 from .miscellaneous.info import InfoCommand
 from .miscellaneous.rules import RulesCommand
 from .miscellaneous.stats import StatsCommand
+from .miscellaneous.set_prefix import SetPrefixCommand

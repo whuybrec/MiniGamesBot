@@ -8,9 +8,9 @@ from discordbot.utils.pager import Pager
 class StatsCommand(Command):
     bot = None
     name = "stats"
-    help = "Shows yours or another player's stats for all minigames."
+    help = "Shows yours (if no player was tagged as argument) or another player's statistics for all minigames."
     brief = "Shows stats for all minigames."
-    args = "<*player*>"
+    args = "*player*"
     category = Miscellaneous
 
     @classmethod

@@ -16,11 +16,6 @@ class Lexicon:
             cls.WORDS = f.readlines()
         f.close()
 
-        # json1_file = open('bin/prefixes.json')
-        # json1_str = json1_file.read()
-        # Private.prefixes = json.loads(json1_str)
-        # json1_file.close()
-
     @classmethod
     def get_random_word(cls):
         word = cls.WORDS[random.randint(0, len(cls.WORDS)-1)].rstrip()

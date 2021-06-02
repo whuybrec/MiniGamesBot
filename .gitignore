@@ -1,5 +1,7 @@
 bin/minigames.db
 bin/database_backup.zip
+bin/server_prefixes.json
+bin/prefixes_backup.zip
 generic/scheduler.py
 discordbot/utils/private.py
 

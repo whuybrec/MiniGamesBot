@@ -8,7 +8,7 @@ class SayCommand(Command):
     name = "say"
     help = "Yeah you know what it does smh..."
     brief = "The bot sends a message that was given as argument."
-    args = "*some line*"
+    args = "some line"
     category = Developer
 
     @classmethod

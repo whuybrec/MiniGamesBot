@@ -13,7 +13,7 @@ class ExecuteCommand(Command):
     name: str = "exec"
     help: str = "Execute python code."
     brief: str = "Exec snek"
-    args: str = "*snek code*"
+    args: str = "snek code"
     category: str = Developer
 
     @classmethod

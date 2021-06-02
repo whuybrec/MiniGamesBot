@@ -10,7 +10,7 @@ class Connect4Command(Command):
     name = "connect4"
     help = "Start a game of connect4, check out the rules with the rules command."
     brief = "Start a game of connect4."
-    args = "*@player2*"
+    args = "@player2"
     category = Minigames
 
     @classmethod
