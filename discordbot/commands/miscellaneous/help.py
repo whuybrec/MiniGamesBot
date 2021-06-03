@@ -10,17 +10,17 @@ from discordbot.utils.emojis import ARROW_UP, ARROW_DOWN
 class HelpCommand(Command):
     bot = None
     name = "help"
-    help = "Displays the help message with a list of all commands."
-    brief = "Gives this message."
+    help = "Gives the help message with a list of all commands."
+    brief = "Gives the help message."
     args = "*command*"
     category = Miscellaneous
 
     @classmethod
     async def handler(cls, context):
         # check if user asked help for specific command
-        args = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:].split(" ")
-        if len(args) == 0:
-            await cls.extended_help(context, args[0])
+        args = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:].lstrip()
+        if len(args) > 0:
+            await cls.extended_help(context, args.split(" ")[0])
             return
 
         content = cls.get_content(context, 0)

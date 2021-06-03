@@ -19,10 +19,10 @@ class StatsCommand(Command):
     @classmethod
     async def handler(cls, context):
         args = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:]
-        if len(args.split(" ")) <= 1:
-            player = context.author
-        else:
+        if len(args.lstrip()) > 0:
             player = await cls.bot.fetch_user(int(re.findall(r'\d+', args)[0]))
+        else:
+            player = context.author
 
         pages = []
         today = date.today()
