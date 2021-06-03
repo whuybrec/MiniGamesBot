@@ -15,7 +15,7 @@ from discordbot.commands import HelpCommand, SayCommand, DeleteCommand, ClearCom
     ExecuteCommand, \
     RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand, Connect4Command, QuizCommand, \
     BlackjackCommand, \
-    DbCommand, StatsCommand, SetPrefixCommand, BugCommand
+    DbCommand, StatsCommand, SetPrefixCommand, BugCommand, ChessCommand
 from discordbot.user.gamemanager import GameManager
 from discordbot.user.minigamesdb import MinigamesDB
 from discordbot.utils.private import DISCORD
@@ -47,7 +47,7 @@ class MiniGamesBot(Bot):
         ]
         self.my_commands = [SayCommand, HelpCommand, DeleteCommand, ClearCommand, TemperatureCommand, ExecuteCommand,
                             RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand, Connect4Command,
-                            QuizCommand, BlackjackCommand, DbCommand, StatsCommand, SetPrefixCommand, BugCommand]
+                            QuizCommand, BlackjackCommand, DbCommand, StatsCommand, SetPrefixCommand, BugCommand, ChessCommand]
         self.load_commands()
 
         # load managers
@@ -147,34 +147,34 @@ class MiniGamesBot(Bot):
         channel = await self.fetch_channel(DISCORD["STACK_CHANNEL"])
         await channel.send(file=discord.File("bin/prefixes_backup.zip"))
 
-    async def on_error(self, event_method, *args, **kwargs):
-        text = "Time: {0}\n\n" \
-               "Ignoring exception in command {1}:\n\n" \
-               "args: {2}\n\n" \
-               "kwargs: {3}\n\n" \
-               "e: {4}\n\n"\
-            .format(time.strftime("%b %d %Y %H:%M:%S"), event_method, args, kwargs, traceback.format_exc())
-        channel = self.get_channel(DISCORD["ERROR_CHANNEL"])
-        await self.send("```"+text+"```", channel.id)
-
-    async def on_command_error(self, context, exception):
-        if isinstance(exception, CommandNotFound):
-            return
-        if self.extra_events.get('on_command_error', None):
-            return
-        if hasattr(context.command, 'on_error'):
-            return
-
-        cog = context.cog
-        if cog and Cog._get_overridden_method(cog.cog_command_error) is not None:
-            return
-
-        text = "Time: {0}\n\n" \
-               "Ignoring exception in command {1}:\n\n" \
-               "Exception: {2}\n\n" \
-            .format(time.strftime("%b %d %Y %H:%M:%S"), context.command, exception)
-        channel = self.get_channel(DISCORD["ERROR_CHANNEL"])
-        await self.send("```"+text+"```", channel.id)
-        result = traceback.format_exception(type(exception), exception, exception.__traceback__)
-        result = "".join(result)
-        await self.send("```"+result+"```", channel.id)
+    # async def on_error(self, event_method, *args, **kwargs):
+    #     text = "Time: {0}\n\n" \
+    #            "Ignoring exception in command {1}:\n\n" \
+    #            "args: {2}\n\n" \
+    #            "kwargs: {3}\n\n" \
+    #            "e: {4}\n\n"\
+    #         .format(time.strftime("%b %d %Y %H:%M:%S"), event_method, args, kwargs, traceback.format_exc())
+    #     channel = self.get_channel(DISCORD["ERROR_CHANNEL"])
+    #     await self.send("```"+text+"```", channel.id)
+    #
+    # async def on_command_error(self, context, exception):
+    #     if isinstance(exception, CommandNotFound):
+    #         return
+    #     if self.extra_events.get('on_command_error', None):
+    #         return
+    #     if hasattr(context.command, 'on_error'):
+    #         return
+    #
+    #     cog = context.cog
+    #     if cog and Cog._get_overridden_method(cog.cog_command_error) is not None:
+    #         return
+    #
+    #     text = "Time: {0}\n\n" \
+    #            "Ignoring exception in command {1}:\n\n" \
+    #            "Exception: {2}\n\n" \
+    #         .format(time.strftime("%b %d %Y %H:%M:%S"), context.command, exception)
+    #     channel = self.get_channel(DISCORD["ERROR_CHANNEL"])
+    #     await self.send("```"+text+"```", channel.id)
+    #     result = traceback.format_exception(type(exception), exception, exception.__traceback__)
+    #     result = "".join(result)
+    #     await self.send("```"+result+"```", channel.id)

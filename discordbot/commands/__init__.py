@@ -10,6 +10,7 @@ from .minigames.connect4_cmd import Connect4Command
 from .minigames.hangman_cmd import HangmanCommand
 from .minigames.quiz_cmd import QuizCommand
 from .minigames.scramble_cmd import ScrambleCommand
+from .minigames.chess_cmd import ChessCommand
 from .miscellaneous.bug_report import BugCommand
 from .miscellaneous.help import HelpCommand
 from .miscellaneous.info import InfoCommand

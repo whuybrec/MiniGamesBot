@@ -221,7 +221,7 @@ class MinigamesDB:
         except discord.Forbidden and IndexError:
             message = await channel.send("haha brr")
 
-        today = "```diff\n+ Today\n"
+        today = "```diff\n+ Today\n\n"
         lists = [["Game", "W", "L", "D", "Total", "Time"]]
         mg_stats = cls.get_stats_for_minigames_of_day(date.today())
         if mg_stats:
@@ -232,6 +232,7 @@ class MinigamesDB:
             table = create_table(*lists)
             today += table
         today += "```"
+        today += f"\nServers: **{len(cls.bot.guilds)}**"
         today += f"\nLast edited: **{datetime.now()}**"
         await message.edit(content=today)
 

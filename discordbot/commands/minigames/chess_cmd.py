@@ -1,15 +1,15 @@
 from discordbot.categories.minigames import Minigames
 from discordbot.commands.command import Command
-from discordbot.user.discord_games.connect4_dc import Connect4Disc
+from discordbot.user.discord_games.chess_dc import ChessDisc
 from discordbot.user.gamemanager import GameManager
 from discordbot.user.session import Session
 
 
-class Connect4Command(Command):
+class ChessCommand(Command):
     bot = None
-    name = "connect4"
-    help = "Start a game of connect4, check out the rules with the rules command."
-    brief = "Start a game of connect4."
+    name = "chess"
+    help = "Start a game of chess, check out the rules with the rules command."
+    brief = "Start a game of chess."
     args = "@player2"
     category = Minigames
 
@@ -29,10 +29,10 @@ class Connect4Command(Command):
             return
 
         if player2.bot:
-            await context.channel.send("You can not start Connect4 with a bot.")
+            await context.channel.send("You can not start Chess with a bot.")
             return
 
-        msg = await context.channel.send("Starting Connect4 minigame")
-        session = Session(cls.bot, context, msg, "connect4", Connect4Disc, [context.author, player2])
+        msg = await context.channel.send("Starting Chess minigame")
+        session = Session(cls.bot, context, msg, "chess", ChessDisc, [context.author, player2], True)
         await GameManager.start_session(session)
 
