@@ -30,7 +30,7 @@ class QuizDisc(MinigameDisc):
         def check(r, u):
             return r.message.id == self.session.message.id \
                    and r.emoji in self.emojis \
-                   and u.id == self.session.message.author.id
+                   and u.id == self.session.context.message.author.id
 
         try:
             reaction, user = await self.session.bot.wait_for("reaction_add", check=check, timeout=TIMEOUT)

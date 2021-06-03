@@ -23,8 +23,7 @@ class BlackjackDisc(MinigameDisc):
     async def wait_for_player(self):
         def check(r, u):
             return r.message.id == self.session.message.id \
-                   and u.id != self.session.message.author.id \
-                   and u.id == self.session.message.author.id \
+                   and u.id == self.session.context.message.author.id \
                    and r.emoji in self.emojis
 
         try:
@@ -48,7 +47,10 @@ class BlackjackDisc(MinigameDisc):
                     break
                 elif reaction.emoji == SPLIT:
                     self.blackjack.split_hand()
+
+                if SPLIT in self.emojis:
                     await self.clear_reaction(SPLIT)
+
                 await self.session.message.edit(content=self.get_content())
 
                 if self.blackjack.is_player_busted():

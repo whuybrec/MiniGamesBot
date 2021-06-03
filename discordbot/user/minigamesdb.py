@@ -1,4 +1,6 @@
+import calendar
 from datetime import date, datetime, timedelta
+from time import time
 from zipfile import ZipFile
 
 import discord
@@ -23,7 +25,7 @@ class MinigamesDB:
             [
                 "player_id integer",
                 "minigame text",
-                "date text",
+                "time_stamp integer",
                 "total_games integer",
                 "wins integer",
                 "losses integer",
@@ -33,7 +35,7 @@ class MinigamesDB:
             [
                 "player_id",
                 "minigame",
-                "date"
+                "time_stamp"
             ]
         )
         cls.database.create_table(
@@ -41,7 +43,7 @@ class MinigamesDB:
             [
                 "server_id integer",
                 "minigame text",
-                "date text",
+                "time_stamp integer",
                 "total_games",
                 "wins integer",
                 "losses integer",
@@ -51,297 +53,164 @@ class MinigamesDB:
             [
                 "server_id",
                 "minigame",
-                "date"
+                "time_stamp"
             ]
         )
 
     @classmethod
     def add_to_players_table(cls, player_id, minigame, total_games, wins, losses, draws, time_played):
-        date_1 = date.today()
-        date_1 = date_1.replace(year=2018)
-        date_ = f"\"{date_1}\""
         data = dict()
-        row = cls.database.get(
-            "players",
-            ["total_games", "wins", "losses", "draws", "time_played"],
-            {"player_id": player_id, "minigame": minigame, "date": date_},
-            1
-        )
-        if len(row) == 0:
-            data["player_id"] = player_id
-            data["minigame"] = minigame
-            data["date"] = date_
-            data["total_games"] = total_games
-            data["wins"] = wins
-            data["losses"] = losses
-            data["draws"] = draws
-            data["time_played"] = time_played
-            cls.database.write("players", data)
-        else:
-            row = row[0]
-            where = dict()
-            where["player_id"] = player_id
-            where["minigame"] = minigame
-            where["date"] = date_
-
-            data["total_games"] = row["total_games"] + total_games
-            data["wins"] = row["wins"] + wins
-            data["losses"] = row["losses"] + losses
-            data["draws"] = row["draws"] + draws
-            data["time_played"] = row["time_played"] + time_played
-            cls.database.write("players", data, where)
+        data["player_id"] = player_id
+        data["minigame"] = minigame
+        data["time_stamp"] = time()
+        data["total_games"] = total_games
+        data["wins"] = wins
+        data["losses"] = losses
+        data["draws"] = draws
+        data["time_played"] = time_played
+        cls.database.write("players", data)
 
     @classmethod
     def add_to_minigames_table(cls, server_id, minigame, total_games, wins, losses, draws, time_played):
-        date_1 = date.today()
-        date_1 = date_1.replace(year=2018)
-        date_ = f"\"{date_1}\""
         data = dict()
-        row = cls.database.get(
-            "minigames",
-            ["total_games", "wins", "losses", "draws", "time_played"],
-            {"server_id": server_id, "minigame": minigame, "date": date_},
-            1
-        )
-        if len(row) == 0:
-            data["server_id"] = server_id
-            data["minigame"] = minigame
-            data["date"] = date_
-            data["total_games"] = total_games
-            data["wins"] = wins
-            data["losses"] = losses
-            data["draws"] = draws
-            data["time_played"] = time_played
-            cls.database.write("minigames", data)
-        else:
-            row = row[0]
-            where = dict()
-            where["server_id"] = server_id
-            where["minigame"] = minigame
-            where["date"] = date_
-
-            data["total_games"] = row["total_games"] + total_games
-            data["wins"] = row["wins"] + wins
-            data["losses"] = row["losses"] + losses
-            data["draws"] = row["draws"] + draws
-            data["time_played"] = row["time_played"] + time_played
-            cls.database.write("minigames", data, where)
+        data["server_id"] = server_id
+        data["minigame"] = minigame
+        data["time_stamp"] = time()
+        data["total_games"] = total_games
+        data["wins"] = wins
+        data["losses"] = losses
+        data["draws"] = draws
+        data["time_played"] = time_played
+        cls.database.write("minigames", data)
 
     @classmethod
-    def get_stats_of_player(cls, player_id):
-        return cls.database.get(
-            "players",
-            ["minigame", "date", "total_games", "wins", "losses", "draws", "time_played"],
-            {"player_id": player_id},
-        )
+    def get_all_time_stats_for_player(cls, player_id):
+        q = "SELECT minigame, SUM(total_games), SUM(wins), SUM(losses), SUM(draws), SUM(time_played) " \
+            "FROM players " \
+            "WHERE player_id={0} " \
+            "GROUP BY minigame;".format(player_id)
+        return cls.query(q)
 
     @classmethod
-    def get_stats_of_minigame(cls, minigame):
-        return cls.database.get(
-            "minigames",
-            ["server_id", "date", "total_games", "wins", "losses", "draws", "time_played"],
-            {"minigame": minigame}
-        )
+    def get_stats_for_player_of_day(cls, player_id, date_):
+        q = "SELECT minigame, SUM(total_games), SUM(wins), SUM(losses), SUM(draws), SUM(time_played) " \
+            "FROM players " \
+            "WHERE player_id={0} AND strftime('%Y-%m-%d', time_stamp, 'unixepoch', 'localtime')='{1}' " \
+            "GROUP BY minigame;".format(player_id, date_)
+        return cls.query(q)
 
     @classmethod
-    def get_stats_of_server(cls, server_id):
-        return cls.database.get(
-            "minigames",
-            ["minigame", "date", "total_games", "wins", "losses", "draws", "time_played"],
-            {"server_id": server_id}
-        )
+    def get_stats_for_player_of_month(cls, player_id, date_):
+        q = "SELECT minigame, SUM(total_games), SUM(wins), SUM(losses), SUM(draws), SUM(time_played) " \
+            "FROM players " \
+            "WHERE player_id={0} AND strftime('%Y-%m', time_stamp, 'unixepoch', 'localtime')='{1}' " \
+            "GROUP BY minigame;".format(player_id, date_)
+        return cls.query(q)
+
+    @classmethod
+    def get_stats_for_player_of_year(cls, player_id, year):
+        q = "SELECT minigame, SUM(total_games), SUM(wins), SUM(losses), SUM(draws), SUM(time_played) " \
+            "FROM players " \
+            "WHERE player_id={0} AND strftime('%Y', time_stamp, 'unixepoch', 'localtime')='{1}' " \
+            "GROUP BY minigame;".format(player_id, year)
+        return cls.query(q)
+
+    @classmethod
+    def get_all_time_stats_for_minigames(cls):
+        q = "SELECT minigame, SUM(total_games), SUM(wins), SUM(losses), SUM(draws), SUM(time_played) " \
+            "FROM minigames " \
+            "GROUP BY minigame;"
+        return cls.query(q)
+
+    @classmethod
+    def get_stats_for_minigames_of_day(cls, date_):
+        q = "SELECT minigame, SUM(total_games), SUM(wins), SUM(losses), SUM(draws), SUM(time_played) " \
+            "FROM minigames " \
+            "WHERE strftime('%Y-%m-%d', time_stamp, 'unixepoch', 'localtime')='{0}'" \
+            "GROUP BY minigame".format(date_)
+        return cls.query(q)
+
+    @classmethod
+    def get_stats_for_minigames_of_month(cls, date_):
+        q = "SELECT minigame, SUM(total_games), SUM(wins), SUM(losses), SUM(draws), SUM(time_played) " \
+            "FROM minigames " \
+            "WHERE strftime('%Y-%m', time_stamp, 'unixepoch', 'localtime')='{0}'" \
+            "GROUP BY minigame;".format(date_)
+        return cls.query(q)
+
+    @classmethod
+    def get_stats_for_minigames_of_year(cls, year):
+        q = "SELECT minigame, SUM(total_games), SUM(wins), SUM(losses), SUM(draws), SUM(time_played) " \
+            "FROM minigames " \
+            "WHERE strftime('%Y', time_stamp, 'unixepoch', 'localtime')='{0}'" \
+            "GROUP BY minigame;".format(year)
+        return cls.query(q)
+
+    @classmethod
+    def get_daily_stats_for_player_of_month(cls, player_id, date_):
+        num_days = calendar.monthrange(date_.year, date_.month)[1]
+        days = [date(date_.year, date_.month, day) for day in range(1, num_days + 1)]
+        stats = dict()
+        for day in days:
+            stats[day.strftime("%Y-%m-%d")] = cls.get_stats_for_player_of_day(player_id, day.strftime("%Y-%m-%d"))
+        return stats
+
+    @classmethod
+    def get_monthly_stats_for_player_of_year(cls, player_id, date_):
+        months = [date(date_.year, month, 1) for month in range(1, 13)]
+        stats = dict()
+        for month in months:
+            stats[month.strftime("%Y-%m")] = cls.get_stats_for_player_of_month(player_id, month.strftime("%Y-%m"))
+        return stats
+
+    @classmethod
+    def get_yearly_stats_for_player(cls, player_id, date_):
+        years = [date(year, 1, 1) for year in range(date_.year-4, date_.year+1)]
+        stats = dict()
+        for year in years:
+            stats[year.strftime("%Y")] = cls.get_stats_for_player_of_year(player_id, year.strftime("%Y"))
+        return stats
+
+    @classmethod
+    def get_daily_stats_for_minigames_of_month(cls, date_):
+        num_days = calendar.monthrange(date_.year, date_.month)[1]
+        days = [date(date_.year, date_.month, day) for day in range(1, num_days + 1)]
+        stats = dict()
+        for day in days:
+            stats[day.strftime("%Y-%m-%d")] = cls.get_stats_for_minigames_of_day(day.strftime("%Y-%m-%d"))
+        return stats
+
+    @classmethod
+    def get_monthly_stats_for_minigames_of_year(cls, date_):
+        months = [date(date_.year, month, 1) for month in range(1, 13)]
+        stats = dict()
+        for month in months:
+            stats[month.strftime("%Y-%m")] = cls.get_stats_for_minigames_of_month(month.strftime("%Y-%m"))
+        return stats
+
+    @classmethod
+    def get_yearly_stats_for_minigames(cls, date_):
+        years = [date(year, 1, 1) for year in range(date_.year - 4, date_.year + 1)]
+        stats = dict()
+        for year in years:
+            stats[year.strftime("%Y")] = cls.get_stats_for_minigames_of_year(year.strftime("%Y"))
+        return stats
 
     @classmethod
     def query(cls, query):
         return cls.database.query(query)
 
     @classmethod
-    def get_stats_of_minigames(cls):
-        return cls.database.get(
-            "minigames",
-            ["minigame", "date", "total_games", "wins", "losses", "draws", "time_played"],
-            {}
-        )
-
-    @classmethod
-    def get_stats_for_day(cls, rows, date_):
-        return cls.get_daily_stats(rows, date_)[date_.strftime("%d/%m")]
-
-    @classmethod
-    def get_stats_for_month(cls, rows, date_):
-        return cls.get_monthly_stats(rows)[date_.strftime("%B")]
-
-    @classmethod
-    def get_stats_for_year(cls, rows, date_1):
-        stats = dict()
-        for row in rows:
-            date_2 = datetime.strptime(row["date"], "%Y-%m-%d")
-            if date_2.year == date_1.year:
-                stats = cls.aggregate_dicts(stats, row)
-        return stats
-
-    @classmethod
-    def get_daily_stats(cls, rows, date_1):
-        daily = dict()
-        for i in range(30):
-            stats = dict()
-            for row in rows:
-                date_2 = datetime.strptime(row["date"], "%Y-%m-%d")
-                if date_2.day == date_1.day and date_2.month == date_1.month and date_2.year == date_1.year:
-                    stats = cls.aggregate_dicts(stats, row)
-            daily[date_1.strftime("%d/%m")] = stats
-            date_1 = date_1 - timedelta(days=1)
-        return daily
-
-    @classmethod
-    def get_monthly_stats(cls, rows):
-        monthly = dict()
-        date_1 = date(2021, 1, 1)
-        for i in range(12):
-            stats = dict()
-            for row in rows:
-                date_2 = datetime.strptime(row["date"], "%Y-%m-%d")
-                if date_2.month == date_1.month and date_2.year == date_1.year:
-                    stats = cls.aggregate_dicts(stats, row)
-            monthly[date_1.strftime("%B")] = stats
-            date_1 = date_1 + timedelta(days=32)
-            date_1 = date_1.replace(day=1)
-        return monthly
-
-    @classmethod
-    def get_yearly_stats(cls, rows, date_1):
-        daily = dict()
-        start_year = date_1.year
-        for i in range(5):
-            date_1 = date_1.replace(year=start_year-i)
-            stats = dict()
-            for row in rows:
-                date_2 = datetime.strptime(row["date"], "%Y-%m-%d")
-                if date_2.year == date_1.year:
-                    stats = cls.aggregate_dicts(stats, row)
-            daily[date_1.year] = stats
-        return daily
-
-    @classmethod
-    def aggregate_dicts(cls, dict_, row):
-        if row["minigame"] in dict_.keys():
-            dict_[row["minigame"]]["wins"] += row["wins"]
-            dict_[row["minigame"]]["losses"] += row["losses"]
-            dict_[row["minigame"]]["draws"] += row["draws"]
-            dict_[row["minigame"]]["total_games"] += row["total_games"]
-            dict_[row["minigame"]]["time_played"] += row["time_played"]
-        else:
-            dict_[row["minigame"]] = dict()
-            dict_[row["minigame"]]["wins"] = row["wins"]
-            dict_[row["minigame"]]["losses"] = row["losses"]
-            dict_[row["minigame"]]["draws"] = row["draws"]
-            dict_[row["minigame"]]["total_games"] = row["total_games"]
-            dict_[row["minigame"]]["time_played"] = row["time_played"]
-        return dict_
-
-    @classmethod
-    def get_lists_of_dict(cls, dict_):
-        lists = []
-        for key, value in dict_.items():
-            lst = [key, value['wins'], value['losses'], value['draws'], value['total_games'],
-                   timedelta(seconds=value['time_played'])]
-            lists.append(lst)
-        return lists
-
-    @classmethod
-    def get_lists_of_daily_dict(cls, dict_):
-        lists = [["Day", "Game", "W", "L", "D", "Total", "Time"]]
-        date_1 = date.today()
-        for i in range(30):
-            if len(dict_[date_1.strftime("%d/%m")]) != 0:
-                lists.append([date_1.strftime("%d/%m"), "", "", "", "", "", ""])
-                for lst in cls.get_lists_of_dict(dict_[date_1.strftime("%d/%m")]):
-                    lst.insert(0, "")
-                    lists.append(lst)
-            date_1 = date_1 - timedelta(days=1)
-        return lists
-
-    @classmethod
-    def get_lists_of_monthly_dict(cls, dict_):
-        lists = [["Month", "Game", "W", "L", "D", "Total", "Time"]]
-        date_1 = date(2021, 1, 1)
-        for i in range(12):
-            if len(dict_[date_1.strftime("%B")]) != 0:
-                lists.append([date_1.strftime("%B"), "", "", "", "", "", ""])
-                for lst in cls.get_lists_of_dict(dict_[date_1.strftime("%B")]):
-                    lst.insert(0, "")
-                    lists.append(lst)
-            date_1 = date_1 + timedelta(days=32)
-            date_1 = date_1.replace(day=1)
-        return lists
-
-    @classmethod
-    def get_lists_of_yearly_dict(cls, dict_):
-        lists = [["Year", "Game", "W", "L", "D", "Total", "Time"]]
-        date_1 = date.today()
-        start_year = date_1.year
-        for i in range(5):
-            date_1 = date_1.replace(year=start_year - i)
-            if len(dict_[date_1.year]) != 0:
-                lists.append([date_1.year, "", "", "", "", "", ""])
-                for lst in cls.get_lists_of_dict(dict_[date_1.year]):
-                    lst.insert(0, "")
-                    lists.append(lst)
-        return lists
-
-    @classmethod
-    def get_formatted_today_stats(cls, stats):
-        content = "```diff\n+ Today\n\n"
-        dict_ = cls.get_stats_for_day(stats, date.today())
-        lists = [["Game", "W", "L", "D", "Total", "Time"], *cls.get_lists_of_dict(dict_)]
-        content += create_table(*lists)
-        content += "\n```"
-        return content
-
-    @classmethod
-    def get_formatted_month_stats(cls, stats):
-        content = "```diff\n+ This Month\n\n"
-        dict_ = cls.get_stats_for_month(stats, date.today())
-        lists = [["Game", "W", "L", "D", "Total", "Time"], *cls.get_lists_of_dict(dict_)]
-        content += create_table(*lists)
-        content += "\n```"
-        return content
-
-    @classmethod
-    def get_formatted_year_stats(cls, stats):
-        content = "```diff\n+ This Year\n\n"
-        dict_ = cls.get_stats_for_year(stats, date.today())
-        lists = [["Game", "W", "L", "D", "Total", "Time"], *cls.get_lists_of_dict(dict_)]
-        content += create_table(*lists)
-        content += "\n```"
-        return content
-
-    @classmethod
-    def get_formatted_daily_stats(cls, stats):
-        content = "```diff\n+ Daily\n\n"
-        dict_ = cls.get_daily_stats(stats, date.today())
-        lists = cls.get_lists_of_daily_dict(dict_)
-        content += create_table(*lists)
-        content += "\n```"
-        return content
-
-    @classmethod
-    def get_formatted_monthly_stats(cls, stats):
-        content = "```diff\n+ Monthly\n\n"
-        dict_ = cls.get_monthly_stats(stats)
-        lists = cls.get_lists_of_monthly_dict(dict_)
-        content += create_table(*lists)
-        content += "\n```"
-        return content
-
-    @classmethod
-    def get_formatted_yearly_stats(cls, stats):
-        content = "```diff\n+ Yearly\n\n"
-        dict_ = cls.get_yearly_stats(stats, date.today())
-        lists = cls.get_lists_of_yearly_dict(dict_)
-        content += create_table(*lists)
-        content += "\n```"
-        return content
+    def stats_to_list(cls, stats):
+        contents = []
+        for row in stats:
+            contents.append(row["minigame"])
+            contents.append(row['wins'])
+            contents.append(row['losses'])
+            contents.append(row['draws'])
+            contents.append(row['total_games'])
+            contents.append(row['time_played'])
+        return contents
 
     @classmethod
     async def update(cls):
@@ -351,8 +220,18 @@ class MinigamesDB:
             message = message[0]
         except discord.Forbidden and IndexError:
             message = await channel.send("haha brr")
-        stats = cls.get_stats_of_minigames()
-        today = cls.get_formatted_today_stats(stats)
+
+        today = "```diff\n+ Today\n"
+        lists = [["Game", "W", "L", "D", "Total", "Time"]]
+        mg_stats = cls.get_stats_for_minigames_of_day(date.today())
+        if mg_stats:
+            for row in mg_stats:
+                temp = list(tuple(row))
+                temp[-1] = timedelta(seconds=int(temp[-1]))
+                lists.append(temp)
+            table = create_table(*lists)
+            today += table
+        today += "```"
         today += f"\nLast edited: **{datetime.now()}**"
         await message.edit(content=today)
 

@@ -28,7 +28,7 @@ class HangmanDisc(MinigameDisc):
         def check(r, u):
             return r.message.id in [self.session.message.id, self.session.message_extra.id] \
                    and r.emoji in self.emojis \
-                   and u.id == self.session.message.author.id
+                   and u.id == self.session.context.message.author.id
 
         try:
             while True:

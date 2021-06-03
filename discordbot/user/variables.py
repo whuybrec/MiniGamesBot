@@ -3,7 +3,13 @@ WIN = 0
 LOSE = 1
 DRAW = 2
 
-
+MINIGAMES = [
+    "blackjack",
+    "scramble",
+    "hangman",
+    "quiz",
+    "connect4"
+]
 # BJRULES = "Ace is worth either 1 or 11 points.\n" \
 #           "Jack, Queen and King are worth 10 points.\n" \
 #           "The other cards are worth their number.\n" \
