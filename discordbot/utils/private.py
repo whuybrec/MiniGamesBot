@@ -1,0 +1,11 @@
+DISCORD = {
+    "TOKEN": "YOUR DISCORD BOT TOKEN HERE",
+    "DEVS": [00000000000],  # your discord ID in here
+    "BOT_ID": 00000000000,   # bot discord ID here
+    # a channel ID of your choice for these
+    "STATISTICS_CHANNEL": 00000000000,
+    "STACK_CHANNEL": 00000000000,
+    "BACKUP_CHANNEL": 00000000000,
+    "BUG_REPORT_CHANNEL": 00000000000,
+    "ERROR_CHANNEL": 00000000000
+}
