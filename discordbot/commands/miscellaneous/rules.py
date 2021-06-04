@@ -17,7 +17,7 @@ class RulesCommand(Command):
     bot = None
     name = "rules"
     help = "Shows the rules for a minigame given as argument to the command."
-    brief = "Shows for the a given minigame."
+    brief = "Shows the rules for a minigame."
     args = "minigame"
     category = Miscellaneous
 

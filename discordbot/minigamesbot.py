@@ -21,8 +21,6 @@ from discordbot.user.minigamesdb import MinigamesDB
 from discordbot.utils.private import DISCORD
 from minigames.lexicon import Lexicon
 
-# TODO: edit readme
-# TODO: UPDATE PRIVATE.PY
 # TODO: minigames: checkers
 
 PREFIXES_FILE = "bin/server_prefixes.json"
