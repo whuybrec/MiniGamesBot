@@ -238,5 +238,5 @@ class MinigamesDB:
 
         with ZipFile("bin/database_backup.zip", "w") as zip_f:
             zip_f.write(DATABASE_FILE)
-        channel = await cls.bot.fetch_channel(DISCORD["STACK_CHANNEL"])
+        channel = await cls.bot.fetch_channel(DISCORD["BACKUP_CHANNEL"])
         await channel.send(file=discord.File("bin/database_backup.zip"))
