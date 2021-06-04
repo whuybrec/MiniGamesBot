@@ -4,7 +4,7 @@ import discord
 
 from discordbot.categories.miscellaneous import Miscellaneous
 from discordbot.commands.command import Command
-from discordbot.utils.emojis import ARROW_UP, ARROW_DOWN
+from discordbot.utils.emojis import ARROW_UP, ARROW_DOWN, STOP
 
 
 class HelpCommand(Command):
@@ -24,9 +24,10 @@ class HelpCommand(Command):
             return
 
         content = cls.get_content(context, 0)
-        msg: discord.Message = await context.message.channel.send(content)
+        msg: discord.Message = await context.send(content)
         await msg.add_reaction(ARROW_UP)
         await msg.add_reaction(ARROW_DOWN)
+        await msg.add_reaction(STOP)
 
         await cls.wait_for_reaction(context, msg)
 
@@ -46,18 +47,21 @@ class HelpCommand(Command):
                 content += f"**{prefix}{command.name}** {command.args}\n" \
                            f"  —  {command.brief}\n" \
                            f"\n{command.help}"
-                await context.message.channel.send(content)
+                await context.send(content)
                 return
 
     @classmethod
     async def wait_for_reaction(cls, context, help_msg, page=0):
         while True:
             def check(r, u):
-                return u == context.message.author \
-                       and (r.emoji == ARROW_DOWN or r.emoji == ARROW_UP) \
+                return u.id == context.message.author.id \
+                       and (r.emoji == ARROW_DOWN or r.emoji == ARROW_UP or r.emoji == STOP) \
                        and r.message.id == help_msg.id
             try:
                 reaction, user = await cls.bot.wait_for('reaction_add', timeout=60.0, check=check)
+                if reaction.emoji == STOP:
+                    await help_msg.delete()
+                    break
 
                 if reaction.emoji == ARROW_DOWN and page < (len(cls.bot.categories)-1):
                     new_page = page + 1
@@ -79,8 +83,7 @@ class HelpCommand(Command):
                 await help_msg.edit(content=content)
                 await help_msg.remove_reaction(reaction.emoji, user)
             except asyncio.TimeoutError:
-                await help_msg.clear_reaction(ARROW_UP)
-                await help_msg.clear_reaction(ARROW_DOWN)
+                await help_msg.clear_reactions()
                 break
 
     @classmethod
@@ -90,7 +93,7 @@ class HelpCommand(Command):
         else:
             prefix = cls.bot.prefix
 
-        content = "```fix\nMiniGamesBot```"
+        content = "**__MiniGamesBot__**\n"
         for i in range(len(cls.bot.categories)):
             if not cls.bot.categories[i].has_permission(context.author.id):
                 continue
@@ -106,4 +109,6 @@ class HelpCommand(Command):
                 content += "```diff\n" \
                            f"- {cls.bot.categories[i].name}\n" \
                            "```"
+        content += "\nArguments in *italic*  are optional." \
+                   "\nType **?help command** for more info on a command."
         return content

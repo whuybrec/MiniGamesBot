@@ -19,12 +19,11 @@ from discordbot.commands import HelpCommand, SayCommand, DeleteCommand, ClearCom
 from discordbot.user.gamemanager import GameManager
 from discordbot.user.minigamesdb import MinigamesDB
 from discordbot.utils.private import DISCORD
-from generic.scheduler import Scheduler
 from minigames.lexicon import Lexicon
 
-# TODO: edit readme to remove scheduler things
+# TODO: edit readme
 # TODO: UPDATE PRIVATE.PY
-# TODO: minigames: checkers, uno, chess
+# TODO: minigames: checkers
 
 PREFIXES_FILE = "bin/server_prefixes.json"
 
@@ -68,10 +67,6 @@ class MiniGamesBot(Bot):
             f.write(prefixes_json)
             f.close()
 
-        # Next 2 lines are for showing stats in my own server, ignore this
-        self.scheduler = Scheduler()  # REMOVE THIS LINE
-        self.scheduler.add(10, self.routine_updates)  # REMOVE THIS LINE
-
     async def on_message(self, message):
         if str(message.channel.guild.id) in self.prefixes.keys() \
                 and message.content.startswith(self.prefixes[str(message.channel.guild.id)]):
@@ -86,6 +81,7 @@ class MiniGamesBot(Bot):
             self.called_on_ready = False
             channel = await self.fetch_channel(DISCORD["STACK_CHANNEL"])
             await channel.send("**READY**")
+            await self.routine_updates()
 
     async def on_guild_remove(self, guild):
         channel = await self.fetch_channel(DISCORD["STACK_CHANNEL"])
@@ -94,8 +90,8 @@ class MiniGamesBot(Bot):
     async def on_guild_join(self, guild):
         general = find(lambda x: 'general' in x.name, guild.text_channels)
         if general and general.permissions_for(guild.me).send_messages:
-            await general.send('Hello {}! The command prefix for this bot is "?".\n'
-                               'Type ?help for a list of commands.'.format(guild.name))
+            await general.send('Hello {0}! The command prefix for this bot is **?**.\n'
+                               'Type **?help** for a list of possible commands.'.format(guild.name))
         channel = await self.fetch_channel(DISCORD["STACK_CHANNEL"])
         await channel.send("JOINED GUILD '{0}' ({1}).".format(guild.name, guild.id))
 
@@ -147,34 +143,34 @@ class MiniGamesBot(Bot):
         channel = await self.fetch_channel(DISCORD["STACK_CHANNEL"])
         await channel.send(file=discord.File("bin/prefixes_backup.zip"))
 
-    # async def on_error(self, event_method, *args, **kwargs):
-    #     text = "Time: {0}\n\n" \
-    #            "Ignoring exception in command {1}:\n\n" \
-    #            "args: {2}\n\n" \
-    #            "kwargs: {3}\n\n" \
-    #            "e: {4}\n\n"\
-    #         .format(time.strftime("%b %d %Y %H:%M:%S"), event_method, args, kwargs, traceback.format_exc())
-    #     channel = self.get_channel(DISCORD["ERROR_CHANNEL"])
-    #     await self.send("```"+text+"```", channel.id)
-    #
-    # async def on_command_error(self, context, exception):
-    #     if isinstance(exception, CommandNotFound):
-    #         return
-    #     if self.extra_events.get('on_command_error', None):
-    #         return
-    #     if hasattr(context.command, 'on_error'):
-    #         return
-    #
-    #     cog = context.cog
-    #     if cog and Cog._get_overridden_method(cog.cog_command_error) is not None:
-    #         return
-    #
-    #     text = "Time: {0}\n\n" \
-    #            "Ignoring exception in command {1}:\n\n" \
-    #            "Exception: {2}\n\n" \
-    #         .format(time.strftime("%b %d %Y %H:%M:%S"), context.command, exception)
-    #     channel = self.get_channel(DISCORD["ERROR_CHANNEL"])
-    #     await self.send("```"+text+"```", channel.id)
-    #     result = traceback.format_exception(type(exception), exception, exception.__traceback__)
-    #     result = "".join(result)
-    #     await self.send("```"+result+"```", channel.id)
+    async def on_error(self, event_method, *args, **kwargs):
+        text = "Time: {0}\n\n" \
+               "Ignoring exception in command {1}:\n\n" \
+               "args: {2}\n\n" \
+               "kwargs: {3}\n\n" \
+               "e: {4}\n\n"\
+            .format(time.strftime("%b %d %Y %H:%M:%S"), event_method, args, kwargs, traceback.format_exc())
+        channel = self.get_channel(DISCORD["ERROR_CHANNEL"])
+        await self.send("```"+text+"```", channel.id)
+
+    async def on_command_error(self, context, exception):
+        if isinstance(exception, CommandNotFound):
+            return
+        if self.extra_events.get('on_command_error', None):
+            return
+        if hasattr(context.command, 'on_error'):
+            return
+
+        cog = context.cog
+        if cog and Cog._get_overridden_method(cog.cog_command_error) is not None:
+            return
+
+        text = "Time: {0}\n\n" \
+               "Ignoring exception in command {1}:\n\n" \
+               "Exception: {2}\n\n" \
+            .format(time.strftime("%b %d %Y %H:%M:%S"), context.command, exception)
+        channel = self.get_channel(DISCORD["ERROR_CHANNEL"])
+        await self.send("```"+text+"```", channel.id)
+        result = traceback.format_exception(type(exception), exception, exception.__traceback__)
+        result = "".join(result)
+        await self.send("```"+result+"```", channel.id)

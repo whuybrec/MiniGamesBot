@@ -15,9 +15,9 @@ class Connect4Command(Command):
 
     @classmethod
     async def handler(cls, context):
-        args = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:]
+        args = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:].lstrip()
         if len(args) == 0:
-            await context.channel.send("You need to tag a second player to play with.")
+            await context.reply("You need to tag a second player to play with.")
             return
 
         import re
@@ -25,14 +25,14 @@ class Connect4Command(Command):
             player2 = await cls.bot.fetch_user(int(re.findall(r'\d+', args)[0]))
         except Exception as e:
             print(e)
-            await context.channel.send("You need to tag a second player to play with.")
+            await context.reply("You need to tag a second player to play with.")
             return
 
         if player2.bot:
-            await context.channel.send("You can not start Connect4 with a bot.")
+            await context.reply("You can not start Connect4 with a bot.")
             return
 
-        msg = await context.channel.send("Starting Connect4 minigame")
+        msg = await context.send("Starting Connect4 minigame")
         session = Session(cls.bot, context, msg, "connect4", Connect4Disc, [context.author, player2])
         await GameManager.start_session(session)
 

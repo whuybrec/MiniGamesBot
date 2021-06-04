@@ -92,7 +92,7 @@ class DbCommand(Command):
                         lists.append(temp)
             pages.append("Yearly stats:\n```\n" + create_table(*lists) + "\n```")
 
-            pager = Pager(cls.bot, context.message, pages)
+            pager = Pager(cls.bot, context, pages)
             await pager.show()
             await pager.wait_for_user()
 

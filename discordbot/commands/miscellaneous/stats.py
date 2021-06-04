@@ -13,12 +13,12 @@ class StatsCommand(Command):
     name = "stats"
     help = "Shows yours (if no player was tagged as argument) or another player's statistics for all minigames."
     brief = "Shows stats for all minigames."
-    args = "*player*"
+    args = "*@player*"
     category = Miscellaneous
 
     @classmethod
     async def handler(cls, context):
-        args = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:]
+        args = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:].lstrip()
         if len(args.lstrip()) > 0:
             player = await cls.bot.fetch_user(int(re.findall(r'\d+', args)[0]))
         else:
@@ -96,6 +96,6 @@ class StatsCommand(Command):
                     lists.append(temp)
         pages.append(f"Yearly stats for **{player.name}**:\n```\n" + create_table(*lists) + "\n```")
 
-        pager = Pager(cls.bot, context.message, pages)
+        pager = Pager(cls.bot, context, pages)
         await pager.show()
         await pager.wait_for_user()

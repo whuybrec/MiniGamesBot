@@ -15,7 +15,7 @@ class BugCommand(Command):
     async def handler(cls, context):
         bug = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:].lstrip()
         if len(bug) == 0:
-            await context.channel.send("You need to provide a bug description.")
+            await context.reply("You need to provide a bug description.")
             return
 
         channel = cls.bot.get_channel(DISCORD["BUG_REPORT_CHANNEL"])
@@ -29,4 +29,4 @@ class BugCommand(Command):
                            + "id: " + str(context.author.id) + "\n"
                            + "guild: " + str(context.guild.id) + "\n"
                            + "channel: " + str(context.channel.id) + "\n")
-        await context.channel.send("Bug successfully reported!")
+        await context.reply("Bug successfully reported!")

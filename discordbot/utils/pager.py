@@ -4,9 +4,9 @@ from discordbot.utils.emojis import ARROW_LEFT_2, ARROW_RIGHT_2, STOP
 
 
 class Pager:
-    def __init__(self, bot, message, pages, timeout=60.0):
+    def __init__(self, bot, context, pages, timeout=60.0):
         self.bot = bot
-        self.message = message
+        self.context = context
         self.pages = pages
         self.timeout = timeout
         self.current_page = 0
@@ -14,7 +14,7 @@ class Pager:
 
     async def show(self):
         if self.page_msg is None:
-            self.page_msg = await self.message.channel.send(self.pages[self.current_page])
+            self.page_msg = await self.context.send(self.pages[self.current_page])
         else:
             await self.page_msg.edit(content=self.pages[self.current_page])
         await self.page_msg.add_reaction(ARROW_LEFT_2)
@@ -28,7 +28,7 @@ class Pager:
     async def wait_for_user(self):
 
         def check(r, u):
-            return u == self.message.author \
+            return u == self.context.message.author \
                    and (r.emoji == ARROW_LEFT_2 or r.emoji == ARROW_RIGHT_2 or r.emoji == STOP) \
                    and r.message.id == self.page_msg.id
 

@@ -19,4 +19,4 @@ class InfoCommand(Command):
         text += "- If you wish to make a donation: https://www.buymeacoffee.com/whuybrec\n"
         text += "- Github link: <https://github.com/whuybrec/whuybrec.github.io>\n"
         text += "- Invite to my server: https://discord.gg/hGeGsWp\n"
-        await context.message.channel.send(text)
+        await context.send(text)

@@ -13,7 +13,7 @@ class ClearCommand(Command):
 
     @classmethod
     async def handler(cls, context):
-        args = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:]
+        args = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:].lstrip()
         try:
             if cls.has_permission(context.message.author.id):
                 await context.channel.purge(limit=int(args))

@@ -15,9 +15,9 @@ class ChessCommand(Command):
 
     @classmethod
     async def handler(cls, context):
-        args = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:]
+        args = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:].lstrip()
         if len(args) == 0:
-            await context.channel.send("You need to tag a second player to play with.")
+            await context.reply("You need to tag a second player to play with.")
             return
 
         import re
@@ -25,11 +25,11 @@ class ChessCommand(Command):
             player2 = await cls.bot.fetch_user(int(re.findall(r'\d+', args)[0]))
         except Exception as e:
             print(e)
-            await context.channel.send("You need to tag a second player to play with.")
+            await context.reply("You need to tag a second player to play with.")
             return
 
         if player2.bot:
-            await context.channel.send("You can not start Chess with a bot.")
+            await context.reply("You can not start Chess with a bot.")
             return
 
         msg = await context.channel.send("Starting Chess minigame")

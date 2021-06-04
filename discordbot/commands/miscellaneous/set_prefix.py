@@ -13,18 +13,18 @@ class SetPrefixCommand(Command):
     @classmethod
     async def handler(cls, context):
         if not context.channel.permissions_for(context.author).administrator:
-            await context.channel.send("Only admins can change the prefix of the bot.")
+            await context.reply("Only admins can change the prefix of the bot.")
             return
 
         prefix = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:].lstrip()
         if len(prefix) == 0:
-            await context.channel.send("You need to provide a new prefix.")
+            await context.reply("You need to provide a new prefix.")
             return
 
         if len(prefix) > 10:
-            await context.channel.send("Prefix can not be longer than 10 characters.")
+            await context.reply("Prefix can not be longer than 10 characters.")
             return
 
         cls.bot.prefixes[str(context.guild.id)] = prefix
         await cls.bot.save_prefixes()
-        await context.channel.send("The prefix of MiniGamesBot is now: " + prefix)
+        await context.reply(f"The prefix of MiniGamesBot is now: **{prefix}**")
