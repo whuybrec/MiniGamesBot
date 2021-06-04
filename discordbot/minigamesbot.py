@@ -19,6 +19,7 @@ from discordbot.commands import HelpCommand, SayCommand, DeleteCommand, ClearCom
 from discordbot.user.gamemanager import GameManager
 from discordbot.user.minigamesdb import MinigamesDB
 from discordbot.utils.private import DISCORD
+from discordbot.utils.topgg import TopGG
 from minigames.lexicon import Lexicon
 
 # TODO: minigames: checkers
@@ -66,6 +67,12 @@ class MiniGamesBot(Bot):
             prefixes_json = json.dumps(self.prefixes)
             f.write(prefixes_json)
             f.close()
+
+        # REMOVE THIS TRY EXCEPT
+        try:
+            self.add_cog(TopGG(self))
+        except Exception as e:
+            print(e)
 
     async def on_message(self, message):
         if str(message.channel.guild.id) in self.prefixes.keys() \
