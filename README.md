@@ -57,7 +57,24 @@ This is necessary to convert the svg (given by chess library) to a PNG, so it ca
 You are allowed to use this code. A donation is appreciated but not necessary in that case. (link below)
 1. Create a Discord bot on the discord developers webpage.
 2. Clone this repository.
-3. Adjust the variables in 'discordbot.utils.private.py': enter the bot's token, your discord ID, your bot's discord ID and some channel IDs.
+3. Create file 'private.py' in folder 'discordbot.utils' and put these dictionaries in there and replace the values accordingly. (Topgg can remain emtpy)
+```
+ TOPGG = {  
+     "TOKEN": ""  
+ }  
+ 
+ DISCORD = {  
+      "TOKEN": "YOUR DISCORD BOT TOKEN HERE",  
+      "DEVS": [00000000000],  # your discord ID in here  
+      "BOT_ID": 00000000000,   # bot discord ID here  
+      # a channel ID of your choice for these
+      "STATISTICS_CHANNEL": 00000000000,
+      "STACK_CHANNEL": 00000000000,
+      "BACKUP_CHANNEL": 00000000000,
+      "BUG_REPORT_CHANNEL": 00000000000,
+      "ERROR_CHANNEL": 00000000000
+  }
+```
 4. Run 'main.py'
 
 If you have any trouble with this or you have suggestions/remarks, don't hesitate to contact me.
