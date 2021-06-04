@@ -12,7 +12,7 @@ A Python Discord bot with different kinds of minigames and keeps statistics per 
 **?info**  
   —  Shows some information about this bot.  
 **?rules** minigame  
-  —  Shows the rules for the given minigame.
+  —  Shows the rules for the given minigame.  
 **?stats** *@player*  
   —  Shows stats for all minigames for yourself or for the tagged player.  
 **?set_prefix** new prefix  
