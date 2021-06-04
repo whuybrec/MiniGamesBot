@@ -1,3 +1,4 @@
+loop.sh
 bin/*.png
 bin/*.svg
 bin/minigames.db
