@@ -60,6 +60,7 @@ You are allowed to use this code. A donation is appreciated but not necessary in
 3. Adjust the variables in 'discordbot.utils.private.py': enter the bot's token, your discord ID, your bot's discord ID and some channel IDs.
 4. Run 'main.py'
 
+If you have any trouble with this or you have suggestions/remarks, don't hesitate to contact me.
 
 ## About me
 
