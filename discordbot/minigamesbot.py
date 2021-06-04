@@ -31,7 +31,9 @@ class MiniGamesBot(Bot):
         self.prefix = prefix
         self.called_on_ready = False
         self.ctx = None
-        super().__init__(command_prefix=self.prefix)
+        intents = discord.Intents.default()
+        intents.members = True
+        super().__init__(command_prefix=self.prefix, intents=intents)
         self.game_manager = GameManager
         self.db = MinigamesDB
         self.lexicon = Lexicon
