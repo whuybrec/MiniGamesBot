@@ -12,7 +12,7 @@ A Python Discord bot with different kinds of minigames and keeps statistics per 
 **?info**  
   —  Shows some information about this bot.  
 **?rules** minigame  
-  —  Shows for the a given minigame.  
+  —  Shows the rules for the given minigame.
 **?stats** *@player*  
   —  Shows stats for all minigames for yourself or for the tagged player.  
 **?set_prefix** new prefix  
@@ -47,6 +47,9 @@ Check requirements.txt for a list of all the libraries that you need.
 To install them all:
 
 > pip install -r requirements.txt
+
+Additionally, you need to install 'svgexport' from https://www.npmjs.com/package/svgexport.
+This is necessary to convert the svg (given by chess library) to a PNG, so it can be uploaded to Discord.
 
 
 ## How to use?
