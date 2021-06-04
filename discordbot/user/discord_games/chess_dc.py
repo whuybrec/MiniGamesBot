@@ -6,7 +6,7 @@ import chess
 import discord
 from discordbot.utils.private import DISCORD
 from discordbot.user.discord_games.minigame_dc import MinigameDisc
-from discordbot.user.variables import TIMEOUT, WIN, LOSE, DRAW
+from discordbot.utils.variables import TIMEOUT, LOSE, DRAW
 from discordbot.utils.emojis import ALPHABET, STOP, NUMBERS, ARROW_LEFT_2
 from chess import Board, svg
 

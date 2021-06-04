@@ -1,4 +1,4 @@
-from discordbot.user.variables import WIN, LOSE, DRAW
+from discordbot.utils.variables import WIN, LOSE, DRAW
 
 
 class MinigameDisc:

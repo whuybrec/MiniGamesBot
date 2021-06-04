@@ -1,5 +1,5 @@
 from discordbot.commands.command import Command
-from discordbot.user.variables import Variables
+from discordbot.utils.variables import Variables
 from minigames.Minigames.checkers.checkers import Checkers
 
 

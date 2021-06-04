@@ -2,7 +2,7 @@ import asyncio
 from string import ascii_lowercase
 
 from discordbot.user.discord_games.minigame_dc import MinigameDisc
-from discordbot.user.variables import TIMEOUT, WIN, LOSE
+from discordbot.utils.variables import TIMEOUT, WIN, LOSE
 from discordbot.utils.emojis import ALPHABET, STOP
 from minigames.hangman import Hangman, HANGMEN
 

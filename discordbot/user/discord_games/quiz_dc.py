@@ -4,7 +4,7 @@ import random
 from string import ascii_lowercase, ascii_uppercase
 
 from discordbot.user.discord_games.minigame_dc import MinigameDisc
-from discordbot.user.variables import TIMEOUT, WIN, LOSE
+from discordbot.utils.variables import TIMEOUT, WIN, LOSE
 from discordbot.utils.emojis import ALPHABET, STOP, NUMBERS
 from minigames.lexicon import Lexicon
 

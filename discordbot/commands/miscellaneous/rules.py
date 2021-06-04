@@ -1,6 +1,6 @@
 from discordbot.categories.miscellaneous import Miscellaneous
 from discordbot.commands.command import Command
-from discordbot.user.variables import *
+from discordbot.utils.variables import *
 
 
 RULES = {

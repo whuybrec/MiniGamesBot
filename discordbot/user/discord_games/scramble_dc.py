@@ -1,7 +1,7 @@
 import asyncio
 
 from discordbot.user.discord_games.minigame_dc import MinigameDisc
-from discordbot.user.variables import TIMEOUT, WIN, LOSE
+from discordbot.utils.variables import TIMEOUT, WIN, LOSE
 from discordbot.utils.emojis import ALPHABET, STOP, ARROW_LEFT_2
 from minigames.scramble import Scramble
 
