@@ -26,7 +26,7 @@ class StatsCommand(Command):
 
         pages = []
         today = date.today()
-        lists = [["Game", "W", "L", "D", "Total", "Time"]]
+        lists = [["Game", "W", "L", "D", "Total", "Unfinished", "Time"]]
         mg_stats = cls.bot.db.get_stats_for_player_of_day(player.id, today)
         if mg_stats:
             for row in mg_stats:
@@ -35,7 +35,7 @@ class StatsCommand(Command):
                 lists.append(temp)
             pages.append(f"Stats of today for **{player.name}**:\n```\n" + create_table(*lists) + "\n```")
 
-        lists = [["Game", "W", "L", "D", "Total", "Time"]]
+        lists = [["Game", "W", "L", "D", "Total", "Unfinished", "Time"]]
         mg_stats = cls.bot.db.get_stats_for_player_of_month(player.id, today.strftime("%Y-%m"))
         if mg_stats:
             for row in mg_stats:
@@ -44,7 +44,7 @@ class StatsCommand(Command):
                 lists.append(temp)
             pages.append(f"Stats of this month for **{player.name}**:\n```\n" + create_table(*lists) + "\n```")
 
-        lists = [["Game", "W", "L", "D", "Total", "Time"]]
+        lists = [["Game", "W", "L", "D", "Total", "Unfinished", "Time"]]
         mg_stats = cls.bot.db.get_stats_for_player_of_year(player.id, today.year)
         if mg_stats:
             for row in mg_stats:
@@ -53,7 +53,7 @@ class StatsCommand(Command):
                 lists.append(temp)
             pages.append(f"Stats of this year for **{player.name}**:\n```\n" + create_table(*lists) + "\n```")
 
-        lists = [["Day", "Game", "W", "L", "D", "Total", "Time"]]
+        lists = [["Day", "Game", "W", "L", "D", "Total", "Unfinished", "Time"]]
         mg_daily_stats = cls.bot.db.get_daily_stats_for_player_of_month(player.id, today)
         num_days = calendar.monthrange(today.year, today.month)[1]
         days = [date(today.year, today.month, day) for day in range(1, num_days + 1)]
@@ -68,7 +68,7 @@ class StatsCommand(Command):
                     lists.append(temp)
         pages.append(f"Daily stats for **{player.name}**:\n```\n" + create_table(*lists) + "\n```")
 
-        lists = [["Month", "Game", "W", "L", "D", "Total", "Time"]]
+        lists = [["Month", "Game", "W", "L", "D", "Total", "Unfinished", "Time"]]
         mg_monthly_stats = cls.bot.db.get_monthly_stats_for_player_of_year(player.id, today)
         months = [date(today.year, month, 1) for month in range(1, 13)]
         for month in months:
@@ -82,7 +82,7 @@ class StatsCommand(Command):
                     lists.append(temp)
         pages.append(f"Monthly stats for **{player.name}**:\n```\n" + create_table(*lists) + "\n```")
 
-        lists = [["Year", "Game", "W", "L", "D", "Total", "Time"]]
+        lists = [["Year", "Game", "W", "L", "D", "Total", "Unfinished", "Time"]]
         mg_yearly_stats = cls.bot.db.get_yearly_stats_for_player(player.id, today)
         years = [date(year, 1, 1) for year in range(today.year - 4, today.year + 1)]
         for year in years:

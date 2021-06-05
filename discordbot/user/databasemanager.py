@@ -302,7 +302,7 @@ class DatabaseManager:
             message = await channel.send("haha brr")
 
         today = "```diff\n+ Today\n\n"
-        lists = [["Game", "W", "L", "D", "Total", "Time"]]
+        lists = [["Game", "W", "L", "D", "Total", "Unfinished", "Time"]]
         mg_stats = cls.get_stats_for_minigames_of_day(date.today())
         if mg_stats:
             for row in mg_stats:
