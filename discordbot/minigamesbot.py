@@ -96,6 +96,8 @@ class MiniGamesBot(Bot):
             await channel.send("**READY**")
 
     async def on_guild_remove(self, guild):
+        if guild.name is None:
+            return
         self.db.add_to_servers_table(guild.id, "\"LEAVE\"")
         channel = await self.fetch_channel(DISCORD["STACK_CHANNEL"])
         await channel.send("LEFT GUILD '{0}' ({1}).".format(guild.name, guild.id))
