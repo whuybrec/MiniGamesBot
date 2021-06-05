@@ -110,5 +110,5 @@ class HelpCommand(Command):
                            f"- {cls.bot.categories[i].name}\n" \
                            "```"
         content += "\nArguments in *italic*  are optional." \
-                   "\nType **?help command** for more info on a command."
+                   f"\nType **{prefix}help command** for more info on a command."
         return content
