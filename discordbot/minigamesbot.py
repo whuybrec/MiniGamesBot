@@ -20,6 +20,7 @@ from discordbot.user.gamemanager import GameManager
 from discordbot.user.minigamesdb import MinigamesDB
 from discordbot.utils.private import DISCORD
 from discordbot.utils.topgg import TopGG
+from generic.scheduler import Scheduler
 from minigames.lexicon import Lexicon
 
 # TODO: minigames: checkers
@@ -68,6 +69,9 @@ class MiniGamesBot(Bot):
             f.write(prefixes_json)
             f.close()
 
+        self.scheduler = Scheduler()
+        self.scheduler.add(20, self.routine_updates)
+
         # REMOVE THIS TRY EXCEPT
         try:
             self.add_cog(TopGG(self))
@@ -88,7 +92,6 @@ class MiniGamesBot(Bot):
             self.called_on_ready = False
             channel = await self.fetch_channel(DISCORD["STACK_CHANNEL"])
             await channel.send("**READY**")
-            await self.routine_updates()
 
     async def on_guild_remove(self, guild):
         channel = await self.fetch_channel(DISCORD["STACK_CHANNEL"])
