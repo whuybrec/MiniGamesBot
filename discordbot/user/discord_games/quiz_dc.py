@@ -76,7 +76,7 @@ class QuizDisc(MinigameDisc):
         self.answers.insert(self.correct_answer, quiz['correct_answer'])
 
     def get_content(self):
-        content = "```"
+        content = "```\n"
         if self.selecting_category:
             content += "Categories\n"
             for i in range(len(self.categories)):

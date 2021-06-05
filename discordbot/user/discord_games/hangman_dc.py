@@ -52,10 +52,10 @@ class HangmanDisc(MinigameDisc):
             else:
                 word_ += f"{c} "
 
-        content = f"```{hangman}\n\nWord: {word_}```"
+        content = f"```\n{hangman}\n\nWord: {word_}\n```"
         if not self.playing:
             if len(self.winners) == 1:
-                content += "```You have won the game!```"
+                content += "```\nYou have won the game!\n```"
             else:
-                content += f"```You have lost the game!\nThe word was: '{''.join(self.hangman_game.word)}'```"
+                content += f"```\nYou have lost the game!\nThe word was: '{''.join(self.hangman_game.word)}'\n```"
         return content

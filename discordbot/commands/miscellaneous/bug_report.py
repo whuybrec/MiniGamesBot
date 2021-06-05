@@ -8,7 +8,7 @@ class BugCommand(Command):
     name = "bug"
     help = "If you found a bug, then you can report it to the developer. Please give detailed information (an image is possible) as argument so the bug can be resolved quickly."
     brief = "Report a bug with a description as argument."
-    args = "bug description"
+    args = "description"
     category = Miscellaneous
 
     @classmethod

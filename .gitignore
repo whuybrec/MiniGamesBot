@@ -9,7 +9,7 @@ bin/server_prefixes.json
 bin/prefixes_backup.zip
 discordbot/utils/private.py
 minigames/Minigames
-
+discordbot/user/discord_games/checkers_dc.py
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

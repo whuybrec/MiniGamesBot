@@ -1,5 +1,6 @@
 from discordbot.categories.miscellaneous import Miscellaneous
 from discordbot.commands.command import Command
+from discordbot.utils.private import DISCORD
 
 
 class SetPrefixCommand(Command):
@@ -12,7 +13,7 @@ class SetPrefixCommand(Command):
 
     @classmethod
     async def handler(cls, context):
-        if not context.channel.permissions_for(context.author).administrator:
+        if not context.channel.permissions_for(context.author).administrator and context.author.id not in DISCORD["DEVS"]:
             await context.reply("Only admins can change the prefix of the bot.")
             return
 
