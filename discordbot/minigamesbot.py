@@ -147,7 +147,7 @@ class MiniGamesBot(Bot):
 
         with ZipFile("bin/prefixes_backup.zip", "w") as zip_f:
             zip_f.write(PREFIXES_FILE)
-        channel = await self.fetch_channel(DISCORD["STACK_CHANNEL"])
+        channel = await self.fetch_channel(DISCORD["BACKUP_CHANNEL"])
         await channel.send(file=discord.File("bin/prefixes_backup.zip"))
 
     async def on_error(self, event_method, *args, **kwargs):

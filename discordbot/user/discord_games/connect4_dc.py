@@ -78,16 +78,6 @@ class Connect4Disc(MinigameDisc):
                 self.session.stats_players[p_id]["draws"] += 1
         await self.session.pause()
 
-    async def validate(self, reaction, user):
-        if reaction.emoji not in self.emojis:
-            await self.session.message.clear_reaction(reaction.emoji)
-            return False
-
-        if user.id != self.player_ids[self.connect4_game.turn] and user.id != self.session.message.author.id:
-            await self.session.message.remove_reaction(reaction.emoji, user)
-            return False
-        return True
-
     def get_content(self):
         board = self.connect4_game.get_board()
         content = "Board:\n"
