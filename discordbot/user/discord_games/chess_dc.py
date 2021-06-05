@@ -58,6 +58,7 @@ class ChessDisc(MinigameDisc):
                 self.losers.append(self.players[self.turn])
                 self.winners.append(self.players[(self.turn + 1) % 2])
                 self.playing = False
+                self.session.timeout = True
 
         await self.end_game()
 

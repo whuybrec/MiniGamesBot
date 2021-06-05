@@ -22,6 +22,7 @@ class Session:
         self.session_time = 0
         self.minigame = None
         self.message_extra = None
+        self.timeout = False
         self.stats_players = dict()
         for player in self.players:
             self.stats_players[player.id] = {
@@ -58,7 +59,8 @@ class Session:
                 stats["wins"],
                 stats["losses"],
                 stats["draws"],
-                self.session_time
+                self.session_time,
+                self.timeout
             )
         self.bot.db.add_to_minigames_table(
             self.context.guild.id,
@@ -67,7 +69,8 @@ class Session:
             wins,
             losses,
             draws,
-            self.session_time
+            self.session_time,
+            self.timeout
         )
 
     async def pause(self):

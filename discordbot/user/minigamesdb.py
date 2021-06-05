@@ -26,11 +26,12 @@ class MinigamesDB:
                 "player_id integer",
                 "minigame text",
                 "time_stamp integer",
-                "total_games integer",
                 "wins integer",
                 "losses integer",
                 "draws integer",
-                "time_played integer"
+                "total_games integer",
+                "time_played integer",
+                "timeout boolean"
             ],
             [
                 "player_id",
@@ -44,11 +45,12 @@ class MinigamesDB:
                 "server_id integer",
                 "minigame text",
                 "time_stamp integer",
-                "total_games",
                 "wins integer",
                 "losses integer",
                 "draws integer",
-                "time_played integer"
+                "total_games",
+                "time_played integer",
+                "timeout boolean"
             ],
             [
                 "server_id",
@@ -58,29 +60,31 @@ class MinigamesDB:
         )
 
     @classmethod
-    def add_to_players_table(cls, player_id, minigame, total_games, wins, losses, draws, time_played):
+    def add_to_players_table(cls, player_id, minigame, total_games, wins, losses, draws, time_played, timeout):
         data = dict()
         data["player_id"] = player_id
         data["minigame"] = minigame
         data["time_stamp"] = time()
-        data["total_games"] = total_games
         data["wins"] = wins
         data["losses"] = losses
         data["draws"] = draws
+        data["total_games"] = total_games
         data["time_played"] = time_played
+        data["timeout"] = timeout
         cls.database.write("players", data)
 
     @classmethod
-    def add_to_minigames_table(cls, server_id, minigame, total_games, wins, losses, draws, time_played):
+    def add_to_minigames_table(cls, server_id, minigame, total_games, wins, losses, draws, time_played, timeout):
         data = dict()
         data["server_id"] = server_id
         data["minigame"] = minigame
         data["time_stamp"] = time()
-        data["total_games"] = total_games
         data["wins"] = wins
         data["losses"] = losses
         data["draws"] = draws
+        data["total_games"] = total_games
         data["time_played"] = time_played
+        data["timeout"] = timeout
         cls.database.write("minigames", data)
 
     @classmethod
