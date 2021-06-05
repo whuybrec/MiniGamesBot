@@ -79,9 +79,11 @@ class MiniGamesBot(Bot):
             print(e)
 
     async def on_message(self, message):
-        if str(message.channel.guild.id) in self.prefixes.keys() \
-                and message.content.startswith(self.prefixes[str(message.channel.guild.id)]):
-            message.content = self.prefix + message.content[len(self.prefixes[str(message.channel.guild.id)]):]
+        if str(message.channel.guild.id) in self.prefixes.keys():
+            if message.content.startswith(self.prefixes[str(message.channel.guild.id)]):
+                message.content = self.prefix + message.content[len(self.prefixes[str(message.channel.guild.id)]):]
+            else:
+                return
 
         context = await self.get_context(message)
         self.ctx = context
