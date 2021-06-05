@@ -51,6 +51,22 @@ To install them all:
 Additionally, you need to install 'svgexport' from https://www.npmjs.com/package/svgexport.
 This is necessary to convert the svg (given by chess library) to a PNG, so it can be uploaded to Discord.
 
+IMPORTANT in case you run this on a Raspberry Pi:
+- Install node
+- Install chromium-browser
+- Install puppeteer
+- Install svgexport
+- In svgexport go to render.js, then edit lines 21 to 23 like this:
+```
+  var browser = await puppeteer.launch({
+    product: 'chrome',
+    executablePath: '/usr/bin/chromium-browser'
+    headless: true,
+    args: ['--no-sandbox', '--font-render-hinting=none']
+  });
+```
+assuming chromium-browser is located in in '/usr/bin'
+
 
 ## How to use?
 
