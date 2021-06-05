@@ -22,7 +22,7 @@ class Session:
         self.session_time = 0
         self.minigame = None
         self.message_extra = None
-        self.timeout = False
+        self.player_timed_out = None
         self.stats_players = dict()
         for player in self.players:
             self.stats_players[player.id] = {
@@ -52,16 +52,34 @@ class Session:
             wins += stats["wins"]
             losses += stats["losses"]
             draws += stats["draws"]
-            self.bot.db.add_to_players_table(
-                pid,
-                f"\"{self.minigame_name}\"",
-                self.amount,
-                stats["wins"],
-                stats["losses"],
-                stats["draws"],
-                self.session_time,
-                self.timeout
-            )
+            if self.player_timed_out is not None and self.player_timed_out == pid:
+                self.bot.db.add_to_players_table(
+                    pid,
+                    f"\"{self.minigame_name}\"",
+                    self.amount,
+                    stats["wins"],
+                    stats["losses"],
+                    stats["draws"],
+                    self.session_time,
+                    True
+                )
+            else:
+                self.bot.db.add_to_players_table(
+                    pid,
+                    f"\"{self.minigame_name}\"",
+                    self.amount,
+                    stats["wins"],
+                    stats["losses"],
+                    stats["draws"],
+                    self.session_time,
+                    False
+                )
+
+        if self.player_timed_out is not None:
+            timeout = True
+        else:
+            timeout = False
+
         self.bot.db.add_to_minigames_table(
             self.context.guild.id,
             f"\"{self.minigame_name}\"",
@@ -70,7 +88,7 @@ class Session:
             losses,
             draws,
             self.session_time,
-            self.timeout
+            timeout
         )
 
     async def pause(self):

@@ -41,7 +41,7 @@ class Connect4Disc(MinigameDisc):
                 self.losers.append(self.players[self.turn])
                 self.winners.append(self.players[(self.turn + 1) % 2])
                 self.playing = False
-                self.session.timeout = True
+                self.session.player_timed_out = self.players[self.turn].id
 
         await self.end_game()
 

@@ -15,15 +15,14 @@ from discordbot.commands import HelpCommand, SayCommand, DeleteCommand, ClearCom
     ExecuteCommand, \
     RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand, Connect4Command, QuizCommand, \
     BlackjackCommand, \
-    DbCommand, StatsCommand, SetPrefixCommand, BugCommand, ChessCommand
+    GamesCommand, StatsCommand, SetPrefixCommand, BugCommand, ChessCommand, ServersCommand
 from discordbot.user.gamemanager import GameManager
-from discordbot.user.minigamesdb import MinigamesDB
+from discordbot.user.databasemanager import DatabaseManager
 from discordbot.utils.private import DISCORD
 from discordbot.utils.topgg import TopGG
 from generic.scheduler import Scheduler
 from minigames.lexicon import Lexicon
 
-# TODO: minigames: checkers
 
 PREFIXES_FILE = "bin/server_prefixes.json"
 
@@ -37,7 +36,7 @@ class MiniGamesBot(Bot):
         intents.members = True
         super().__init__(command_prefix=self.prefix, intents=intents)
         self.game_manager = GameManager
-        self.db = MinigamesDB
+        self.db = DatabaseManager
         self.lexicon = Lexicon
 
         # load commands
@@ -48,7 +47,8 @@ class MiniGamesBot(Bot):
         ]
         self.my_commands = [SayCommand, HelpCommand, DeleteCommand, ClearCommand, TemperatureCommand, ExecuteCommand,
                             RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand, Connect4Command,
-                            QuizCommand, BlackjackCommand, DbCommand, StatsCommand, SetPrefixCommand, BugCommand, ChessCommand]
+                            QuizCommand, BlackjackCommand, GamesCommand, StatsCommand, SetPrefixCommand, BugCommand, ChessCommand,
+                            ServersCommand]
         self.load_commands()
 
         # load managers
@@ -94,10 +94,12 @@ class MiniGamesBot(Bot):
             await channel.send("**READY**")
 
     async def on_guild_remove(self, guild):
+        self.db.add_to_servers_table(guild.id, "\"LEAVE\"")
         channel = await self.fetch_channel(DISCORD["STACK_CHANNEL"])
         await channel.send("LEFT GUILD '{0}' ({1}).".format(guild.name, guild.id))
 
     async def on_guild_join(self, guild):
+        self.db.add_to_servers_table(guild.id, "\"JOIN\"")
         general = find(lambda x: 'general' in x.name, guild.text_channels)
         if general and general.permissions_for(guild.me).send_messages:
             await general.send('Hello {0}! The command prefix for this bot is **?**.\n'
@@ -140,7 +142,7 @@ class MiniGamesBot(Bot):
         while True:
             await self.db.update()
             await self.save_prefixes()
-            await asyncio.sleep(60*20)
+            await asyncio.sleep(60*30)
 
     async def save_prefixes(self):
         f = open(PREFIXES_FILE, 'w')

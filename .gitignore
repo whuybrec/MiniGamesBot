@@ -8,6 +8,7 @@ bin/database_backup.zip
 bin/server_prefixes.json
 bin/prefixes_backup.zip
 discordbot/utils/private.py
+minigames/Minigames
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -138,3 +139,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+/minigames/Minigames/
+/minigames/Minigames/

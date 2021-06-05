@@ -67,7 +67,7 @@ class MinigameDisc:
             except asyncio.TimeoutError:
                 self.losers.append(self.players[0])
                 self.playing = False
-                self.session.timeout = True
+                self.session.player_timed_out = self.players[self.turn].id
 
         await self.end_game()
 

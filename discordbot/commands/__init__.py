@@ -1,5 +1,5 @@
 from .developer.clear import ClearCommand
-from .developer.db import DbCommand
+from .developer.games import GamesCommand
 from .developer.delete import DeleteCommand
 from .developer.restart import RestartCommand
 from .developer.say import SayCommand
@@ -17,3 +17,4 @@ from .miscellaneous.info import InfoCommand
 from .miscellaneous.rules import RulesCommand
 from .miscellaneous.set_prefix import SetPrefixCommand
 from .miscellaneous.stats import StatsCommand
+from .developer.servers import ServersCommand

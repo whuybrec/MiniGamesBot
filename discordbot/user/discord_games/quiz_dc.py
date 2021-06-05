@@ -42,7 +42,6 @@ class QuizDisc(MinigameDisc):
                     self.category = self.categories[n-1]
                     break
         except asyncio.TimeoutError:
-            self.session.timeout = True
             await self.end_game()
             return
         await self.clear_reactions()
