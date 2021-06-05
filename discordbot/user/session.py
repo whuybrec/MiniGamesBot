@@ -43,7 +43,7 @@ class Session:
     async def close(self):
         await self.message.clear_reactions()
         if self.extra:
-            await self.message_extra.delete()
+            await self.message_extra.clear_reactions()
 
         # save data to DB
         wins = losses = draws = 0

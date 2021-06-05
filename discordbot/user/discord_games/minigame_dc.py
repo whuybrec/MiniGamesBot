@@ -1,26 +1,19 @@
-from discordbot.utils.variables import WIN, LOSE, DRAW
+import asyncio
+
+from discordbot.utils.emojis import STOP
+from discordbot.utils.variables import TIMEOUT
 
 
 class MinigameDisc:
     def __init__(self, session):
         self.session = session
-        self.status = -1
         self.emojis = set()
-
-    async def end_game(self):
-        await self.session.message.edit(content=self.get_content())
-        await self.session.message.clear_reactions()
-        self.emojis = set()
-        if self.status == WIN:
-            for v in self.session.stats_players.values():
-                v["wins"] += 1
-        elif self.status == LOSE:
-            for v in self.session.stats_players.values():
-                v["losses"] += 1
-        elif self.status == DRAW:
-            for v in self.session.stats_players.values():
-                v["draws"] += 1
-        await self.session.pause()
+        self.players = session.players
+        self.winners = []
+        self.losers = []
+        self.drawers = []
+        self.playing = True
+        self.turn = 0
 
     async def add_reaction(self, emoji, extra=False):
         if not extra:
@@ -52,3 +45,47 @@ class MinigameDisc:
 
     def get_content(self):
         pass
+
+    async def wait_for_player(self, check_=None):
+        def check(r, u):
+            return r.message.id == self.session.message.id \
+                   and r.emoji in self.emojis \
+                   and u.id == self.players[self.turn].id
+
+        while self.playing:
+            try:
+                if check_ is None:
+                    reaction, user = await self.session.bot.wait_for("reaction_add", check=check, timeout=TIMEOUT)
+                else:
+                    reaction, user = await self.session.bot.wait_for("reaction_add", check=check_, timeout=TIMEOUT)
+                if reaction.emoji == STOP:
+                    self.losers.append(self.players[0])
+                    self.playing = False
+
+                await self.on_reaction(reaction, user)
+
+            except asyncio.TimeoutError:
+                self.losers.append(self.players[0])
+                self.playing = False
+
+        await self.end_game()
+
+    async def on_reaction(self, reaction, user):
+        raise NotImplementedError
+
+    async def end_game(self):
+        await self.session.message.edit(content=self.get_content())
+        await self.session.message.clear_reactions()
+        if self.session.message_extra is not None:
+            await self.session.message_extra.clear_reactions()
+
+        self.emojis = set()
+
+        for winner in self.winners:
+            self.session.stats_players[winner.id]["wins"] += 1
+        for loser in self.losers:
+            self.session.stats_players[loser.id]["losses"] += 1
+        for drawer in self.drawers:
+            self.session.stats_players[drawer.id]["draws"] += 1
+
+        await self.session.pause()

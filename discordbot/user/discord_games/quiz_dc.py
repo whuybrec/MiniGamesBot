@@ -4,8 +4,8 @@ import random
 from string import ascii_lowercase, ascii_uppercase
 
 from discordbot.user.discord_games.minigame_dc import MinigameDisc
-from discordbot.utils.variables import TIMEOUT, WIN, LOSE
 from discordbot.utils.emojis import ALPHABET, STOP, NUMBERS
+from discordbot.utils.variables import TIMEOUT
 from minigames.lexicon import Lexicon
 
 
@@ -21,16 +21,16 @@ class QuizDisc(MinigameDisc):
         self.categories = ["General Knowledge", "Sports", "Films", "Music", "Video Games"]
 
     async def start(self):
+        def check(r, u):
+            return r.message.id == self.session.message.id \
+                   and r.emoji in self.emojis \
+                   and u.id == self.players[self.turn].id
+
         await self.session.message.edit(content=self.get_content())
 
         for i in range(1, len(self.categories)+1):
             await self.add_reaction(NUMBERS[i])
         await self.add_reaction(STOP)
-
-        def check(r, u):
-            return r.message.id == self.session.message.id \
-                   and r.emoji in self.emojis \
-                   and u.id == self.session.context.message.author.id
 
         try:
             reaction, user = await self.session.bot.wait_for("reaction_add", check=check, timeout=TIMEOUT)
@@ -54,31 +54,16 @@ class QuizDisc(MinigameDisc):
 
         await self.wait_for_player()
 
-    async def wait_for_player(self):
-        def check(r, u):
-            return r.message.id == self.session.message.id \
-                   and u.id != self.session.message.author.id \
-                   and u.id == self.session.message.author.id \
-                   and r.emoji in self.emojis
-
-        try:
-            reaction, user = await self.session.bot.wait_for("reaction_add", check=check, timeout=TIMEOUT)
-            if reaction.emoji == STOP:
-                self.status = LOSE
-            else:
-                for c, e in ALPHABET.items():
-                    if e == reaction.emoji:
-                        self.user_answer = ascii_lowercase.index(c)
-                        if self.user_answer == self.correct_answer:
-                            self.status = WIN
-                        else:
-                            self.status = LOSE
-                        break
-        except asyncio.TimeoutError:
-            self.status = LOSE
-
-        await self.session.message.edit(content=self.get_content())
-        await self.end_game()
+    async def on_reaction(self, reaction, user):
+        for c, e in ALPHABET.items():
+            if e == reaction.emoji:
+                self.user_answer = ascii_lowercase.index(c)
+                if self.user_answer == self.correct_answer:
+                    self.winners.append(self.players[0])
+                else:
+                    self.losers.append(self.players[0])
+                break
+        self.playing = False
 
     def get_question(self):
         self.selecting_category = False
@@ -104,9 +89,10 @@ class QuizDisc(MinigameDisc):
                     content += f"{ascii_uppercase[i]}: {html.unescape(self.answers[i])}   <- YOUR ANSWER\n"
                 else:
                     content += f"{ascii_uppercase[i]}: {html.unescape(self.answers[i])}\n"
-            if self.status == WIN:
-                content += "You answered correct!\n"
-            elif self.status == LOSE:
-                content += f"Wrong! The correct answer was: {html.unescape(self.answers[self.correct_answer])}\n"
+            if not self.playing:
+                if len(self.winners) == 1:
+                    content += "You answered correct!\n"
+                else:
+                    content += f"Wrong! The correct answer was: {html.unescape(self.answers[self.correct_answer])}\n"
         content += "```"
         return content

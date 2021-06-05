@@ -18,14 +18,12 @@ class ChessDisc(MinigameDisc):
     def __init__(self, session):
         super().__init__(session)
         self.chessboard = Board()
-        self.player_ids = [p.id for p in self.session.players]
-        self.turn = 0
+        self.turn = random.randint(0, 1)
         self.move = ""
         self.choosing_letter = True
         self.choosing_number = False
         self.id = random.getrandbits(64)
         self.file = f'bin/{self.id}'
-        random.shuffle(self.player_ids)
 
     async def start(self):
         await self.update_messages()
@@ -38,85 +36,91 @@ class ChessDisc(MinigameDisc):
         await self.add_reaction(ARROW_LEFT_2, True)
         await self.add_reaction(STOP, True)
 
-        await self.wait_for_player()
+        await self.wait_for_player(self.check)
 
-    async def wait_for_player(self):
-        def check(r, u):
-            return r.message.id in [self.session.message.id, self.session.message_extra.id] \
-                   and r.emoji in self.emojis \
-                   and u.id == self.player_ids[self.turn]
+    def check(self, r, u):
+        return r.message.id in [self.session.message.id, self.session.message_extra.id] \
+               and r.emoji in self.emojis \
+               and u.id == self.players[self.turn].id
 
-        try:
-            while True:
-                reaction, user = await self.session.bot.wait_for("reaction_add", check=check, timeout=TIMEOUT)
-
+    async def wait_for_player(self, check_=None):
+        while self.playing:
+            try:
+                reaction, user = await self.session.bot.wait_for("reaction_add", check=check_, timeout=TIMEOUT)
                 if reaction.emoji == STOP:
-                    self.status = LOSE
-                    break
+                    self.losers.append(self.players[self.turn])
+                    self.winners.append(self.players[(self.turn+1) % 2])
+                    self.playing = False
 
-                if reaction.emoji == ARROW_LEFT_2:
-                    if len(self.move) > 0:
-                        self.move = self.move[:-1]
-                        self.choosing_number = not self.choosing_number
-                        self.choosing_letter = not self.choosing_letter
-                        await self.session.message.edit(content=self.get_content())
-                    await reaction.message.remove_reaction(reaction.emoji, user)
+                await self.on_reaction(reaction, user)
 
-                elif reaction.message.id == self.session.message.id and self.choosing_letter:
-                    for char, emoji in ALPHABET.items():
-                        if reaction.emoji == emoji:
-                            self.move += char
-                    self.choosing_number = True
-                    self.choosing_letter = False
-                    await self.session.message.edit(content=self.get_content())
-                    await self.session.message.remove_reaction(reaction.emoji, user)
-
-                elif reaction.message.id == self.session.message_extra.id and self.choosing_number:
-                    for n, emoji in NUMBERS.items():
-                        if reaction.emoji == emoji:
-                            self.move += str(n)
-                    self.choosing_number = False
-                    self.choosing_letter = True
-                    await self.session.message.edit(content=self.get_content())
-                    await self.session.message_extra.remove_reaction(reaction.emoji, user)
-                else:
-                    await reaction.message.remove_reaction(reaction.emoji, user)
-
-                if len(self.move) == 4:
-                    if chess.Move.from_uci(self.move) in self.chessboard.legal_moves:
-                        self.chessboard.push_uci(self.move)
-                        self.next_turn()
-                        self.move = ""
-                        await self.update_messages()
-                    else:
-                        self.move = ""
-                        await self.session.message.edit(content=self.get_content()+"\nIncorrect move, try again!")
-
-                if self.chessboard.is_checkmate():
-                    self.status = LOSE
-                    break
-
-                elif self.chessboard.is_stalemate() or self.chessboard.is_insufficient_material():
-                    self.status = DRAW
-                    break
-
-        except asyncio.TimeoutError:
-            self.status = LOSE
+            except asyncio.TimeoutError:
+                self.losers.append(self.players[self.turn])
+                self.winners.append(self.players[(self.turn + 1) % 2])
+                self.playing = False
 
         await self.end_game()
 
-    def get_content(self):
-        if self.status != -1:
-            if self.status == LOSE:
-                content = f"<@{str(self.player_ids[(self.turn+1)%2])}> won the game!"
+    async def on_reaction(self, reaction, user):
+        if reaction.emoji == ARROW_LEFT_2:
+            if len(self.move) > 0:
+                self.move = self.move[:-1]
+                self.choosing_number = not self.choosing_number
+                self.choosing_letter = not self.choosing_letter
+                await self.session.message.edit(content=self.get_content())
+            await reaction.message.remove_reaction(reaction.emoji, user)
+
+        elif reaction.message.id == self.session.message.id and self.choosing_letter:
+            for char, emoji in ALPHABET.items():
+                if reaction.emoji == emoji:
+                    self.move += char
+            self.choosing_number = True
+            self.choosing_letter = False
+            await self.session.message.edit(content=self.get_content())
+            await self.session.message.remove_reaction(reaction.emoji, user)
+
+        elif reaction.message.id == self.session.message_extra.id and self.choosing_number:
+            for n, emoji in NUMBERS.items():
+                if reaction.emoji == emoji:
+                    self.move += str(n)
+            self.choosing_number = False
+            self.choosing_letter = True
+            await self.session.message.edit(content=self.get_content())
+            await self.session.message_extra.remove_reaction(reaction.emoji, user)
+        else:
+            await reaction.message.remove_reaction(reaction.emoji, user)
+
+        if len(self.move) == 4:
+            if chess.Move.from_uci(self.move) in self.chessboard.legal_moves:
+                self.chessboard.push_uci(self.move)
+                self.move = ""
+                if self.chessboard.is_checkmate():
+                    self.winners.append(self.players[self.turn])
+                    self.losers.append(self.players[(self.turn + 1) % 2])
+                    self.playing = False
+                elif self.chessboard.is_stalemate() or self.chessboard.is_insufficient_material():
+                    self.drawers.append(self.players[self.turn])
+                    self.drawers.append(self.players[(self.turn + 1) % 2])
+                    self.playing = False
+                else:
+                    self.turn = (self.turn + 1) % 2
+                await self.update_messages()
             else:
+                self.move = ""
+                await self.session.message.edit(content=self.get_content()+"\nIncorrect move, try again!")
+
+    def get_content(self):
+        if not self.playing:
+            if len(self.drawers) == 2:
                 content = f"Game ended in draw!"
+            else:
+                content = f"<@{str(self.winners[0].id)}> won the game!"
         else:
             if self.turn == 0:
                 color = "White"
             else:
                 color = "Black"
-            content = f"{color}'s turn: <@{str(self.player_ids[self.turn])}>\n"
+            content = f"{color}'s turn: <@{str(self.players[self.turn].id)}>\n"
             if self.choosing_number:
                 content += "\nSelect **number**"
             if self.choosing_letter:
@@ -127,9 +131,6 @@ class ChessDisc(MinigameDisc):
             if self.move != "":
                 content += f"**{self.move}**"
         return content
-
-    def next_turn(self):
-        self.turn = (self.turn+1) % 2
 
     async def update_messages(self):
         self.save_board_image()
@@ -156,19 +157,5 @@ class ChessDisc(MinigameDisc):
         os.remove(f"{self.file}.png")
 
     async def end_game(self):
-        await self.update_messages()
-        await self.session.message.clear_reactions()
-        await self.session.message_extra.clear_reactions()
         self.remove_files()
-
-        self.emojis = set()
-        if self.status == LOSE:  # player with turn lost
-            for p_id in self.session.stats_players.keys():
-                if p_id == self.player_ids[self.turn]:
-                    self.session.stats_players[p_id]["losses"] += 1
-                else:
-                    self.session.stats_players[p_id]["wins"] += 1
-        elif self.status == DRAW:  # players draw
-            for p_id in self.session.stats_players.keys():
-                self.session.stats_players[p_id]["draws"] += 1
-        await self.session.pause()
+        await super().end_game()

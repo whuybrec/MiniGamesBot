@@ -18,59 +18,30 @@ class BlackjackDisc(MinigameDisc):
         if self.blackjack.can_split():
             await self.add_reaction(SPLIT)
         await self.add_reaction(STOP)
+
         await self.wait_for_player()
 
-    async def wait_for_player(self):
-        def check(r, u):
-            return r.message.id == self.session.message.id \
-                   and u.id == self.session.context.message.author.id \
-                   and r.emoji in self.emojis
+    async def on_reaction(self, reaction, user):
+        if reaction.emoji == ALPHABET["h"]:
+            if len(self.blackjack.player_hands) == 2:
+                if max(self.blackjack.player_hands[0].get_value()) > 21:
+                    self.blackjack.hit(hand=1)
+                else:
+                    self.blackjack.hit()
+            else:
+                self.blackjack.hit()
+            await self.session.message.remove_reaction(reaction.emoji, user)
+        elif reaction.emoji == ALPHABET["s"]:
+            self.stand()
+        elif reaction.emoji == SPLIT:
+            self.blackjack.split_hand()
 
-        try:
-            while True:
-                reaction, user = await self.session.bot.wait_for("reaction_add", check=check, timeout=TIMEOUT)
-                if reaction.emoji == STOP:
-                    self.status = LOSE
-                    break
-                elif reaction.emoji == ALPHABET["h"]:
-                    if len(self.blackjack.player_hands) == 2:
-                        if max(self.blackjack.player_hands[0].get_value()) > 21:
-                            self.blackjack.hit(1)
-                        else:
-                            self.blackjack.hit()
-                    else:
-                        self.blackjack.hit()
-                    await self.session.message.remove_reaction(reaction.emoji, user)
-                elif reaction.emoji == ALPHABET["s"]:
-                    self.blackjack.stand()
-                    await self.clear_reactions()
-                    break
-                elif reaction.emoji == SPLIT:
-                    self.blackjack.split_hand()
+        if SPLIT in self.emojis:
+            await self.clear_reaction(SPLIT)
 
-                if SPLIT in self.emojis:
-                    await self.clear_reaction(SPLIT)
-
-                await self.session.message.edit(content=self.get_content())
-
-                if self.blackjack.is_player_busted():
-                    self.blackjack.stand()
-                    await self.clear_reactions()
-                    break
-
-        except asyncio.TimeoutError:
-            self.status = LOSE
-
-        if self.status == -1:
-            result = self.blackjack.get_game_result()
-            if result == "WIN":
-                self.status = WIN
-            elif result == "LOSE":
-                self.status = LOSE
-            elif result == "DRAW":
-                self.status = DRAW
+        if self.blackjack.is_player_busted():
+            self.stand()
         await self.session.message.edit(content=self.get_content())
-        await self.end_game()
 
     def get_content(self):
         content = "```diff\n"
@@ -95,11 +66,22 @@ class BlackjackDisc(MinigameDisc):
             for card in hand.cards:
                 content += f"   {card.__str__()}\n"
         content += "\n"
-        if self.status == WIN:
-            content += "You have won!\n"
-        elif self.status == LOSE:
-            content += "You have lost!\n"
-        elif self.status == DRAW:
-            content += "Game ended in draw!\n"
+        if not self.playing:
+            if len(self.winners) == 1:
+                content += "You have won!\n"
+            elif len(self.losers) == 1:
+                content += "You have lost!\n"
+            elif len(self.drawers) == 1:
+                content += "Game ended in draw!\n"
         content += "```"
         return content
+
+    def stand(self):
+        self.blackjack.stand()
+        if self.blackjack.has_ended_in_draw():
+            self.drawers.append(self.players[0])
+        elif self.blackjack.has_player_won():
+            self.winners.append(self.players[0])
+        else:
+            self.losers.append(self.players[0])
+        self.playing = False

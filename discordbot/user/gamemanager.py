@@ -35,7 +35,9 @@ class GameManager:
         await session.message.add_reaction(REPEAT)
 
         def check(r, u):
-            return u.id in session.stats_players.keys() and (r.emoji == STOP or r.emoji == REPEAT)
+            return u.id in session.stats_players.keys() \
+                   and (r.emoji == STOP or r.emoji == REPEAT) \
+                   and r.message.id == session.message.id
 
         try:
             reaction, user = await cls.bot.wait_for('reaction_add', timeout=60.0 * 5, check=check)

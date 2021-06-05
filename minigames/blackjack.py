@@ -134,3 +134,11 @@ class Blackjack:
         if max(self.dealer_hand.get_value()) == max_hand_value:
             return "DRAW"
         return "LOSE"
+
+    def has_ended_in_draw(self):
+        result = self.get_game_result()
+        return result == "DRAW"
+
+    def has_player_won(self):
+        result = self.get_game_result()
+        return result == "WIN"
