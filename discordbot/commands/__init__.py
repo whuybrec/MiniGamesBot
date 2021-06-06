@@ -18,3 +18,4 @@ from .miscellaneous.rules import RulesCommand
 from .miscellaneous.set_prefix import SetPrefixCommand
 from .miscellaneous.stats import StatsCommand
 from .developer.servers import ServersCommand
+from .minigames.flood_cmd import FloodCommand

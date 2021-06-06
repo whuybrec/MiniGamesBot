@@ -1,17 +1,7 @@
 from discordbot.utils.emojis import SPLIT, STOP, ALPHABET, ARROW_LEFT_2
 
 TIMEOUT = 60*5
-WIN = 0
-LOSE = 1
-DRAW = 2
 
-MINIGAMES = [
-    "blackjack",
-    "scramble",
-    "hangman",
-    "quiz",
-    "connect4"
-]
 
 QUIZ_CATEGORIES = ["General Knowledge", "Sports", "Films", "Music", "Video Games"]
 
@@ -42,3 +32,9 @@ SCRAMBLE_RULES = f"**Scramble**\n" \
                  f"Unscramble the given word by clicking on the letters in the correct order.\n" \
                  f"{ARROW_LEFT_2} to undo your last move.\n" \
                  f"{STOP} to end the game (automatically results in loss)."
+
+FLOOD_RULES = f"**Flood**\n" \
+                 f"Try to get the whole grid to be the same color within the given number of moves, by repeatedly flood-filling the top left corner in different colors.\n" \
+                 f"Click one of the colors in the reactions to flood-fill the top left corner with that color.\n" \
+                 f"{STOP} to end the game (automatically results in loss)."
+
