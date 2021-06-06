@@ -1,8 +1,8 @@
 import asyncio
 
 from discordbot.user.discord_games.minigame_dc import MinigameDisc
-from discordbot.utils.variables import TIMEOUT
 from discordbot.utils.emojis import NUMBERS, STOP
+from discordbot.utils.variables import TIMEOUT
 from minigames.connect4 import Connect4
 
 

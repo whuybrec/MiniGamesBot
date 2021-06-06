@@ -1,6 +1,6 @@
 import calendar
-from datetime import date, timedelta
 import re
+from datetime import date, timedelta
 
 from discordbot.categories.miscellaneous import Miscellaneous
 from discordbot.commands.command import Command
