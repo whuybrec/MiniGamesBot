@@ -22,7 +22,7 @@ class ServersCommand(Command):
             pages = []
             today = date.today()
 
-            lists = [["Date", "joined", "left", "diff"]]
+            lists = [["Date", "Joined", "Left", "Diff"]]
             joined_servers = cls.bot.db.get_daily_stats_for_servers_of_month("JOIN", today)
             left_servers = cls.bot.db.get_daily_stats_for_servers_of_month("LEAVE", today)
             num_days = calendar.monthrange(today.year, today.month)[1]
@@ -31,10 +31,10 @@ class ServersCommand(Command):
                 joined_on_day = joined_servers[day.strftime("%Y-%m-%d")]
                 left_on_day = left_servers[day.strftime("%Y-%m-%d")]
                 if len(joined_on_day) != 0 or len(left_on_day) != 0:
-                    lists.append([day.strftime("%m-%d"), len(joined_on_day), len(left_on_day), len(joined_on_day)-len(left_on_day)])
+                    lists.append([day.strftime("%d-%m"), len(joined_on_day), len(left_on_day), len(joined_on_day)-len(left_on_day)])
             pages.append("Daily:\n```\n" + create_table(*lists) + "\n```\nCurrent total: **" + str(len(cls.bot.guilds)) + "**")
 
-            lists = [["Months", "joined", "left", "diff"]]
+            lists = [["Months", "Joined", "Left", "Diff"]]
             joined_servers = cls.bot.db.get_monthly_stats_for_servers_of_year("JOIN", today)
             left_servers = cls.bot.db.get_monthly_stats_for_servers_of_year("LEAVE", today)
             months = [date(today.year, month, 1) for month in range(1, 13)]
@@ -45,7 +45,7 @@ class ServersCommand(Command):
                     lists.append([month.strftime("%B"), len(joined_on_month), len(left_on_month), len(joined_on_month)-len(left_on_month)])
             pages.append("Monthly:\n```\n" + create_table(*lists) + "\n```\nCurrent total: **" + str(len(cls.bot.guilds)) + "**")
 
-            lists = [["Years", "joined", "left", "diff"]]
+            lists = [["Years", "Joined", "Left", "Diff"]]
             joined_servers = cls.bot.db.get_yearly_stats_for_servers("JOIN", today)
             left_servers = cls.bot.db.get_yearly_stats_for_servers("LEAVE", today)
             years = [date(year, 1, 1) for year in range(today.year - 4, today.year + 1)]

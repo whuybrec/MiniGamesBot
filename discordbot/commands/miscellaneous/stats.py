@@ -60,7 +60,7 @@ class StatsCommand(Command):
         for day in days:
             if mg_daily_stats[day.strftime("%Y-%m-%d")]:
                 mg_stats = mg_daily_stats[day.strftime("%Y-%m-%d")]
-                lists.append([day.day, "", "", "", "", "", ""])
+                lists.append(["%d-%m", "", "", "", "", "", ""])
                 for row in mg_stats:
                     temp = list(tuple(row))
                     temp.insert(0, "")
