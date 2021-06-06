@@ -33,9 +33,9 @@ A Python Discord bot with different kinds of minigames and keeps statistics per 
 **?blackjack**   
   —  Start a game of blackjack.  
 **?chess** @player2  
-  —  Start a game of chess.
-**?flood**
-  —  Start a game of flood.
+  —  Start a game of chess.  
+**?flood**  
+  —  Start a game of flood.  
 
 ![flood minigame](https://raw.githubusercontent.com/whuybrec/MiniGamesBot/master/images/flood.png)
 
