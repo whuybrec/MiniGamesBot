@@ -34,6 +34,8 @@ A Python Discord bot with different kinds of minigames and keeps statistics per 
   —  Start a game of blackjack.  
 **?chess** @player2  
   —  Start a game of chess.
+**?flood**
+  —  Start a game of flood.
 
 Arguments in italic  are optional.  
 There are 5 categories in the quiz minigame: General knowledge, Sports, Video Games, Music, Films.
