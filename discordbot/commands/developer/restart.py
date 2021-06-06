@@ -1,15 +1,17 @@
-import sys
+import asyncio
+import time
 
 from discordbot.categories.developer import Developer
 from discordbot.commands.command import Command
+from discordbot.utils.emojis import NUMBERS
 from discordbot.utils.private import DISCORD
 
 
 class RestartCommand(Command):
 
     name: str = "restart"
-    help: str = "Restart MiniGamesBot"
-    brief: str = "Beep boop bop, cya later"
+    help: str = "Restarts this bot. The Restarter:tm:, *smort* or f o r c e  restarts."
+    brief: str = "The Restarter:tm:, *smort* or f o r c e  restarts."
     args: str = ""
     category: str = Developer
 
@@ -17,9 +19,38 @@ class RestartCommand(Command):
     async def handler(cls, context):
         if not cls.has_permission(context.message.author.id):
             return
-        await context.message.channel.send(f"Be right back!\n")
-        print("See you soon...")
-        sys.exit()
+
+        cls.bot.has_update = True
+        if not cls.bot.game_manager.has_open_sessions() and not cls.bot.game_manager.has_paused_sessions():
+            await context.send(f"Be right back!\n")
+            await cls.bot.close()
+            return
+
+        msg = await context.send(f"There are open/paused sessions, are you sure?\n"
+                                 f"{NUMBERS[1]}: **force restart**\n"
+                                 f"{NUMBERS[2]}: **smart restart**\n")
+        await msg.add_reaction(NUMBERS[1])
+        await msg.add_reaction(NUMBERS[2])
+
+        def check(r, u):
+            return r.message.id == msg.id and u.id in DISCORD["DEVS"]
+        try:
+            reaction, user = await cls.bot.wait_for("reaction_add", check=check, timeout=60.0)
+            if reaction.emoji == NUMBERS[1]:
+                await context.send(f"Force restarting...")
+            elif reaction.emoji == NUMBERS[2]:
+                await context.send(f"Smart restarting...")
+                start_time = time.time()
+                while (cls.bot.game_manager.has_open_sessions() or cls.bot.game_manager.has_paused_sessions()) \
+                        and time.time()-start_time < 60*10:
+                    await asyncio.sleep(10)
+        except TimeoutError:
+            return
+
+        await cls.bot.game_manager.on_restart()
+        await context.send(f"Restarting...")
+        print("Restarting...")
+        await cls.bot.close()
 
     @classmethod
     def has_permission(cls, user_id):

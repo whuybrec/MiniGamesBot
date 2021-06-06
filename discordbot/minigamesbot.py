@@ -29,11 +29,13 @@ PREFIXES_FILE = "bin/server_prefixes.json"
 class MiniGamesBot(Bot):
     def __init__(self, prefix):
         self.prefix = prefix
-        self.called_on_ready = False
-        self.ctx = None
         intents = discord.Intents.default()
         intents.members = True
         super().__init__(command_prefix=self.prefix, intents=intents)
+
+        self.called_on_ready = False
+        self.ctx = None
+        self.has_update = False
         self.game_manager = GameManager
         self.db = DatabaseManager
         self.lexicon = Lexicon

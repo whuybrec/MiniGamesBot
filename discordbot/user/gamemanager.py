@@ -14,7 +14,28 @@ class GameManager:
         cls.bot = bot
 
     @classmethod
+    async def on_restart(cls):
+        for session in cls.open_sessions:
+            await session.message.edit(content=session.message.content+"\n\nSorry! I received an update and have to restart.")
+            await session.message.clear_reactions()
+            if session.message_extra is not None:
+                await session.message_extra.clear_reactions()
+        for session in cls.paused_sessions:
+            await session.message.clear_reactions()
+
+    @classmethod
+    def has_open_sessions(cls):
+        return len(cls.open_sessions) > 0
+
+    @classmethod
+    def has_paused_sessions(cls):
+        return len(cls.paused_sessions) > 0
+
+    @classmethod
     async def start_session(cls, session):
+        if cls.bot.has_update:
+            await session.message.edit(content="Sorry! I can't start any new games right now. Boss says I have to restart soon:tm:. Try again later!")
+            return
         cls.open_sessions.append(session)
         if session in cls.paused_sessions:
             cls.paused_sessions.remove(session)
@@ -40,7 +61,7 @@ class GameManager:
                    and r.message.id == session.message.id
 
         try:
-            reaction, user = await cls.bot.wait_for('reaction_add', timeout=60.0 * 5, check=check)
+            reaction, user = await cls.bot.wait_for('reaction_add', timeout=60.0, check=check)
 
             if reaction.emoji == STOP:
                 await cls.end_session(session)
