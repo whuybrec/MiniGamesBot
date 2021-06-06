@@ -34,7 +34,6 @@ class FloodDisc(MinigameDisc):
     def get_content(self):
         content = ""
         content += f"Moves left: **{self.flood_game.min_allowed_moves - self.flood_game.player_moves}**\n"
-        content += f"Min moves: {self.flood_game.min_moves}\n"
         for i in range(len(self.flood_game.grid.matrix)):
             for j in range(len(self.flood_game.grid.matrix[i])):
                 content += COLORS_EMOJI[self.flood_game.grid.matrix[i][j].color]
