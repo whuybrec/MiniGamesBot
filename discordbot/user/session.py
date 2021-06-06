@@ -46,6 +46,9 @@ class Session:
         if self.extra:
             await self.message_extra.clear_reactions()
 
+        if len(self.minigame.winners) == 0 or len(self.minigame.losers) == 0 or len(self.minigame.drawers) == 0:
+            return
+
         # save data to DB
         wins = losses = draws = 0
         for pid, stats in self.stats_players.items():
