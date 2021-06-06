@@ -176,6 +176,7 @@ class Database:
         """
 
         self.cursor.execute(sql)
+        self.conn.commit()
 
         # fetch data
         return self.cursor.fetchall()
