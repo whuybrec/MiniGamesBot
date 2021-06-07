@@ -38,7 +38,7 @@ FLOOD_RULES = f"**Flood**\n" \
               f"Click one of the colors in the reactions to flood-fill the top left corner with that color.\n" \
               f"{STOP} to end the game (automatically results in loss)."
 
-GUESS_RULES = f"**Guess**\n" \
+MASTERMIND_RULES = f"**Mastermind**\n" \
               f"Try to guess the hidden combination of colors. You will be given limited information about each guess you make, enabling you to refine the next guess.\n" \
               f"{CHECKMARK} to indicate the amount of colors that are in the correct place.\n" \
               f"{REPEAT} to indicate the amount of colors that are correct but in the wrong place.\n" \

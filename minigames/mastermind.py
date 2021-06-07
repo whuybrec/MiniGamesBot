@@ -5,7 +5,7 @@ from minigames.minigame import Minigame
 COLORS = ["blue", "red", "purple", "yellow", "green", "orange"]
 
 
-class Guess(Minigame):
+class Mastermind(Minigame):
     def __init__(self):
         self.history = []
         self.code = list()

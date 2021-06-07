@@ -1,12 +1,12 @@
 from discordbot.user.discord_games.minigame_dc import MinigameDisc
 from discordbot.utils.emojis import STOP, COLORS as COLORS_EMOJI, ARROW_LEFT, CHECKMARK, REPEAT
-from minigames.guess import Guess, COLORS
+from minigames.mastermind import Mastermind, COLORS
 
 
-class GuessDisc(MinigameDisc):
+class MastermindDisc(MinigameDisc):
     def __init__(self, session):
         super().__init__(session)
-        self.guess_game = Guess()
+        self.mastermind = Mastermind()
         self.code = []
 
     async def start(self):
@@ -37,28 +37,28 @@ class GuessDisc(MinigameDisc):
         if reaction.emoji == CHECKMARK:
             await self.session.message.remove_reaction(CHECKMARK, user)
             if len(self.code) == 4:
-                self.guess_game.guess(self.code)
+                self.mastermind.guess(self.code)
                 for color in self.code:
                     await self.session.message.remove_reaction(COLORS_EMOJI[color], user)
                 self.code = []
 
-        if self.guess_game.has_won():
+        if self.mastermind.has_won():
             self.winners.append(self.players[0])
             self.playing = False
-        elif self.guess_game.has_lost():
+        elif self.mastermind.has_lost():
             self.losers.append(self.players[0])
             self.playing = False
 
         await self.session.message.edit(content=self.get_content())
 
     def get_content(self):
-        content = f"Lives: {self.guess_game.lives}\nYour guess:"
+        content = f"Lives: {self.mastermind.lives}\nYour guess:"
         for code in self.code:
             content += COLORS_EMOJI[code]
         content += "\n\n"
 
-        if len(self.guess_game.history) > 0:
-            for history_ in self.guess_game.history:
+        if len(self.mastermind.history) > 0:
+            for history_ in self.mastermind.history:
                 for color in history_[0]:
                     content += COLORS_EMOJI[color]
                 content += "  "
@@ -70,6 +70,6 @@ class GuessDisc(MinigameDisc):
                 content += "You have won the game!"
             else:
                 content += f"You have lost the game!\nThe code was: "
-                for color in self.guess_game.code:
+                for color in self.mastermind.code:
                     content += COLORS_EMOJI[color]
         return content
