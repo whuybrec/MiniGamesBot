@@ -28,18 +28,18 @@ class GamesCommand(Command):
             if mg_stats:
                 for row in mg_stats:
                     temp = list(tuple(row))
-                    temp.insert(5, "-")
+                    temp.insert(5, "")
 
                     for avg_row in avg_stats:
                         avg_row_ = tuple(avg_row)
                         if avg_row_[0] == temp[0]:
                             percentage = round(((temp[4]/avg_row_[1])-1)*100)
                             if percentage < 0:
-                                temp[5] = f"-{percentage}%"
+                                temp[5] = f"{percentage}%"
                             elif percentage > 0:
                                 temp[5] = f"+{percentage}%"
                             else:
-                                temp[5] = f"-"
+                                temp[5] = f"~"
 
                     temp[-1] = timedelta(seconds=int(temp[-1]))
                     lists.append(temp)
