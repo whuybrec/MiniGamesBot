@@ -1,4 +1,4 @@
-from discordbot.utils.emojis import SPLIT, STOP, ALPHABET, ARROW_LEFT_2
+from discordbot.utils.emojis import SPLIT, STOP, ALPHABET, ARROW_LEFT
 
 TIMEOUT = 60*5
 
@@ -30,7 +30,7 @@ QUIZ_RULES = f"**Quiz**\n" \
 
 SCRAMBLE_RULES = f"**Scramble**\n" \
                  f"Unscramble the given word by clicking on the letters in the correct order.\n" \
-                 f"{ARROW_LEFT_2} to undo your last move.\n" \
+                 f"{ARROW_LEFT} to undo your last move.\n" \
                  f"{STOP} to end the game (automatically results in loss)."
 
 FLOOD_RULES = f"**Flood**\n" \

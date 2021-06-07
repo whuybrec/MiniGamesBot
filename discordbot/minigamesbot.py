@@ -15,7 +15,7 @@ from discordbot.commands import HelpCommand, SayCommand, DeleteCommand, ClearCom
     ExecuteCommand, \
     RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand, Connect4Command, QuizCommand, \
     BlackjackCommand, \
-    GamesCommand, StatsCommand, SetPrefixCommand, BugCommand, ChessCommand, ServersCommand, FloodCommand
+    GamesCommand, StatsCommand, SetPrefixCommand, BugCommand, ChessCommand, ServersCommand, FloodCommand, GuessCommand
 from discordbot.user.databasemanager import DatabaseManager
 from discordbot.user.gamemanager import GameManager
 from discordbot.utils.private import DISCORD
@@ -49,7 +49,7 @@ class MiniGamesBot(Bot):
         self.my_commands = [SayCommand, HelpCommand, DeleteCommand, ClearCommand, TemperatureCommand, ExecuteCommand,
                             RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand, Connect4Command,
                             QuizCommand, BlackjackCommand, GamesCommand, StatsCommand, SetPrefixCommand, BugCommand, ChessCommand,
-                            ServersCommand, FloodCommand]
+                            ServersCommand, FloodCommand, GuessCommand]
         self.load_commands()
 
         # load managers

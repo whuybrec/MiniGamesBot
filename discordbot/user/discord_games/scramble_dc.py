@@ -1,5 +1,5 @@
 from discordbot.user.discord_games.minigame_dc import MinigameDisc
-from discordbot.utils.emojis import ALPHABET, STOP, ARROW_LEFT_2
+from discordbot.utils.emojis import ALPHABET, STOP, ARROW_LEFT
 from minigames.scramble import Scramble
 
 
@@ -11,14 +11,14 @@ class ScrambleDisc(MinigameDisc):
     async def start(self):
         await self.session.message.edit(content=self.get_content())
         await self.add_reaction(STOP)
-        await self.add_reaction(ARROW_LEFT_2)
+        await self.add_reaction(ARROW_LEFT)
         for c in self.scramble_game.scrambled_word:
             await self.add_reaction(ALPHABET[c])
 
         await self.wait_for_player()
 
     async def on_reaction(self, reaction, user):
-        if reaction.emoji == ARROW_LEFT_2:
+        if reaction.emoji == ARROW_LEFT:
             char = self.scramble_game.remove_last()
             if char != "_":
                 await self.add_reaction(ALPHABET[char])

@@ -7,7 +7,7 @@ import discord
 from chess import Board, svg
 
 from discordbot.user.discord_games.minigame_dc import MinigameDisc
-from discordbot.utils.emojis import ALPHABET, STOP, NUMBERS, ARROW_LEFT_2
+from discordbot.utils.emojis import ALPHABET, STOP, NUMBERS, ARROW_LEFT
 from discordbot.utils.private import DISCORD
 from discordbot.utils.variables import TIMEOUT
 
@@ -35,7 +35,7 @@ class ChessDisc(MinigameDisc):
         for i in range(1, 9):
             await self.add_reaction(NUMBERS[i], True)
 
-        await self.add_reaction(ARROW_LEFT_2, True)
+        await self.add_reaction(ARROW_LEFT, True)
         await self.add_reaction(STOP, True)
 
         await self.wait_for_player(self.check)
@@ -65,7 +65,7 @@ class ChessDisc(MinigameDisc):
         await self.end_game()
 
     async def on_reaction(self, reaction, user):
-        if reaction.emoji == ARROW_LEFT_2:
+        if reaction.emoji == ARROW_LEFT:
             if len(self.move) > 0:
                 self.move = self.move[:-1]
                 self.choosing_number = not self.choosing_number

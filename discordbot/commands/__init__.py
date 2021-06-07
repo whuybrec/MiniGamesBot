@@ -19,3 +19,4 @@ from .miscellaneous.info import InfoCommand
 from .miscellaneous.rules import RulesCommand
 from .miscellaneous.set_prefix import SetPrefixCommand
 from .miscellaneous.stats import StatsCommand
+from .minigames.guess_cmd import GuessCommand
