@@ -2,6 +2,7 @@ from discordbot.utils.emojis import SPLIT, STOP, ALPHABET, ARROW_LEFT, CHECKMARK
 
 TIMEOUT = 60*5
 
+MINIGAMES = ["Blackjack", "Chess", "Connect4", "Flood", "Mastermind", "Hangman", "Quiz", "Scramble"]
 
 QUIZ_CATEGORIES = ["General Knowledge", "Sports", "Films", "Music", "Video Games"]
 

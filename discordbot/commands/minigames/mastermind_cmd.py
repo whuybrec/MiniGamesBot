@@ -5,7 +5,7 @@ from discordbot.user.gamemanager import GameManager
 from discordbot.user.session import Session
 
 
-class GuessCommand(Command):
+class MastermindCommand(Command):
     bot = None
     name = "mastermind"
     help = "Start a game of mastermind, check out the rules with the rules command."

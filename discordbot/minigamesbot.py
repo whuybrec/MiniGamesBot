@@ -1,5 +1,6 @@
 import asyncio
 import json
+import random
 import time
 import traceback
 from zipfile import ZipFile
@@ -15,11 +16,12 @@ from discordbot.commands import HelpCommand, SayCommand, DeleteCommand, ClearCom
     ExecuteCommand, \
     RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand, Connect4Command, QuizCommand, \
     BlackjackCommand, \
-    GamesCommand, StatsCommand, SetPrefixCommand, BugCommand, ChessCommand, ServersCommand, FloodCommand, GuessCommand
+    GamesCommand, StatsCommand, SetPrefixCommand, BugCommand, ChessCommand, ServersCommand, FloodCommand, MastermindCommand
 from discordbot.user.databasemanager import DatabaseManager
 from discordbot.user.gamemanager import GameManager
 from discordbot.utils.private import DISCORD
 from discordbot.utils.topgg import TopGG
+from discordbot.utils.variables import MINIGAMES
 from generic.scheduler import Scheduler
 from minigames.lexicon import Lexicon
 
@@ -49,7 +51,7 @@ class MiniGamesBot(Bot):
         self.my_commands = [SayCommand, HelpCommand, DeleteCommand, ClearCommand, TemperatureCommand, ExecuteCommand,
                             RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand, Connect4Command,
                             QuizCommand, BlackjackCommand, GamesCommand, StatsCommand, SetPrefixCommand, BugCommand, ChessCommand,
-                            ServersCommand, FloodCommand, GuessCommand]
+                            ServersCommand, FloodCommand, MastermindCommand]
         self.load_commands()
 
         # load managers
@@ -147,7 +149,13 @@ class MiniGamesBot(Bot):
         while True:
             await self.db.update()
             await self.save_prefixes()
+            await self.change_status()
             await asyncio.sleep(60*30)
+
+    async def change_status(self):
+        n = random.randint(0, len(MINIGAMES) - 1)
+        game = discord.Game(MINIGAMES[n])
+        await self.change_presence(status=discord.Status.online, activity=game)
 
     async def save_prefixes(self):
         f = open(PREFIXES_FILE, 'w')
