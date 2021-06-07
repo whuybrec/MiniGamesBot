@@ -343,7 +343,7 @@ class DatabaseManager:
                             temp[5] = f"{percentage}%"
                         elif percentage > 0:
                             temp[5] = f"+{percentage}%"
-                        else:
+                        elif percentage == 0:
                             temp[5] = f"~"
 
                 temp[-1] = timedelta(seconds=int(temp[-1]))
