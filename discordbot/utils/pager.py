@@ -1,4 +1,5 @@
 import asyncio
+import re
 
 from discordbot.utils.emojis import ARROW_LEFT_2, ARROW_RIGHT_2, STOP
 
@@ -13,10 +14,29 @@ class Pager:
         self.page_msg = None
 
     async def show(self):
-        if self.page_msg is None:
-            self.page_msg = await self.context.send(self.pages[self.current_page])
+        max_length = 1990
+        if len(self.pages[self.current_page]) > max_length:
+            formatting = False
+            if self.pages[self.current_page].startswith("```"):
+                formatting = True
+            split_contents = re.split(r"\n", self.pages[self.current_page])
+            contents = [""]
+            for content in split_contents:
+                temp = contents[0] + content + "\n"
+                if len(temp) > max_length:
+                    break
+                else:
+                    contents[0] = temp
+            if formatting:
+                contents[0] += "```"
+            content = contents[0]
         else:
-            await self.page_msg.edit(content=self.pages[self.current_page])
+            content = self.pages[self.current_page]
+
+        if self.page_msg is None:
+            self.page_msg = await self.context.send(content)
+        else:
+            await self.page_msg.edit(content=content)
         await self.page_msg.add_reaction(ARROW_LEFT_2)
         await self.page_msg.add_reaction(ARROW_RIGHT_2)
         await self.page_msg.add_reaction(STOP)
