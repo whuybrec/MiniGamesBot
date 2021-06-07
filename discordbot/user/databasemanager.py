@@ -329,7 +329,7 @@ class DatabaseManager:
 
         today = "```diff\n+ Today\n\n"
         lists = [["Game", "W", "L", "D", "Total", "Diff", "Unfinished", "Time"]]
-        avg_stats = cls.bot.db.get_average_played_minigames_of_month(today)
+        avg_stats = cls.bot.db.get_average_played_minigames_of_month(date.today())
         mg_stats = cls.get_stats_for_minigames_of_day(date.today())
         if mg_stats:
             for row in mg_stats:
