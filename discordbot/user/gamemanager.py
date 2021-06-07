@@ -16,12 +16,18 @@ class GameManager:
     @classmethod
     async def on_restart(cls):
         for session in cls.open_sessions:
-            await session.message.edit(content=session.message.content+"\n\nSorry! I received an update and have to restart.")
-            await session.message.clear_reactions()
-            if session.message_extra is not None:
-                await session.message_extra.clear_reactions()
+            try:
+                await session.message.edit(content=session.message.content+"\n\nSorry! I received an update and have to restart.")
+                await session.message.clear_reactions()
+                if session.message_extra is not None:
+                    await session.message_extra.clear_reactions()
+            except Exception as e:
+                print(e)
         for session in cls.paused_sessions:
-            await session.message.clear_reactions()
+            try:
+                await session.message.clear_reactions()
+            except Exception as e:
+                print(e)
 
     @classmethod
     def has_open_sessions(cls):
