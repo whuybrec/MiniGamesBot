@@ -127,6 +127,14 @@ class DatabaseManager:
         return cls.query(q)
 
     @classmethod
+    def get_stats_for_player_of_week(cls, player_id, date_):
+        q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(timeout), SUM(time_played) " \
+            "FROM players " \
+            "WHERE player_id={0} AND strftime('%W', time_stamp, 'unixepoch', 'localtime')='{1}'" \
+            "GROUP BY minigame".format(player_id, date_.strftime('%W'))
+        return cls.query(q)
+
+    @classmethod
     def get_stats_for_player_of_month(cls, player_id, date_):
         q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(timeout), SUM(time_played) " \
             "FROM players " \
@@ -143,12 +151,11 @@ class DatabaseManager:
         return cls.query(q)
 
     @classmethod
-    def get_daily_stats_for_player_of_month(cls, player_id, date_):
-        num_days = calendar.monthrange(date_.year, date_.month)[1]
-        days = [date(date_.year, date_.month, day) for day in range(1, num_days + 1)]
+    def get_weekly_stats_for_player_of_month(cls, player_id, date_):
+        weeks = [date(date_.year, date_.month, day) for day in range(1, 31, 7)]
         stats = dict()
-        for day in days:
-            stats[day.strftime("%Y-%m-%d")] = cls.get_stats_for_player_of_day(player_id, day.strftime("%Y-%m-%d"))
+        for week in weeks:
+            stats[week.strftime("%W")] = cls.get_stats_for_player_of_week(player_id, week)
         return stats
 
     @classmethod
@@ -181,7 +188,15 @@ class DatabaseManager:
         q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(timeout), SUM(time_played) " \
             "FROM minigames " \
             "WHERE strftime('%Y-%m-%d', time_stamp, 'unixepoch', 'localtime')='{0}'" \
-            "GROUP BY minigame".format(date_)
+            "GROUP BY minigame".format(date_.strftime('%Y-%m-%d'))
+        return cls.query(q)
+
+    @classmethod
+    def get_stats_for_minigames_of_week(cls, date_):
+        q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(timeout), SUM(time_played) " \
+            "FROM minigames " \
+            "WHERE strftime('%W', time_stamp, 'unixepoch', 'localtime')='{0}'" \
+            "GROUP BY minigame".format(date_.strftime('%W'))
         return cls.query(q)
 
     @classmethod
@@ -189,24 +204,35 @@ class DatabaseManager:
         q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(timeout), SUM(time_played) " \
             "FROM minigames " \
             "WHERE strftime('%Y-%m', time_stamp, 'unixepoch', 'localtime')='{0}'" \
-            "GROUP BY minigame;".format(date_)
+            "GROUP BY minigame;".format(date_.strftime('%Y-%m'))
         return cls.query(q)
 
     @classmethod
-    def get_stats_for_minigames_of_year(cls, year):
+    def get_stats_for_minigames_of_year(cls, date_):
         q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(timeout), SUM(time_played) " \
             "FROM minigames " \
             "WHERE strftime('%Y', time_stamp, 'unixepoch', 'localtime')='{0}'" \
-            "GROUP BY minigame;".format(year)
+            "GROUP BY minigame;".format(date_.strftime('%Y'))
         return cls.query(q)
 
     @classmethod
-    def get_daily_stats_for_minigames_of_month(cls, date_):
-        num_days = calendar.monthrange(date_.year, date_.month)[1]
-        days = [date(date_.year, date_.month, day) for day in range(1, num_days + 1)]
+    def get_average_played_minigames_of_month(cls, date_):
+        q = "SELECT minigame, AVG(total_games) " \
+            "FROM (" \
+            "   SELECT minigame, SUM(total_games) as 'total_games', time_stamp as 'time_stamp' " \
+            "   FROM minigames " \
+            "   GROUP BY minigame, strftime('%Y-%m', time_stamp, 'unixepoch', 'localtime')" \
+            ") " \
+            "WHERE strftime('%Y-%m', time_stamp, 'unixepoch', 'localtime')='{0}' " \
+            "GROUP BY minigame;".format(date_.strftime('%Y-%m'))
+        return cls.query(q)
+
+    @classmethod
+    def get_weekly_stats_for_minigames_of_month(cls, date_):
+        weeks = [date(date_.year, date_.month, day) for day in range(1, 31, 7)]
         stats = dict()
-        for day in days:
-            stats[day.strftime("%Y-%m-%d")] = cls.get_stats_for_minigames_of_day(day.strftime("%Y-%m-%d"))
+        for week in weeks:
+            stats[week.strftime("%W")] = cls.get_stats_for_minigames_of_week(week)
         return stats
 
     @classmethod
@@ -214,7 +240,7 @@ class DatabaseManager:
         months = [date(date_.year, month, 1) for month in range(1, 13)]
         stats = dict()
         for month in months:
-            stats[month.strftime("%Y-%m")] = cls.get_stats_for_minigames_of_month(month.strftime("%Y-%m"))
+            stats[month.strftime("%Y-%m")] = cls.get_stats_for_minigames_of_month(month)
         return stats
 
     @classmethod
@@ -222,7 +248,7 @@ class DatabaseManager:
         years = [date(year, 1, 1) for year in range(date_.year - 4, date_.year + 1)]
         stats = dict()
         for year in years:
-            stats[year.strftime("%Y")] = cls.get_stats_for_minigames_of_year(year.strftime("%Y"))
+            stats[year.strftime("%Y")] = cls.get_stats_for_minigames_of_year(year)
         return stats
 
     # SERVERS

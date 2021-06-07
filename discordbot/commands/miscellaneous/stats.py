@@ -35,38 +35,19 @@ class StatsCommand(Command):
                 lists.append(temp)
             pages.append(f"Stats of today for **{player.name}**:\n```\n" + create_table(*lists) + "\n```")
 
-        lists = [["Game", "W", "L", "D", "Total", "Unfinished", "Time"]]
-        mg_stats = cls.bot.db.get_stats_for_player_of_month(player.id, today.strftime("%Y-%m"))
-        if mg_stats:
-            for row in mg_stats:
-                temp = list(tuple(row))
-                temp[-1] = timedelta(seconds=int(temp[-1]))
-                lists.append(temp)
-            pages.append(f"Stats of this month for **{player.name}**:\n```\n" + create_table(*lists) + "\n```")
-
-        lists = [["Game", "W", "L", "D", "Total", "Unfinished", "Time"]]
-        mg_stats = cls.bot.db.get_stats_for_player_of_year(player.id, today.year)
-        if mg_stats:
-            for row in mg_stats:
-                temp = list(tuple(row))
-                temp[-1] = timedelta(seconds=int(temp[-1]))
-                lists.append(temp)
-            pages.append(f"Stats of this year for **{player.name}**:\n```\n" + create_table(*lists) + "\n```")
-
-        lists = [["Day", "Game", "W", "L", "D", "Total", "Unfinished", "Time"]]
-        mg_daily_stats = cls.bot.db.get_daily_stats_for_player_of_month(player.id, today)
-        num_days = calendar.monthrange(today.year, today.month)[1]
-        days = [date(today.year, today.month, day) for day in range(1, num_days + 1)]
-        for day in days:
-            if mg_daily_stats[day.strftime("%Y-%m-%d")]:
-                mg_stats = mg_daily_stats[day.strftime("%Y-%m-%d")]
-                lists.append([day.strftime("%d-%m"), "", "", "", "", "", ""])
+        lists = [["Week", "Game", "W", "L", "D", "Total", "Unfinished", "Time"]]
+        mg_weekly_stats = cls.bot.db.get_weekly_stats_for_player_of_month(player.id, today)
+        weeks = [date(today.year, today.month, day) for day in range(1, 31, 7)]
+        for week in weeks:
+            if mg_weekly_stats[week.strftime("%W")]:
+                mg_stats = mg_weekly_stats[week.strftime("%W")]
+                lists.append([week.strftime("%W"), "", "", "", "", "", ""])
                 for row in mg_stats:
                     temp = list(tuple(row))
                     temp.insert(0, "")
                     temp[-1] = timedelta(seconds=int(temp[-1]))
                     lists.append(temp)
-        pages.append(f"Daily stats for **{player.name}**:\n```\n" + create_table(*lists) + "\n```")
+        pages.append(f"Weekly stats for **{player.name}**:\n```\n" + create_table(*lists) + "\n```")
 
         lists = [["Month", "Game", "W", "L", "D", "Total", "Unfinished", "Time"]]
         mg_monthly_stats = cls.bot.db.get_monthly_stats_for_player_of_year(player.id, today)
