@@ -1,4 +1,4 @@
-from discordbot.utils.emojis import SPLIT, STOP, ALPHABET, ARROW_LEFT
+from discordbot.utils.emojis import SPLIT, STOP, ALPHABET, ARROW_LEFT, CHECKMARK, REPEAT
 
 TIMEOUT = 60*5
 
@@ -34,7 +34,16 @@ SCRAMBLE_RULES = f"**Scramble**\n" \
                  f"{STOP} to end the game (automatically results in loss)."
 
 FLOOD_RULES = f"**Flood**\n" \
-                 f"Try to get the whole grid to be the same color within the given number of moves, by repeatedly flood-filling the top left corner in different colors.\n" \
-                 f"Click one of the colors in the reactions to flood-fill the top left corner with that color.\n" \
-                 f"{STOP} to end the game (automatically results in loss)."
+              f"Try to get the whole grid to be the same color within the given number of moves, by repeatedly flood-filling the top left corner in different colors.\n" \
+              f"Click one of the colors in the reactions to flood-fill the top left corner with that color.\n" \
+              f"{STOP} to end the game (automatically results in loss)."
+
+GUESS_RULES = f"**Guess**\n" \
+              f"Try to guess the hidden combination of colors. You will be given limited information about each guess you make, enabling you to refine the next guess.\n" \
+              f"{CHECKMARK} to indicate the amount of colors that are in the correct place.\n" \
+              f"{REPEAT} to indicate the amount of colors that are correct but in the wrong place.\n" \
+              f"Click one of the colors in the reactions to make your guess.\n" \
+              f"{ARROW_LEFT} to remove your last added color.\n" \
+              f"{CHECKMARK} to confirm your guess.\n" \
+              f"{STOP} to end the game (automatically results in loss)."
 

@@ -10,7 +10,8 @@ RULES = {
     "quiz": QUIZ_RULES,
     "scramble": SCRAMBLE_RULES,
     "connect4": CONNECT4_RULES,
-    "flood": FLOOD_RULES
+    "flood": FLOOD_RULES,
+    "guess": GUESS_RULES
 }
 
 
