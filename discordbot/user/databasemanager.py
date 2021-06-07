@@ -340,7 +340,7 @@ class DatabaseManager:
                     if avg_row_[0] == temp[0]:
                         percentage = round(((temp[4] / avg_row_[1]) - 1) * 100)
                         if percentage < 0:
-                            temp[5] = f"-{percentage}%"
+                            temp[5] = f"{percentage}%"
                         elif percentage > 0:
                             temp[5] = f"+{percentage}%"
                         else:
