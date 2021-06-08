@@ -221,10 +221,10 @@ class DatabaseManager:
             "FROM (" \
             "   SELECT minigame, SUM(total_games) as 'total_games', time_stamp as 'time_stamp' " \
             "   FROM minigames " \
-            "   GROUP BY minigame, strftime('%Y-%m', time_stamp, 'unixepoch', 'localtime')" \
+            "   GROUP BY strftime('%Y-%m-%d', time_stamp, 'unixepoch', 'localtime'), minigame" \
             ") " \
-            "WHERE strftime('%Y-%m', time_stamp, 'unixepoch', 'localtime')='{0}' " \
-            "GROUP BY minigame;".format(date_.strftime('%Y-%m'))
+            "WHERE strftime('%Y-%m', time_stamp, 'unixepoch', 'localtime')='{0}' AND strftime('%Y-%m-%d', time_stamp, 'unixepoch', 'localtime')!='{1}'" \
+            "GROUP BY minigame;".format(date_.strftime('%Y-%m'), date.today().strftime("%Y-%m-%d"))
         return cls.query(q)
 
     @classmethod
