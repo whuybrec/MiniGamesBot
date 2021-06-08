@@ -70,13 +70,13 @@ class MinigameDisc:
                 self.session.player_timed_out = self.players[self.turn].id
                 self.playing = False
 
+        await self.session.message.edit(content=self.get_content())
         await self.end_game()
 
     async def on_reaction(self, reaction, user):
         raise NotImplementedError
 
     async def end_game(self):
-        await self.session.message.edit(content=self.get_content())
         await self.session.message.clear_reactions()
         if self.session.message_extra is not None:
             await self.session.message_extra.clear_reactions()

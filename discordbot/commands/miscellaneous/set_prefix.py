@@ -26,6 +26,9 @@ class SetPrefixCommand(Command):
             await context.reply("Prefix can not be longer than 10 characters.")
             return
 
-        cls.bot.prefixes[str(context.guild.id)] = prefix
+        if prefix == "?":
+            cls.bot.prefix.pop(str(context.guild.id))
+        else:
+            cls.bot.prefixes[str(context.guild.id)] = prefix
         await cls.bot.save_prefixes()
         await context.reply(f"The prefix of MiniGamesBot is now: **{prefix}**")

@@ -20,3 +20,4 @@ from .miscellaneous.rules import RulesCommand
 from .miscellaneous.set_prefix import SetPrefixCommand
 from .miscellaneous.stats import StatsCommand
 from .minigames.mastermind_cmd import MastermindCommand
+from .minigames.akinator_cmd import AkinatorCommand

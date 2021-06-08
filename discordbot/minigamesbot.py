@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 import random
 import time
 import traceback
@@ -16,7 +17,7 @@ from discordbot.commands import HelpCommand, SayCommand, DeleteCommand, ClearCom
     ExecuteCommand, \
     RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand, Connect4Command, QuizCommand, \
     BlackjackCommand, \
-    GamesCommand, StatsCommand, SetPrefixCommand, BugCommand, ChessCommand, ServersCommand, FloodCommand, MastermindCommand
+    GamesCommand, StatsCommand, SetPrefixCommand, BugCommand, ChessCommand, ServersCommand, FloodCommand, MastermindCommand, AkinatorCommand
 from discordbot.databasemanager import DatabaseManager
 from discordbot.gamemanager import GameManager
 from discordbot.utils.private import DISCORD
@@ -38,6 +39,7 @@ class MiniGamesBot(Bot):
         self.called_on_ready = False
         self.ctx = None
         self.has_update = False
+        self.prefixes = {}
         self.game_manager = GameManager
         self.db = DatabaseManager
         self.lexicon = Lexicon
@@ -51,7 +53,7 @@ class MiniGamesBot(Bot):
         self.my_commands = [SayCommand, HelpCommand, DeleteCommand, ClearCommand, TemperatureCommand, ExecuteCommand,
                             RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand, Connect4Command,
                             QuizCommand, BlackjackCommand, GamesCommand, StatsCommand, SetPrefixCommand, BugCommand, ChessCommand,
-                            ServersCommand, FloodCommand, MastermindCommand]
+                            ServersCommand, FloodCommand, MastermindCommand, AkinatorCommand]
         self.load_commands()
 
         # load managers
@@ -64,13 +66,11 @@ class MiniGamesBot(Bot):
             file = open(PREFIXES_FILE)
             json_strings = file.read()
             self.prefixes = json.loads(json_strings)
-            file.close()
         except FileNotFoundError:
-            self.prefixes = {}
-            f = open(PREFIXES_FILE, 'w')
+            file = open(PREFIXES_FILE, 'w')
             prefixes_json = json.dumps(self.prefixes)
-            f.write(prefixes_json)
-            f.close()
+            file.write(prefixes_json)
+        file.close()
 
         self.scheduler = Scheduler()
         self.scheduler.add(20, self.routine_updates)
@@ -150,6 +150,7 @@ class MiniGamesBot(Bot):
             await self.db.update()
             await self.save_prefixes()
             await self.change_status()
+            self.remove_old_binaries()
             await asyncio.sleep(60*30)
 
     async def change_status(self):
@@ -167,6 +168,16 @@ class MiniGamesBot(Bot):
             zip_f.write(PREFIXES_FILE)
         channel = await self.fetch_channel(DISCORD["BACKUP_CHANNEL"])
         await channel.send(file=discord.File("bin/prefixes_backup.zip"))
+
+    def remove_old_binaries(self):
+        direc = os.path.join(os.getcwd(), 'bin')
+        now = time.time()
+        dt = now - 60 * 60 * 24
+        for filename in os.listdir(direc):
+            f_path = os.path.join(direc, filename)
+            f_created = os.path.getctime(f_path)
+            if (filename.endswith(".svg") or filename.endswith(".png")) and f_created < dt:
+                os.remove(f_path)
 
     async def on_error(self, event_method, *args, **kwargs):
         text = "Time: {0}\n\n" \
