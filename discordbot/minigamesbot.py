@@ -10,6 +10,7 @@ import traceback
 from zipfile import ZipFile
 
 import discord
+from discord import DMChannel
 from discord.ext.commands import Bot, CommandNotFound, Cog
 from discord.utils import find
 
@@ -77,7 +78,7 @@ class MiniGamesBot(Bot):
             print(e)
 
     async def on_message(self, message):
-        if message.author.bot:
+        if message.author.bot or isinstance(message.channel, DMChannel):
             return
 
         if str(message.channel.guild.id) in self.prefixes.keys():
