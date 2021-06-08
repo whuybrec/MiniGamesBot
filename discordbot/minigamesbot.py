@@ -77,6 +77,9 @@ class MiniGamesBot(Bot):
             print(e)
 
     async def on_message(self, message):
+        if message.author.bot:
+            return
+
         if str(message.channel.guild.id) in self.prefixes.keys():
             if message.content.startswith(self.prefixes[str(message.channel.guild.id)]):
                 message.content = self.prefix + message.content[len(self.prefixes[str(message.channel.guild.id)]):]
