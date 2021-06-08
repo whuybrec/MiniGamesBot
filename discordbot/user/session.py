@@ -5,6 +5,7 @@ from discord import Message
 from discord.ext.commands import Context
 
 from discordbot.gamemanager import GameManager
+from generic.formatting import create_table
 
 
 class Session:
@@ -103,13 +104,11 @@ class Session:
 
     def get_summary(self):
         summary = "```\n"
-        max_ = max([len(p.name) for p in self.players]) + 1
-        summary += f"{' '.ljust(max_)}{'Wins'.rjust(5)}{'Losses'.rjust(7)}{'Draws'.rjust(6)}\n"
+        lst = [["Player", "Wins", "Losses", "Draws", "Total played"]]
         for player in self.players:
-            res = self.stats_players[player.id]
-            summary += f"{player.name.ljust(max_)}" \
-                       f"{str(res['wins']).rjust(5)}" \
-                       f"{str(res['losses']).rjust(7)}" \
-                       f"{str(res['draws']).rjust(6)}\n"
+            stats = self.stats_players[player.id]
+            lst.append([player.name, stats['wins'], stats['losses'], stats['draws'], self.amount])
+        table = create_table(*lst)
+        summary += table
         summary += f"\nSession Time: {datetime.timedelta(seconds=self.session_time)}\n```"
         return summary
