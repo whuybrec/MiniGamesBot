@@ -23,19 +23,23 @@ A Python Discord bot with different kinds of minigames and keeps statistics per 
 ### Minigames
 
 **?hangman**  
-  —  Start a game of hangman.  
+  —  Play hangman against the bot.  
 **?scramble**   
-  —  Start a game of scramble.  
+  —  Unscramble the letters of a random word.  
 **?connect4**  @player2  
-  —  Start a game of connect4.  
+  —  Play connect4 against another player.  
 **?quiz**   
-  —  Start a quiz.  
+  —  Answer a random question to a category of your choice.  
 **?blackjack**   
-  —  Start a game of blackjack.  
+  —  Play a game of blackjack against the bot as dealer.  
 **?chess** @player2  
-  —  Start a game of chess.  
+  —  Play chess against another player.  
 **?flood**  
-  —  Start a game of flood.  
+  —  Get the grid to turn in to one color by iteratively flooding it.  
+**?mastermind**  
+  —  Play mastermind against the bot.  
+**?akinator**  
+  —  Start the akinator to guess with yes/no questions what character you are thinking of.  
 
 ![flood minigame](https://raw.githubusercontent.com/whuybrec/MiniGamesBot/master/images/flood.png)
 

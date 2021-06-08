@@ -8,8 +8,8 @@ from discordbot.user.session import Session
 class QuizCommand(Command):
     bot = None
     name = "quiz"
-    help = "Answer a random question to a category of your choice, check out the different categories with the rules command."
-    brief = "Answer a random question to a category of your choice."
+    help = "Answer a random question of a category of your choice, check out the different categories with the rules command."
+    brief = "Answer a random question of a category of your choice."
     args = ""
     category = Minigames
 

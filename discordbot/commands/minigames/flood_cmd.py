@@ -8,8 +8,8 @@ from discordbot.user.session import Session
 class FloodCommand(Command):
     bot = None
     name = "flood"
-    help = "Get the grid to turn in to one color by iteratively flooding it, check out the rules with the rules command."
-    brief = "Get the grid to turn in to one color by iteratively flooding it."
+    help = "Get the grid to turn into one color by iteratively flooding it, check out the rules with the rules command."
+    brief = "Get the grid to turn into one color by iteratively flooding it."
     args = ""
     category = Minigames
 
