@@ -46,7 +46,8 @@ class Session:
         if self.extra:
             await self.message_extra.clear_reactions()
 
-        if len(self.minigame.winners) == 0 and len(self.minigame.losers) == 0 and len(self.minigame.drawers) == 0:
+        if len(self.minigame.winners) == 0 and len(self.minigame.losers) == 0 and len(self.minigame.drawers) == 0\
+                and self.minigame_name != 'akinator':
             return
 
         # save data to DB
