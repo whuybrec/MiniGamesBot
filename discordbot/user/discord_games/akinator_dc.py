@@ -2,10 +2,12 @@ from discordbot.user.discord_games.minigame_dc import MinigameDisc
 from discordbot.utils.emojis import ALPHABET, STOP, QUESTION
 from akinator.async_aki import Akinator
 
+
 class AkinatorDisc(MinigameDisc):
     def __init__(self, session):
         super().__init__(session)
         self.akinator = Akinator()
+        self.guessed = False
 
     async def start(self):
         await self.akinator.start_game()
@@ -29,11 +31,12 @@ class AkinatorDisc(MinigameDisc):
 
         if self.akinator.progression >= 80:
             await self.akinator.win()
+            self.guessed = True
             self.playing = False
         await self.session.message.edit(content=self.get_content())
 
     def get_content(self):
         content = f"Question {int(self.akinator.step)+1}: *{self.akinator.question}*\n"
-        if not self.playing:
-            content = f"Akinator guesses: {self.akinator.first_guess['name']}\n{self.akinator.first_guess['absolute_picture_path']}"
+        if self.guessed:
+            content = f"Akinator guesses: {self.akinator.first_guess['name']}\n{self.akinator.first_guess['absolute_picture_path']}\n"
         return content
