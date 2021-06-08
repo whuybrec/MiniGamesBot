@@ -60,14 +60,15 @@ class MinigameDisc:
                     reaction, user = await self.session.bot.wait_for("reaction_add", check=check_, timeout=TIMEOUT)
                 if reaction.emoji == STOP:
                     self.losers.append(self.players[0])
+                    self.session.player_timed_out = self.players[self.turn].id
                     self.playing = False
 
                 await self.on_reaction(reaction, user)
 
             except asyncio.TimeoutError:
                 self.losers.append(self.players[0])
-                self.playing = False
                 self.session.player_timed_out = self.players[self.turn].id
+                self.playing = False
 
         await self.end_game()
 

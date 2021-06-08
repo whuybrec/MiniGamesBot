@@ -1,7 +1,7 @@
 from discordbot.categories.minigames import Minigames
 from discordbot.commands.command import Command
 from discordbot.user.discord_games.flood_dc import FloodDisc
-from discordbot.user.gamemanager import GameManager
+from discordbot.gamemanager import GameManager
 from discordbot.user.session import Session
 
 

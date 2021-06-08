@@ -17,8 +17,8 @@ from discordbot.commands import HelpCommand, SayCommand, DeleteCommand, ClearCom
     RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand, Connect4Command, QuizCommand, \
     BlackjackCommand, \
     GamesCommand, StatsCommand, SetPrefixCommand, BugCommand, ChessCommand, ServersCommand, FloodCommand, MastermindCommand
-from discordbot.user.databasemanager import DatabaseManager
-from discordbot.user.gamemanager import GameManager
+from discordbot.databasemanager import DatabaseManager
+from discordbot.gamemanager import GameManager
 from discordbot.utils.private import DISCORD
 from discordbot.utils.topgg import TopGG
 from discordbot.utils.variables import MINIGAMES

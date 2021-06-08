@@ -4,7 +4,7 @@ import time
 from discord import Message
 from discord.ext.commands import Context
 
-from discordbot.user.gamemanager import GameManager
+from discordbot.gamemanager import GameManager
 
 
 class Session:
