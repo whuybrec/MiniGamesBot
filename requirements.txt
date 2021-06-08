@@ -1,6 +1,6 @@
 discord~=1.0.1
-Pillow~=8.2.0
 numpy~=1.19.5
 gpiozero~=1.5.1
 chess~=1.5.0
 dblpy
+akinator.py
