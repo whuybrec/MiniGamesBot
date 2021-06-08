@@ -38,5 +38,5 @@ class AkinatorDisc(MinigameDisc):
     def get_content(self):
         content = f"Question {int(self.akinator.step)+1}: *{self.akinator.question}*\n"
         if self.guessed:
-            content = f"Akinator guesses: {self.akinator.first_guess['name']}\n{self.akinator.first_guess['absolute_picture_path']}\n"
+            content = f"Akinator guesses: {self.akinator.first_guess['name']}\n{self.akinator.first_guess['absolute_picture_path']}"
         return content

@@ -57,7 +57,7 @@ class GameManager:
         cls.paused_sessions.append(session)
         cls.open_sessions.remove(session)
 
-        await session.message.edit(content=session.message.content + f"{session.get_summary()}")
+        await session.message.edit(content=session.message.content + f"\n{session.get_summary()}")
         await session.message.add_reaction(STOP)
         await session.message.add_reaction(REPEAT)
 

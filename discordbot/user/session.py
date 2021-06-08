@@ -110,5 +110,5 @@ class Session:
                        f"{str(res['wins']).rjust(5)}" \
                        f"{str(res['losses']).rjust(7)}" \
                        f"{str(res['draws']).rjust(6)}\n"
-        summary += f"\nSession Time: {datetime.timedelta(seconds=self.session_time)}```"
+        summary += f"\nSession Time: {datetime.timedelta(seconds=self.session_time)}\n```"
         return summary
