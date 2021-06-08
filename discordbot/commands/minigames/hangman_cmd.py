@@ -8,14 +8,14 @@ from discordbot.user.session import Session
 class HangmanCommand(Command):
     bot = None
     name = "hangman"
-    help = "Start a game of hangman, check out the rules with the rules command."
-    brief = "Start a game of hangman."
+    help = "Play hangman against the bot, check out the rules with the rules command."
+    brief = "Play hangman against the bot."
     args = ""
     category = Minigames
 
     @classmethod
     async def handler(cls, context):
-        msg = await context.channel.send("Starting Hangman minigame")
+        msg = await context.channel.send("Starting **hangman** minigame")
 
         session = Session(cls.bot, context, msg, "hangman", HangmanDisc, [context.author], True)
         await GameManager.start_session(session)

@@ -8,14 +8,14 @@ from discordbot.user.session import Session
 class ScrambleCommand(Command):
     bot = None
     name = "scramble"
-    help = "Start a game of scramble, check out the rules with the rules command."
-    brief = "Start a game of scramble."
+    help = "Unscramble the letters of a random word, check out the rules with the rules command."
+    brief = "Unscramble the letters of a random word."
     args = ""
     category = Minigames
 
     @classmethod
     async def handler(cls, context):
-        msg = await context.channel.send("Starting Scramble minigame")
+        msg = await context.channel.send("Starting **scramble** minigame")
 
         session = Session(cls.bot, context, msg, "scramble", ScrambleDisc, [context.author])
         await GameManager.start_session(session)

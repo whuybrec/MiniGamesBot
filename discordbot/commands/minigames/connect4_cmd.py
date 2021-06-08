@@ -8,8 +8,8 @@ from discordbot.user.session import Session
 class Connect4Command(Command):
     bot = None
     name = "connect4"
-    help = "Start a game of connect4, check out the rules with the rules command."
-    brief = "Start a game of connect4."
+    help = "Play connect4 against another player, check out the rules with the rules command."
+    brief = "Play connect4 against another player."
     args = "@player2"
     category = Minigames
 
@@ -29,10 +29,10 @@ class Connect4Command(Command):
             return
 
         if player2.bot:
-            await context.reply("You can not start Connect4 with a bot.")
+            await context.reply("You can not start connect4 with a bot.")
             return
 
-        msg = await context.send("Starting Connect4 minigame")
+        msg = await context.send("Starting **connect4** minigame")
         session = Session(cls.bot, context, msg, "connect4", Connect4Disc, [context.author, player2])
         await GameManager.start_session(session)
 

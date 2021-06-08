@@ -8,14 +8,14 @@ from discordbot.user.session import Session
 class QuizCommand(Command):
     bot = None
     name = "quiz"
-    help = "Start a game of quiz in a category of you choice, check out the different categories with the rules command."
-    brief = "Start a quiz."
+    help = "Answer a random question to a category of your choice, check out the different categories with the rules command."
+    brief = "Answer a random question to a category of your choice."
     args = ""
     category = Minigames
 
     @classmethod
     async def handler(cls, context):
-        msg = await context.channel.send("Starting Quiz")
+        msg = await context.channel.send("Starting **quiz**")
 
         session = Session(cls.bot, context, msg, "quiz", QuizDisc, [context.author])
         await GameManager.start_session(session)

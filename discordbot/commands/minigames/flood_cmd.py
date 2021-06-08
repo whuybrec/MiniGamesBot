@@ -8,14 +8,14 @@ from discordbot.user.session import Session
 class FloodCommand(Command):
     bot = None
     name = "flood"
-    help = "Start a game of flood, check out the rules with the rules command."
-    brief = "Start a game of flood."
+    help = "Get the grid to turn in to one color by iteratively flooding it, check out the rules with the rules command."
+    brief = "Get the grid to turn in to one color by iteratively flooding it."
     args = ""
     category = Minigames
 
     @classmethod
     async def handler(cls, context):
-        msg = await context.channel.send("Starting Flood minigame")
+        msg = await context.channel.send("Starting **flood** minigame")
 
         session = Session(cls.bot, context, msg, "flood", FloodDisc, [context.author])
         await GameManager.start_session(session)

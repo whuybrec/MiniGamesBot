@@ -8,14 +8,14 @@ from discordbot.user.session import Session
 class MastermindCommand(Command):
     bot = None
     name = "mastermind"
-    help = "Start a game of mastermind, check out the rules with the rules command."
-    brief = "Start a game of mastermind."
+    help = "Play mastermind against the bot, check out the rules with the rules command."
+    brief = "Play mastermind against the bot."
     args = ""
     category = Minigames
 
     @classmethod
     async def handler(cls, context):
-        msg = await context.channel.send("Starting Mastermind minigame")
+        msg = await context.channel.send("Starting **mastermind** minigame")
 
         session = Session(cls.bot, context, msg, "mastermind", MastermindDisc, [context.author])
         await GameManager.start_session(session)

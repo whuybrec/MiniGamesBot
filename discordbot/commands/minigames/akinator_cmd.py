@@ -8,14 +8,14 @@ from discordbot.user.session import Session
 class AkinatorCommand(Command):
     bot = None
     name = "akinator"
-    help = "Think of character and by asking yes/no questions the Akinator will guess who it is. Character can be fictional or real."
-    brief = "Think of character and by asking questions the Akinator will guess who it is."
+    help = "Start the akinator to guess with yes/no questions what character you are thinking of. Character can be fictional or real."
+    brief = "Start the akinator to guess with yes/no questions what character you are thinking of."
     args = ""
     category = Minigames
 
     @classmethod
     async def handler(cls, context):
-        msg = await context.channel.send("Starting Akinator minigame")
+        msg = await context.channel.send("Starting **akinator** minigame")
 
         session = Session(cls.bot, context, msg, "akinator", AkinatorDisc, [context.author])
         await GameManager.start_session(session)
