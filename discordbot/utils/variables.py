@@ -1,4 +1,4 @@
-from discordbot.utils.emojis import SPLIT, STOP, ALPHABET, ARROW_LEFT, CHECKMARK, REPEAT
+from discordbot.utils.emojis import SPLIT, STOP, ALPHABET, ARROW_LEFT, CHECKMARK, REPEAT, QUESTION
 
 TIMEOUT = 60*5
 
@@ -48,3 +48,9 @@ MASTERMIND_RULES = f"**Mastermind**\n" \
               f"{CHECKMARK} to confirm your guess.\n" \
               f"{STOP} to end the game (automatically results in loss)."
 
+AKINATOR_RULES = f"**Akinator**\n" \
+                 f"Think of character and by asking yes/no questions the Akinator will guess who it is. Character can be fictional or real.\n" \
+                 f"{ALPHABET['y']} to answer the question with 'yes'.\n" \
+                 f"{ALPHABET['n']} to answer the question with 'no'.\n" \
+                 f"{QUESTION} if you don't know the answer.\n" \
+                 f"{STOP} to end the game."

@@ -11,7 +11,8 @@ RULES = {
     "scramble": SCRAMBLE_RULES,
     "connect4": CONNECT4_RULES,
     "flood": FLOOD_RULES,
-    "mastermind": MASTERMIND_RULES
+    "mastermind": MASTERMIND_RULES,
+    "akinator": AKINATOR_RULES
 }
 
 

@@ -1,23 +1,20 @@
 import asyncio
+import importlib
+import inspect
 import json
 import os
 import random
 import time
 import traceback
+
 from zipfile import ZipFile
 
 import discord
 from discord.ext.commands import Bot, CommandNotFound, Cog
 from discord.utils import find
 
-from discordbot.categories.developer import Developer
-from discordbot.categories.minigames import Minigames
-from discordbot.categories.miscellaneous import Miscellaneous
-from discordbot.commands import HelpCommand, SayCommand, DeleteCommand, ClearCommand, TemperatureCommand, \
-    ExecuteCommand, \
-    RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand, Connect4Command, QuizCommand, \
-    BlackjackCommand, \
-    GamesCommand, StatsCommand, SetPrefixCommand, BugCommand, ChessCommand, ServersCommand, FloodCommand, MastermindCommand, AkinatorCommand
+from discordbot.categories import *
+from discordbot.commands.command import Command
 from discordbot.databasemanager import DatabaseManager
 from discordbot.gamemanager import GameManager
 from discordbot.utils.private import DISCORD
@@ -40,6 +37,7 @@ class MiniGamesBot(Bot):
         self.ctx = None
         self.has_update = False
         self.prefixes = {}
+        self.my_commands = []
         self.game_manager = GameManager
         self.db = DatabaseManager
         self.lexicon = Lexicon
@@ -50,10 +48,7 @@ class MiniGamesBot(Bot):
             Developer,
             Minigames
         ]
-        self.my_commands = [SayCommand, HelpCommand, DeleteCommand, ClearCommand, TemperatureCommand, ExecuteCommand,
-                            RestartCommand, InfoCommand, HangmanCommand, RulesCommand, ScrambleCommand, Connect4Command,
-                            QuizCommand, BlackjackCommand, GamesCommand, StatsCommand, SetPrefixCommand, BugCommand, ChessCommand,
-                            ServersCommand, FloodCommand, MastermindCommand, AkinatorCommand]
+
         self.load_commands()
 
         # load managers
@@ -115,17 +110,32 @@ class MiniGamesBot(Bot):
         await channel.send("JOINED GUILD '{0}' ({1}).".format(guild.name, guild.id))
 
     def load_commands(self):
-        for command in self.my_commands:
-            command.add_command(self)
+        modules = self.get_modules(os.path.join(os.getcwd(), "discordbot", "commands"), "discordbot.commands")
+        for module in modules:
+            imp = importlib.import_module(module)
+            for key, cmd in imp.__dict__.items():
+                if inspect.isclass(cmd) and issubclass(cmd, Command) and cmd != Command:
+                    self.my_commands.append(cmd)
+                    cmd.add_command(self)
+
+    def get_modules(self, path, module):
+        modules = []
+        for file in os.listdir(path):
+            if file == "__pycache__":
+                continue
+            if os.path.isdir(os.path.join(path, file)):
+                for submodule in self.get_modules(os.path.join(path, file), f"{module}.{file}"):
+                    modules.append(submodule)
+            elif os.path.isfile(os.path.join(path, file)):
+                modules.append(f"{module}.{file[:-3]}")
+        return modules
 
     async def send(self, content, channel_id=None):
+        if content.startswith("```"):
+            await self.send_formatted(content, channel_id)
         max_length = 1900
         message_length = len(content)
         j = 0
-        formatted = False
-        if content.startswith("```"):
-            content = content[3:-3]
-            formatted = True
 
         if channel_id is not None:
             channel = await self.fetch_channel(channel_id)
@@ -133,17 +143,29 @@ class MiniGamesBot(Bot):
             channel = self.ctx.channel
 
         while max_length < message_length:
-            if formatted:
-                await channel.send("```\n" + content[j * max_length:(j + 1) * max_length] + "```\n")
-            else:
-                await channel.send(content[j * max_length:(j + 1) * max_length])
+            await channel.send(content[j * max_length:(j + 1) * max_length])
             message_length -= max_length
             j += 1
 
-        if formatted:
-            await channel.send("```\n" + content[j * max_length:] + "```\n")
+        await channel.send(content[j * max_length:])
+
+    async def send_formatted(self, content, channel_id=None):
+        max_length = 1900
+        message_length = len(content)
+        j = 0
+        content = content[3:-3]
+
+        if channel_id is not None:
+            channel = await self.fetch_channel(channel_id)
         else:
-            await channel.send(content[j * max_length:])
+            channel = self.ctx.channel
+
+        while max_length < message_length:
+            await channel.send("```\n" + content[j * max_length:(j + 1) * max_length] + "```\n")
+            message_length -= max_length
+            j += 1
+
+        await channel.send("```\n" + content[j * max_length:] + "```\n")
 
     async def routine_updates(self):
         while True:
