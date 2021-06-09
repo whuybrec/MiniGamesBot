@@ -224,12 +224,18 @@ class MiniGamesBot(Bot):
                 os.remove(f_path)
 
     async def on_error(self, event_method, *args, **kwargs):
+        e = sys.exc_info()
+        if e[0] is discord.Forbidden:
+            context = await self.get_context(args[0].message)
+            await context.channel.send("I am missing permissions in this server, "
+                                       "make sure that I can manage messages (to delete reactions) and can send DMs.")
+
         error = "Time: {0}\n\n" \
                 "Ignoring exception in command {1}:\n\n" \
                 "args: {2}\n\n" \
                 "kwargs: {3}\n\n" \
                 "e: {4}\n\n"\
-                 .format(time.strftime("%b %d %Y %H:%M:%S"), event_method, args, kwargs, traceback.format_exc())
+                .format(time.strftime("%b %d %Y %H:%M:%S"), event_method, args, kwargs, traceback.format_exc())
         await self.send_error(error)
 
     async def on_command_error(self, context, exception):
@@ -244,12 +250,15 @@ class MiniGamesBot(Bot):
         if cog and Cog._get_overridden_method(cog.cog_command_error) is not None:
             return
 
-        etype, value, tb = sys.exc_info()
-        error = "Time: {0}\n" \
-                "Ignoring exception in command {1}:\n" \
-                "Exception: \n{2}" \
+        if isinstance(exception, discord.Forbidden):
+            await context.channel.send("I am missing permissions in this server, "
+                                       "make sure that I can manage messages (to delete reactions) and can send DMs.")
+
+        error = "Time: {0}\n\n" \
+                "Ignoring exception in command {1}:\n\n" \
+                "Exception: \n\n{2}" \
                 .format(time.strftime("%b %d %Y %H:%M:%S"),
                         context.command,
-                        ''.join(traceback.format_exception(etype, value, tb)))
+                        ''.join(traceback.format_exception(type(exception), exception, exception.__traceback__)))
         print(error)
         await self.send_error(error)
