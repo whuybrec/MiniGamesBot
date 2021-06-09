@@ -172,6 +172,22 @@ class MiniGamesBot(Bot):
 
         await channel.send("```\n" + content[j * max_length:] + "\n```")
 
+    async def send_error(self, content):
+        channel = self.get_channel(DISCORD["ERROR_CHANNEL"])
+
+        max_length = 1900
+        contents = content.split("\n")
+
+        content = ""
+        for part in contents:
+            temp = content + part
+            if temp > max_length:
+                await channel.send("```\n" + content + "\n```")
+                content = part
+            else:
+                content += part
+        await channel.send("```\n" + content + "\n```")
+
     async def routine_updates(self):
         while True:
             await self.db.update()
@@ -207,14 +223,13 @@ class MiniGamesBot(Bot):
                 os.remove(f_path)
 
     async def on_error(self, event_method, *args, **kwargs):
-        text = "Time: {0}\n\n" \
-               "Ignoring exception in command {1}:\n\n" \
-               "args: {2}\n\n" \
-               "kwargs: {3}\n\n" \
-               "e: {4}\n\n"\
-            .format(time.strftime("%b %d %Y %H:%M:%S"), event_method, args, kwargs, traceback.format_exc())
-        channel = self.get_channel(DISCORD["ERROR_CHANNEL"])
-        await self.send("```"+text+"```", channel.id)
+        error = "Time: {0}\n\n" \
+                "Ignoring exception in command {1}:\n\n" \
+                "args: {2}\n\n" \
+                "kwargs: {3}\n\n" \
+                "e: {4}\n\n"\
+                 .format(time.strftime("%b %d %Y %H:%M:%S"), event_method, args, kwargs, traceback.format_exc())
+        await self.send_error(error)
 
     async def on_command_error(self, context, exception):
         if isinstance(exception, CommandNotFound):
@@ -228,12 +243,8 @@ class MiniGamesBot(Bot):
         if cog and Cog._get_overridden_method(cog.cog_command_error) is not None:
             return
 
-        text = "Time: {0}\n\n" \
-               "Ignoring exception in command {1}:\n\n" \
-               "Exception: {2}\n\n" \
-            .format(time.strftime("%b %d %Y %H:%M:%S"), context.command, exception)
-        channel = self.get_channel(DISCORD["ERROR_CHANNEL"])
-        await self.send_formatted("```\n"+text+"\n```", channel.id)
-        result = traceback.format_exception(type(exception), exception, exception.__traceback__)
-        result = "".join(result)
-        await self.send_formatted("```\n"+result+"\n```", channel.id)
+        error = "Time: {0}\n" \
+                "Ignoring exception in command {1}:\n" \
+                "Exception: \n{2}" \
+                .format(time.strftime("%b %d %Y %H:%M:%S"), context.command, traceback.format_exc())
+        await self.send_error(error)
