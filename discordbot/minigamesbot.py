@@ -180,12 +180,12 @@ class MiniGamesBot(Bot):
 
         content = ""
         for part in contents:
-            temp = content + part
+            temp = content + "\n" + part
             if len(temp) > max_length:
                 await channel.send("```\n" + content + "\n```")
                 content = part
             else:
-                content += part
+                content = temp
         await channel.send("```\n" + content + "\n```")
 
     async def routine_updates(self):
