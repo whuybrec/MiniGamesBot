@@ -234,7 +234,6 @@ class MiniGamesBot(Bot):
                                "- Add reactions\n"
                                "- Use external emojis")
 
-
         error = "Time: {0}\n\n" \
                 "Ignoring exception in command {1}:\n\n" \
                 "args: {2}\n\n" \
