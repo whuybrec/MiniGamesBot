@@ -85,8 +85,8 @@ class MinigameDisc:
                 self.playing = False
         try:
             await self.session.message.edit(content=self.get_content())
-        except Exception as e:
-            await self.session.bot.on_command_error(self.session.context, e)
+        except discord.errors.NotFound:
+            pass
         await self.end_game()
 
     async def on_reaction(self, reaction, user):
@@ -97,8 +97,8 @@ class MinigameDisc:
             await self.session.message.clear_reactions()
             if self.session.message_extra is not None:
                 await self.session.message_extra.clear_reactions()
-        except Exception as e:
-            await self.session.bot.on_command_error(self.session.context, e)
+        except discord.errors.NotFound:
+            pass
 
         self.emojis = set()
 

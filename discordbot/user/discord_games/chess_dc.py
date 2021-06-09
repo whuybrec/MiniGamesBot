@@ -94,23 +94,27 @@ class ChessDisc(MinigameDisc):
             await reaction.message.remove_reaction(reaction.emoji, user)
 
         if len(self.move) == 4:
-            if chess.Move.from_uci(self.move) in self.chessboard.legal_moves:
-                self.chessboard.push_uci(self.move)
-                self.move = ""
-                if self.chessboard.is_checkmate():
-                    self.winners.append(self.players[self.turn])
-                    self.losers.append(self.players[(self.turn + 1) % 2])
-                    self.playing = False
-                elif self.chessboard.is_stalemate() or self.chessboard.is_insufficient_material():
-                    self.drawers.append(self.players[self.turn])
-                    self.drawers.append(self.players[(self.turn + 1) % 2])
-                    self.playing = False
+            try:
+                if chess.Move.from_uci(self.move) in self.chessboard.legal_moves:
+                    self.chessboard.push_uci(self.move)
+                    self.move = ""
+                    if self.chessboard.is_checkmate():
+                        self.winners.append(self.players[self.turn])
+                        self.losers.append(self.players[(self.turn + 1) % 2])
+                        self.playing = False
+                    elif self.chessboard.is_stalemate() or self.chessboard.is_insufficient_material():
+                        self.drawers.append(self.players[self.turn])
+                        self.drawers.append(self.players[(self.turn + 1) % 2])
+                        self.playing = False
+                    else:
+                        self.turn = (self.turn + 1) % 2
+                    await self.update_messages()
                 else:
-                    self.turn = (self.turn + 1) % 2
-                await self.update_messages()
-            else:
+                    self.move = ""
+                    await self.session.message.edit(content=self.get_content()+"\nIncorrect move, try again!")
+            except ValueError:
                 self.move = ""
-                await self.session.message.edit(content=self.get_content()+"\nIncorrect move, try again!")
+                await self.session.message.edit(content=self.get_content() + "\nIncorrect move, try again!")
 
     def get_content(self):
         if not self.playing:

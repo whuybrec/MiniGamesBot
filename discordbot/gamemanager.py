@@ -1,5 +1,7 @@
 import asyncio
 
+import discord.errors
+
 from discordbot.utils.emojis import *
 
 
@@ -21,13 +23,14 @@ class GameManager:
                 await session.message.clear_reactions()
                 if session.message_extra is not None:
                     await session.message_extra.clear_reactions()
-            except Exception as e:
-                print(e)
+            except discord.errors.NotFound:
+                pass
+
         for session in cls.paused_sessions:
             try:
                 await session.message.clear_reactions()
-            except Exception as e:
-                print(e)
+            except discord.errors.NotFound:
+                pass
 
     @classmethod
     def has_open_sessions(cls):
@@ -40,7 +43,10 @@ class GameManager:
     @classmethod
     async def start_session(cls, session):
         if cls.bot.has_update:
-            await session.message.edit(content="Sorry! I can't start any new games right now. Boss says I have to restart soon:tm:. Try again later!")
+            try:
+                await session.message.edit(content="Sorry! I can't start any new games right now. Boss says I have to restart soon:tm:. Try again later!")
+            except discord.errors.NotFound:
+                pass
             return
         cls.open_sessions.append(session)
         if session in cls.paused_sessions:
@@ -57,9 +63,13 @@ class GameManager:
         cls.paused_sessions.append(session)
         cls.open_sessions.remove(session)
 
-        await session.message.edit(content=session.message.content + f"\n{session.get_summary()}")
-        await session.message.add_reaction(STOP)
-        await session.message.add_reaction(REPEAT)
+        try:
+            await session.message.edit(content=session.message.content + f"\n{session.get_summary()}")
+            await session.message.add_reaction(STOP)
+            await session.message.add_reaction(REPEAT)
+        except discord.errors.NotFound:
+            await cls.end_session(session)
+            return
 
         def check(r, u):
             return u.id in session.stats_players.keys() \

@@ -1,6 +1,7 @@
 import datetime
 import time
 
+import discord.errors
 from discord import Message
 from discord.ext.commands import Context
 
@@ -40,7 +41,10 @@ class Session:
         await self.message.clear_reactions()
 
         self.minigame = self.minigame_callback.__call__(self)
-        await self.minigame.start()
+        try:
+            await self.minigame.start()
+        except discord.errors.NotFound:
+            await self.close()
 
     async def close(self):
         await self.message.clear_reactions()
