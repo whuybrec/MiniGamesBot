@@ -1,5 +1,7 @@
 import asyncio
 
+import discord.errors
+
 from discordbot.utils.emojis import STOP
 from discordbot.utils.variables import TIMEOUT
 
@@ -16,31 +18,43 @@ class MinigameDisc:
         self.turn = 0
 
     async def add_reaction(self, emoji, extra=False):
-        if not extra:
-            await self.session.message.add_reaction(emoji)
-        else:
-            await self.session.message_extra.add_reaction(emoji)
+        try:
+            if not extra:
+                await self.session.message.add_reaction(emoji)
+            else:
+                await self.session.message_extra.add_reaction(emoji)
+        except Exception as e:
+            await self.session.bot.on_command_error(self.session.context, e)
         self.emojis.add(emoji)
 
     async def remove_reaction(self, emoji, user, extra=False):
-        if not extra:
-            await self.session.message.remove_reaction(emoji, user)
-        else:
-            await self.session.message_extra.remove_reaction(emoji, user)
+        try:
+            if not extra:
+                await self.session.message.remove_reaction(emoji, user)
+            else:
+                await self.session.message_extra.remove_reaction(emoji, user)
+        except Exception as e:
+            await self.session.bot.on_command_error(self.session.context, e)
         self.emojis.remove(emoji)
 
     async def clear_reaction(self, emoji, extra=False):
-        if not extra:
-            await self.session.message.clear_reaction(emoji)
-        else:
-            await self.session.message_extra.clear_reaction(emoji)
+        try:
+            if not extra:
+                await self.session.message.clear_reaction(emoji)
+            else:
+                await self.session.message_extra.clear_reaction(emoji)
+        except Exception as e:
+            await self.session.bot.on_command_error(self.session.context, e)
         self.emojis.remove(emoji)
 
     async def clear_reactions(self, extra=False):
-        if not extra:
-            await self.session.message.clear_reactions()
-        else:
-            await self.session.message_extra.clear_reactions()
+        try:
+            if not extra:
+                await self.session.message.clear_reactions()
+            else:
+                await self.session.message_extra.clear_reactions()
+        except Exception as e:
+            await self.session.bot.on_command_error(self.session.context, e)
         self.emojis = set()
 
     def get_content(self):
@@ -69,17 +83,22 @@ class MinigameDisc:
                 self.losers.append(self.players[0])
                 self.session.player_timed_out = self.players[self.turn].id
                 self.playing = False
-
-        await self.session.message.edit(content=self.get_content())
+        try:
+            await self.session.message.edit(content=self.get_content())
+        except Exception as e:
+            await self.session.bot.on_command_error(self.session.context, e)
         await self.end_game()
 
     async def on_reaction(self, reaction, user):
         raise NotImplementedError
 
     async def end_game(self):
-        await self.session.message.clear_reactions()
-        if self.session.message_extra is not None:
-            await self.session.message_extra.clear_reactions()
+        try:
+            await self.session.message.clear_reactions()
+            if self.session.message_extra is not None:
+                await self.session.message_extra.clear_reactions()
+        except Exception as e:
+            await self.session.bot.on_command_error(self.session.context, e)
 
         self.emojis = set()
 
