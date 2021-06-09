@@ -1,7 +1,10 @@
+import asyncio
+
 from akinator.async_aki import Akinator
 
 from discordbot.user.discord_games.minigame_dc import MinigameDisc
 from discordbot.utils.emojis import ALPHABET, STOP, QUESTION
+from discordbot.utils.variables import TIMEOUT
 
 
 class AkinatorDisc(MinigameDisc):
@@ -19,6 +22,28 @@ class AkinatorDisc(MinigameDisc):
         await self.add_reaction(STOP)
 
         await self.wait_for_player()
+
+    async def wait_for_player(self, check_=None):
+        def check(r, u):
+            return r.message.id == self.session.message.id \
+                   and r.emoji in self.emojis \
+                   and u.id == self.players[self.turn].id
+
+        while self.playing:
+            try:
+                reaction, user = await self.session.bot.wait_for("reaction_add", check=check, timeout=TIMEOUT)
+                if reaction.emoji == STOP:
+                    self.session.player_timed_out = self.players[self.turn].id
+                    self.playing = False
+
+                await self.on_reaction(reaction, user)
+
+            except asyncio.TimeoutError:
+                self.session.player_timed_out = self.players[self.turn].id
+                self.playing = False
+
+        await self.session.message.edit(content=self.get_content())
+        await self.end_game()
 
     async def on_reaction(self, reaction, user):
         if reaction.emoji == ALPHABET["y"]:
