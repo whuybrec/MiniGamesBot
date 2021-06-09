@@ -14,7 +14,7 @@ class InfoCommand(Command):
     async def handler(cls, context):
         text = "Thanks for using MiniGamesBot! :)\n"
         text += "- If you notice any bugs or have any suggestions then join my server to let me know!\n"
-        text += "- Bot invite link: <https://discord.com/api/oauth2/authorize?client_id=704677903182594119&permissions=1074079808&scope=bot>\n"
+        text += "- Bot invite link: <https://discord.com/oauth2/authorize?client_id=704677903182594119&permissions=305216&scope=bot>\n"
         text += "- Leave a reaction or give a thumbs up if you like this bot here: <https://top.gg/bot/704677903182594119>\n"
         text += "- If you wish to make a donation: https://www.buymeacoffee.com/whuybrec\n"
         text += "- Github link: <https://github.com/whuybrec/whuybrec.github.io>\n"

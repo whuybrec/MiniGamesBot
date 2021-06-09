@@ -272,6 +272,8 @@ class MiniGamesBot(Bot):
             missing_permissions.append("Add reactions")
         if not permissions.use_external_emojis:
             missing_permissions.append("Use external emojis")
+        if not permissions.attach_files:
+            missing_permissions.append("Attach files")
         return missing_permissions
 
     async def send_missing_permissions(self, context, missing_permissions):
