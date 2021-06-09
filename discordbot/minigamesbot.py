@@ -7,12 +7,11 @@ import random
 import sys
 import time
 import traceback
-
 from zipfile import ZipFile
 
 import discord
-from discord import DMChannel
-from discord.ext.commands import Bot, CommandNotFound, Cog, CommandInvokeError
+from discord import DMChannel, Permissions
+from discord.ext.commands import Bot, CommandNotFound, Cog
 from discord.utils import find
 
 from discordbot.categories import *
@@ -225,14 +224,11 @@ class MiniGamesBot(Bot):
 
     async def on_error(self, event_method, *args, **kwargs):
         e = sys.exc_info()
-        if isinstance(e[1], discord.Forbidden) or isinstance(e[1], CommandInvokeError):
-            context = await self.get_context(args[0].message)
-            await context.send("I am missing permissions in this server, please make sure I can do the following:\n"
-                               "- Manage emojis\n"
-                               "- Manage messages\n"
-                               "- Read message history\n"
-                               "- Add reactions\n"
-                               "- Use external emojis")
+        context = await self.get_context(args[0].message)
+
+        original_error = getattr(e[1], 'original', e[1])
+        if isinstance(original_error, discord.Forbidden):
+            await self.send_missing_permissions(context, self.get_missing_permissions(context))
 
         error = "Time: {0}\n\n" \
                 "Ignoring exception in command {1}:\n\n" \
@@ -254,13 +250,9 @@ class MiniGamesBot(Bot):
         if cog and Cog._get_overridden_method(cog.cog_command_error) is not None:
             return
 
-        if isinstance(exception, discord.Forbidden) or isinstance(exception, CommandInvokeError):
-            await context.send("I am missing permissions in this server, please make sure I can do the following:\n"
-                               "- Manage emojis\n"
-                               "- Manage messages\n"
-                               "- Read message history\n"
-                               "- Add reactions\n"
-                               "- Use external emojis")
+        original_error = getattr(exception, 'original', exception)
+        if isinstance(original_error, discord.Forbidden):
+            await self.send_missing_permissions(context, self.get_missing_permissions(context))
 
         error = "Time: {0}\n\n" \
                 "Ignoring exception in command {1}:\n\n" \
@@ -268,5 +260,26 @@ class MiniGamesBot(Bot):
                 .format(time.strftime("%b %d %Y %H:%M:%S"),
                         context.command,
                         ''.join(traceback.format_exception(type(exception), exception, exception.__traceback__)))
-        print(error)
+
         await self.send_error(error)
+
+    def get_missing_permissions(self, context):
+        permissions: Permissions = context.channel.permissions_for(context.channel.guild.me)
+        missing_permissions = list()
+        if not permissions.manage_messages:
+            missing_permissions.append("Manage messages")
+        if not permissions.manage_emojis:
+            missing_permissions.append("Manage emojis")
+        if not permissions.read_message_history:
+            missing_permissions.append("Read message history")
+        if not permissions.add_reactions:
+            missing_permissions.append("Add reactions")
+        if not permissions.use_external_emojis:
+            missing_permissions.append("Use external emojis")
+        return missing_permissions
+
+    async def send_missing_permissions(self, context, missing_permissions):
+        content = "I am missing the following permissions in this channel. Please enable these so the bot can work properly:\n"
+        for missing_permission in missing_permissions:
+            content += f"- {missing_permission}\n"
+        await context.send(content)

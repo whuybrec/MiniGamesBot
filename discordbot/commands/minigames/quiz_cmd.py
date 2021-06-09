@@ -1,7 +1,7 @@
 from discordbot.categories.minigames import Minigames
 from discordbot.commands.command import Command
-from discordbot.user.discord_games.quiz_dc import QuizDisc
 from discordbot.gamemanager import GameManager
+from discordbot.user.discord_games.quiz_dc import QuizDisc
 from discordbot.user.session import Session
 
 

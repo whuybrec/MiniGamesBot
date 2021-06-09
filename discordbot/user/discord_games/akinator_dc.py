@@ -1,6 +1,7 @@
+from akinator.async_aki import Akinator
+
 from discordbot.user.discord_games.minigame_dc import MinigameDisc
 from discordbot.utils.emojis import ALPHABET, STOP, QUESTION
-from akinator.async_aki import Akinator
 
 
 class AkinatorDisc(MinigameDisc):
