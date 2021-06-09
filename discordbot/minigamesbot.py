@@ -268,8 +268,6 @@ class MiniGamesBot(Bot):
         missing_permissions = list()
         if not permissions.manage_messages:
             missing_permissions.append("Manage messages")
-        if not permissions.manage_emojis:
-            missing_permissions.append("Manage emojis")
         if not permissions.read_message_history:
             missing_permissions.append("Read message history")
         if not permissions.add_reactions:
