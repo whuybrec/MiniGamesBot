@@ -137,6 +137,7 @@ class MiniGamesBot(Bot):
     async def send(self, content, channel_id=None):
         if content.startswith("```"):
             await self.send_formatted(content, channel_id)
+            return
         max_length = 1900
         message_length = len(content)
         j = 0
