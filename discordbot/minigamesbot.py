@@ -227,8 +227,13 @@ class MiniGamesBot(Bot):
         e = sys.exc_info()
         if isinstance(e[1], discord.Forbidden) or isinstance(e[1], CommandInvokeError):
             context = await self.get_context(args[0].message)
-            await context.channel.send("I am missing permissions in this server, "
-                                       "make sure that I can manage messages (to delete reactions) and can send DMs.")
+            await context.send("I am missing permissions in this server, please make sure I can do the following:\n"
+                                       "- Manage emojis\n"
+                                       "- Manage messages\n"
+                                       "- Read message history\n"
+                                       "- Add reactions\n"
+                                       "- Use external emojis")
+
 
         error = "Time: {0}\n\n" \
                 "Ignoring exception in command {1}:\n\n" \
@@ -251,8 +256,12 @@ class MiniGamesBot(Bot):
             return
 
         if isinstance(exception, discord.Forbidden) or isinstance(exception, CommandInvokeError):
-            await context.channel.send("I am missing permissions in this server, "
-                                       "make sure that I can manage messages (to delete reactions) and can send DMs.")
+            await context.send("I am missing permissions in this server, please make sure I can do the following:\n"
+                                       "- Manage emojis\n"
+                                       "- Manage messages\n"
+                                       "- Read message history\n"
+                                       "- Add reactions\n"
+                                       "- Use external emojis")
 
         error = "Time: {0}\n\n" \
                 "Ignoring exception in command {1}:\n\n" \
