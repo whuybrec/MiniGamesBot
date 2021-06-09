@@ -247,4 +247,5 @@ class MiniGamesBot(Bot):
                 "Ignoring exception in command {1}:\n" \
                 "Exception: \n{2}" \
                 .format(time.strftime("%b %d %Y %H:%M:%S"), context.command, traceback.format_exc())
+        print(error)
         await self.send_error(error)
