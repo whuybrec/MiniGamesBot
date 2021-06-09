@@ -4,6 +4,7 @@ import inspect
 import json
 import os
 import random
+import sys
 import time
 import traceback
 
@@ -243,9 +244,12 @@ class MiniGamesBot(Bot):
         if cog and Cog._get_overridden_method(cog.cog_command_error) is not None:
             return
 
+        etype, value, tb = sys.exc_info()
         error = "Time: {0}\n" \
                 "Ignoring exception in command {1}:\n" \
                 "Exception: \n{2}" \
-                .format(time.strftime("%b %d %Y %H:%M:%S"), context.command, traceback.format_exc())
+                .format(time.strftime("%b %d %Y %H:%M:%S"),
+                        context.command,
+                        ''.join(traceback.format_exception(etype, value, tb)))
         print(error)
         await self.send_error(error)
