@@ -165,11 +165,11 @@ class MiniGamesBot(Bot):
             channel = self.ctx.channel
 
         while max_length < message_length:
-            await channel.send("```\n" + content[j * max_length:(j + 1) * max_length] + "```\n")
+            await channel.send("```\n" + content[j * max_length:(j + 1) * max_length] + "\n```")
             message_length -= max_length
             j += 1
 
-        await channel.send("```\n" + content[j * max_length:] + "```\n")
+        await channel.send("```\n" + content[j * max_length:] + "\n```")
 
     async def routine_updates(self):
         while True:
@@ -232,7 +232,7 @@ class MiniGamesBot(Bot):
                "Exception: {2}\n\n" \
             .format(time.strftime("%b %d %Y %H:%M:%S"), context.command, exception)
         channel = self.get_channel(DISCORD["ERROR_CHANNEL"])
-        await self.send("```"+text+"```", channel.id)
+        await self.send_formatted("```\n"+text+"\n```", channel.id)
         result = traceback.format_exception(type(exception), exception, exception.__traceback__)
         result = "".join(result)
-        await self.send("```"+result+"```", channel.id)
+        await self.send_formatted("```\n"+result+"\n```", channel.id)
