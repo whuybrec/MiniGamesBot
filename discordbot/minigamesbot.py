@@ -250,6 +250,8 @@ class MiniGamesBot(Bot):
         if cog and Cog._get_overridden_method(cog.cog_command_error) is not None:
             return
 
+        print(type(exception))
+        print(isinstance(exception, discord.Forbidden))
         if isinstance(exception, discord.Forbidden):
             await context.channel.send("I am missing permissions in this server, "
                                        "make sure that I can manage messages (to delete reactions) and can send DMs.")
