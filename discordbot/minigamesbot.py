@@ -181,7 +181,7 @@ class MiniGamesBot(Bot):
         content = ""
         for part in contents:
             temp = content + part
-            if temp > max_length:
+            if len(temp) > max_length:
                 await channel.send("```\n" + content + "\n```")
                 content = part
             else:
