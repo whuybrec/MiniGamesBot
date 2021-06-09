@@ -12,7 +12,7 @@ from zipfile import ZipFile
 
 import discord
 from discord import DMChannel
-from discord.ext.commands import Bot, CommandNotFound, Cog
+from discord.ext.commands import Bot, CommandNotFound, Cog, CommandInvokeError
 from discord.utils import find
 
 from discordbot.categories import *
@@ -225,7 +225,7 @@ class MiniGamesBot(Bot):
 
     async def on_error(self, event_method, *args, **kwargs):
         e = sys.exc_info()
-        if e[0] is discord.Forbidden:
+        if isinstance(e[1], discord.Forbidden) or isinstance(e[1], CommandInvokeError):
             context = await self.get_context(args[0].message)
             await context.channel.send("I am missing permissions in this server, "
                                        "make sure that I can manage messages (to delete reactions) and can send DMs.")
@@ -250,9 +250,7 @@ class MiniGamesBot(Bot):
         if cog and Cog._get_overridden_method(cog.cog_command_error) is not None:
             return
 
-        print(type(exception))
-        print(isinstance(exception, discord.Forbidden))
-        if isinstance(exception, discord.Forbidden):
+        if isinstance(exception, discord.Forbidden) or isinstance(exception, CommandInvokeError):
             await context.channel.send("I am missing permissions in this server, "
                                        "make sure that I can manage messages (to delete reactions) and can send DMs.")
 
