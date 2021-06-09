@@ -6,8 +6,8 @@ from discordbot.utils.emojis import STOP
 class InfoCommand(Command):
     bot = None
     name = "info"
-    help = "Shows some information about this bot: donation link, github repository, invite link, invite to my server"
-    brief = "Shows some information about this bot."
+    help = "Shows link and information for minigames, statistics, the bot in general."
+    brief = "Shows links and information about this bot."
     args = ""
     category = Miscellaneous
 
