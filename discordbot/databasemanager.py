@@ -457,7 +457,7 @@ class DatabaseManager:
         table = cls.get_formatted_stats_for_today_of_minigames()
         today = f"```diff\n+ Today\n\n{table}\n```"
         today += f"\nServers: **{len(cls.bot.guilds)}**"
-        today += f"\nLast edited: **{datetime.now()}**"
+        today += f"\nLast edited: **{datetime.now().strftime('%Y-%m-%d  %H:%M:%S')}**"
         await message.edit(content=today)
 
         with ZipFile("bin/database_backup.zip", "w") as zip_f:
