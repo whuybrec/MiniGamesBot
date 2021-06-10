@@ -364,7 +364,7 @@ class DatabaseManager:
 
     @classmethod
     def get_formatted_stats_for_today_of_minigames(cls):
-        lists = [["Game", "W", "L", "D", "Total", "AVG", "Unfinished", "Time"]]
+        lists = [["Game", "W", "L", "D", "Total", "AVG/M", "Unfinished", "Time"]]
         avg_stats = cls.get_average_played_minigames_of_month(date.today())
         mg_stats = cls.get_stats_for_minigames_of_day(date.today())
         stats = cls.merge_with_average(mg_stats, avg_stats)
