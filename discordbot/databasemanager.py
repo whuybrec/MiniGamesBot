@@ -217,7 +217,7 @@ class DatabaseManager:
 
     @classmethod
     def get_average_played_minigames_of_month(cls, date_):
-        q = "SELECT minigame, AVG(total_games) " \
+        q = "SELECT minigame, AVG(total_games) as avg " \
             "FROM (" \
             "   SELECT minigame, SUM(total_games) as 'total_games', time_stamp as 'time_stamp' " \
             "   FROM minigames " \
@@ -306,17 +306,144 @@ class DatabaseManager:
     def query(cls, query):
         return cls.database.query(query)
 
+    # FORMATTED STATS
+
     @classmethod
-    def stats_to_list(cls, stats):
-        contents = []
+    def get_formatted_stats_for_today_of_player(cls, player_id):
+        lists = [["Game", "W", "L", "D", "Total", "Unfinished", "Time"]]
+        mg_stats = cls.get_stats_for_player_of_day(player_id, date.today())
+        for stat in mg_stats:
+            row = cls.manipulate(stat)
+            lists.append(row)
+        return create_table(*lists)
+
+    @classmethod
+    def get_formatted_weekly_stats_of_player(cls, player_id):
+        lists = [["Week", "Game", "W", "L", "D", "Total", "Unfinished", "Time"]]
+        mg_weekly_stats = cls.get_weekly_stats_for_player_of_month(player_id, date.today())
+        weeks = [date(date.today().year, date.today().month, day) for day in range(1, 31, 7)]
+        for week in weeks:
+            if mg_weekly_stats[week.strftime("%W")]:
+                mg_stats = mg_weekly_stats[week.strftime("%W")]
+                lists.append([week.strftime("%W"), "", "", "", "", "", ""])
+                for stat in mg_stats:
+                    row = cls.manipulate(stat)
+                    row.insert(0, "")
+                    lists.append(row)
+        return create_table(*lists)
+
+    @classmethod
+    def get_formatted_monthly_stats_of_player(cls, player_id):
+        lists = [["Month", "Game", "W", "L", "D", "Total", "Unfinished", "Time"]]
+        mg_monthly_stats = cls.get_monthly_stats_for_player_of_year(player_id, date.today())
+        months = [date(date.today().year, month, 1) for month in range(1, 13)]
+        for month in months:
+            if mg_monthly_stats[month.strftime("%Y-%m")]:
+                lists.append([month.strftime("%B"), "", "", "", "", "", ""])
+                mg_stats = mg_monthly_stats[month.strftime("%Y-%m")]
+                for stat in mg_stats:
+                    row = cls.manipulate(stat)
+                    row.insert(0, "")
+                    lists.append(row)
+        return create_table(*lists)
+
+    @classmethod
+    def get_formatted_yearly_stats_of_player(cls, player_id):
+        lists = [["Year", "Game", "W", "L", "D", "Total", "Unfinished", "Time"]]
+        mg_yearly_stats = cls.get_yearly_stats_for_player(player_id, date.today())
+        years = [date(year, 1, 1) for year in range(date.today().year - 4, date.today().year + 1)]
+        for year in years:
+            if mg_yearly_stats[year.strftime("%Y")]:
+                lists.append([year.year, "", "", "", "", "", ""])
+                mg_stats = mg_yearly_stats[year.strftime("%Y")]
+                for stat in mg_stats:
+                    row = cls.manipulate(stat)
+                    row.insert(0, "")
+                    lists.append(row)
+        return create_table(*lists)
+
+    @classmethod
+    def get_formatted_stats_for_today_of_minigames(cls):
+        lists = [["Game", "W", "L", "D", "Total", "AVG", "Unfinished", "Time"]]
+        avg_stats = cls.get_average_played_minigames_of_month(date.today())
+        mg_stats = cls.get_stats_for_minigames_of_day(date.today())
+        stats = cls.merge_with_average(mg_stats, avg_stats)
         for row in stats:
-            contents.append(row["minigame"])
-            contents.append(row['wins'])
-            contents.append(row['losses'])
-            contents.append(row['draws'])
-            contents.append(row['total_games'])
-            contents.append(row['time_played'])
-        return contents
+            row = cls.manipulate(row)
+            lists.append(row)
+        return create_table(*lists)
+
+    @classmethod
+    def get_formatted_weekly_stats_of_minigames(cls):
+        lists = [["Week", "Game", "W", "L", "D", "Total", "Unfinished", "Time"]]
+        mg_weekly_stats = cls.get_weekly_stats_for_minigames_of_month(date.today())
+        weeks = [date(date.today().year, date.today().month, day) for day in range(1, 31, 7)]
+        for week in weeks:
+            if mg_weekly_stats[week.strftime("%W")]:
+                mg_stats = mg_weekly_stats[week.strftime("%W")]
+                lists.append([week.strftime("%W"), "", "", "", "", "", ""])
+                for stat in mg_stats:
+                    row = cls.manipulate(stat)
+                    row.insert(0, "")
+                    lists.append(row)
+        return create_table(*lists)
+
+    @classmethod
+    def get_formatted_monthly_stats_of_minigames(cls):
+        lists = [["Month", "Game", "W", "L", "D", "Total", "Unfinished", "Time"]]
+        mg_monthly_stats = cls.get_monthly_stats_for_minigames_of_year(date.today())
+        months = [date(date.today().year, month, 1) for month in range(1, 13)]
+        for month in months:
+            if mg_monthly_stats[month.strftime("%Y-%m")]:
+                lists.append([month.strftime("%B"), "", "", "", "", "", ""])
+                mg_stats = mg_monthly_stats[month.strftime("%Y-%m")]
+                for stat in mg_stats:
+                    row = cls.manipulate(stat)
+                    row.insert(0, "")
+                    lists.append(row)
+        return create_table(*lists)
+
+    @classmethod
+    def get_formatted_yearly_stats_of_minigames(cls):
+        lists = [["Year", "Game", "W", "L", "D", "Total", "Unfinished", "Time"]]
+        mg_yearly_stats = cls.get_yearly_stats_for_minigames(date.today())
+        years = [date(year, 1, 1) for year in range(date.today().year - 4, date.today().year + 1)]
+        for year in years:
+            if mg_yearly_stats[year.strftime("%Y")]:
+                lists.append([year.year, "", "", "", "", "", ""])
+                mg_stats = mg_yearly_stats[year.strftime("%Y")]
+                for stat in mg_stats:
+                    row = cls.manipulate(stat)
+                    row.insert(0, "")
+                    lists.append(row)
+        return create_table(*lists)
+
+    @classmethod
+    def manipulate(cls, stat):
+        row = list(tuple(stat))
+        minigame = row[0]
+        if minigame == "akinator":
+            row[1] = row[2] = row[3] = "-"
+        if minigame == "flood" \
+                or minigame == "hangman" \
+                or minigame == "mastermind" \
+                or minigame == "quiz" \
+                or minigame == "scramble":
+            row[3] = "-"
+        row[-1] = timedelta(seconds=int(row[-1]))
+        return row
+
+    @classmethod
+    def merge_with_average(cls, stats, avg_stats):
+        result = []
+        for stat in stats:
+            row = list(tuple(stat))
+            row.insert(5, "-")
+            for avg_row in avg_stats:
+                if avg_row['minigame'] == row[0]:
+                    row[5] = str(avg_row["avg"])
+            result.append(row)
+        return result
 
     @classmethod
     async def update(cls):
@@ -327,25 +454,8 @@ class DatabaseManager:
         except discord.Forbidden and IndexError:
             message = await channel.send("haha brr")
 
-        today = "```diff\n+ Today\n\n"
-        lists = [["Game", "W", "L", "D", "Total", "Diff", "Unfinished", "Time"]]
-        avg_stats = cls.bot.db.get_average_played_minigames_of_month(date.today())
-        mg_stats = cls.get_stats_for_minigames_of_day(date.today())
-        if mg_stats:
-            for row in mg_stats:
-                stats = list(tuple(row))
-                stats.insert(5, "")
-                for avg_row in avg_stats:
-                    avg_row_ = tuple(avg_row)
-                    if avg_row_[0] == stats[0]:
-                        percentage = avg_row_[1]
-                        stats[5] = str(percentage)
-
-                stats[-1] = timedelta(seconds=int(stats[-1]))
-                lists.append(stats)
-            table = create_table(*lists)
-            today += table
-        today += "```"
+        table = cls.get_formatted_stats_for_today_of_minigames()
+        today = f"```diff\n+ Today\n\n{table}\n```"
         today += f"\nServers: **{len(cls.bot.guilds)}**"
         today += f"\nLast edited: **{datetime.now()}**"
         await message.edit(content=today)
