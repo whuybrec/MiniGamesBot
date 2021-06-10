@@ -441,7 +441,7 @@ class DatabaseManager:
             row.insert(5, "-")
             for avg_row in avg_stats:
                 if avg_row['minigame'] == row[0]:
-                    row[5] = str(avg_row["avg"])
+                    row[5] = str(round(avg_row["avg"]))
             result.append(row)
         return result
 
