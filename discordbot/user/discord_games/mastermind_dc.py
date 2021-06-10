@@ -31,7 +31,7 @@ class MastermindDisc(MinigameDisc):
                 pass
 
         for color, e in COLORS_EMOJI.items():
-            if e == reaction.emoji and color not in self.code:
+            if e == reaction.emoji and color not in self.code and len(self.code) < 4:
                 self.code.append(color)
 
         if reaction.emoji == CHECKMARK:

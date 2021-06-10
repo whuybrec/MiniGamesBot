@@ -48,6 +48,7 @@ class GameManager:
             except discord.errors.NotFound:
                 pass
             return
+
         cls.open_sessions.append(session)
         if session in cls.paused_sessions:
             cls.paused_sessions.remove(session)
@@ -78,7 +79,6 @@ class GameManager:
 
         try:
             reaction, user = await cls.bot.wait_for('reaction_add', timeout=60.0, check=check)
-
             if reaction.emoji == STOP:
                 await cls.end_session(session)
             elif reaction.emoji == REPEAT:

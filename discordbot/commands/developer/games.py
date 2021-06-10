@@ -21,27 +21,20 @@ class GamesCommand(Command):
             pages = []
             today = date.today()
 
-            lists = [["Game", "W", "L", "D", "Total", "Diff", "Unfinished", "Time"]]
+            lists = [["Game", "W", "L", "D", "Total", "AVG", "Unfinished", "Time"]]
             avg_stats = cls.bot.db.get_average_played_minigames_of_month(today)
             mg_stats = cls.bot.db.get_stats_for_minigames_of_day(today)
             if mg_stats:
                 for row in mg_stats:
-                    temp = list(tuple(row))
-                    temp.insert(5, "")
-
+                    stats = list(tuple(row))
+                    stats.insert(5, "")
                     for avg_row in avg_stats:
                         avg_row_ = tuple(avg_row)
-                        if avg_row_[0] == temp[0]:
-                            percentage = round(((temp[4]/avg_row_[1])-1)*100)
-                            if percentage < 0:
-                                temp[5] = f"{percentage}%"
-                            elif percentage > 0:
-                                temp[5] = f"+{percentage}%"
-                            else:
-                                temp[5] = f"~"
-
-                    temp[-1] = timedelta(seconds=int(temp[-1]))
-                    lists.append(temp)
+                        if avg_row_[0] == stats[0]:
+                            percentage = avg_row_[1]
+                            stats[5] = str(percentage)
+                    stats[-1] = timedelta(seconds=int(stats[-1]))
+                    lists.append(stats)
                 pages.append("Stats for today:\n```\n" + create_table(*lists) + "\n```")
 
             lists = [["Week", "Game", "W", "L", "D", "Total", "Unfinished", "Time"]]

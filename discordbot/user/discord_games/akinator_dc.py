@@ -55,7 +55,7 @@ class AkinatorDisc(MinigameDisc):
 
         await self.session.message.remove_reaction(reaction.emoji, user)
 
-        if self.akinator.progression >= 80:
+        if self.akinator.progression >= 80 or self.akinator.step == 80:
             await self.akinator.win()
             self.guessed = True
             self.playing = False

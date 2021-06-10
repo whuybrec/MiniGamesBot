@@ -23,8 +23,7 @@ class ChessCommand(Command):
         import re
         try:
             player2 = await cls.bot.fetch_user(int(re.findall(r'\d+', args)[0]))
-        except Exception as e:
-            print(e)
+        except IndexError:
             await context.reply("You need to tag a second player to play with.")
             return
 

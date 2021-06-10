@@ -47,9 +47,12 @@ class Session:
             await self.close()
 
     async def close(self):
-        await self.message.clear_reactions()
-        if self.extra:
-            await self.message_extra.clear_reactions()
+        try:
+            await self.message.clear_reactions()
+            if self.extra:
+                await self.message_extra.clear_reactions()
+        except discord.errors.NotFound:
+            pass
 
         if len(self.minigame.winners) == 0 and len(self.minigame.losers) == 0 and len(self.minigame.drawers) == 0\
                 and self.minigame_name != 'akinator':

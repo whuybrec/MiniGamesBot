@@ -24,7 +24,6 @@ class BugCommand(Command):
             await channel.send(picture)
         except Exception as e:
             print(e)
-            pass
         await channel.send(context.author.name + " REPORTS: " + bug + "\n"
                            + "id: " + str(context.author.id) + "\n"
                            + "guild: " + str(context.guild.id) + "\n"
