@@ -44,6 +44,7 @@ class Session:
         try:
             await self.minigame.start()
         except discord.errors.NotFound:
+            await self.bot.log_not_found(self.message.id)
             await self.close()
 
     async def close(self):
@@ -52,7 +53,7 @@ class Session:
             if self.extra:
                 await self.message_extra.clear_reactions()
         except discord.errors.NotFound:
-            pass
+            await self.bot.log_not_found(self.message.id)
 
         if len(self.minigame.winners) == 0 and len(self.minigame.losers) == 0 and len(self.minigame.drawers) == 0\
                 and self.minigame_name != 'akinator':

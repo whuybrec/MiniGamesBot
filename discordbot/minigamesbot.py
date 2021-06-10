@@ -91,6 +91,15 @@ class MiniGamesBot(Bot):
         self.ctx = context
         await self.invoke(context)
 
+    async def on_message_delete(self, message):
+        if message.author.id == DISCORD["BOT_ID"]:
+            channel = await self.fetch_channel(852649209316507678)
+            await channel.send(f"**DELETED MESSAGE**\n"
+                               f"```\nMessage ID: {message.id}\n"
+                               f"Timestamp: {time.strftime('%Y-%m-%d  %H:%M:%S')}\n"
+                               f"Content:\n```")
+            await channel.send(message.content)
+
     async def on_ready(self):
         if not self.called_on_ready:
             self.called_on_ready = False
@@ -221,6 +230,12 @@ class MiniGamesBot(Bot):
             f_created = os.path.getctime(f_path)
             if (filename.endswith(".svg") or filename.endswith(".png")) and f_created < dt:
                 os.remove(f_path)
+
+    async def log_not_found(self, msg_id):
+        channel = await self.fetch_channel(852649391570812979)
+        await channel.send(f"**NOT FOUND MESSAGE**\n"
+                           f"```\nMessage ID: {msg_id}\n"
+                           f"Timestamp: {time.strftime('%Y-%m-%d  %H:%M:%S')}")
 
     async def on_error(self, event_method, *args, **kwargs):
         e = sys.exc_info()
