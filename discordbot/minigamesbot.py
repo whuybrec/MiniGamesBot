@@ -97,6 +97,7 @@ class MiniGamesBot(Bot):
             await channel.send(f"**DELETED MESSAGE**\n"
                                f"```\nMessage ID: {message.id}\n"
                                f"Channel ID: {message.channel.id}\n"
+                               f"Guild ID: {message.channel.guild.id}\n"
                                f"Timestamp: {time.strftime('%Y-%m-%d  %H:%M:%S')}\n"
                                f"Content:\n```")
             await channel.send(message.content)
