@@ -97,16 +97,17 @@ class MiniGamesBot(Bot):
             if message.cached_message.author.id == 704677903182594119:
                 await channel.send(f"**DELETED MESSAGE**\n"
                                    f"```\nMessage ID: {message.message_id}\n"
-                                   f"Channel ID{message.channel_id}\n"
-                                   f"Channel ID{message.guild_id}\n"
+                                   f"Channel ID: {message.channel_id}\n"
+                                   f"Guild ID: {message.guild_id}\n"
                                    f"Timestamp: {time.strftime('%Y-%m-%d  %H:%M:%S')}\n"
                                    f"Content:\n```")
                 await channel.send(message.cached_message.content)
-        except:
+        except Exception as e:
+            await channel.send(e)
             await channel.send(f"**DELETED MESSAGE**\n"
                                f"```\nMessage ID: {message.message_id}\n"
-                               f"Channel ID{message.channel_id}\n"
-                               f"Channel ID{message.guild_id}\n"
+                               f"Channel ID: {message.channel_id}\n"
+                               f"Guild ID: {message.guild_id}\n"
                                f"Timestamp: {time.strftime('%Y-%m-%d  %H:%M:%S')}\n```")
 
     async def on_ready(self):
