@@ -96,6 +96,7 @@ class MiniGamesBot(Bot):
             channel = await self.fetch_channel(852649209316507678)
             await channel.send(f"**DELETED MESSAGE**\n"
                                f"```\nMessage ID: {message.id}\n"
+                               f"Channel ID: {message.channel.id}\n"
                                f"Timestamp: {time.strftime('%Y-%m-%d  %H:%M:%S')}\n"
                                f"Content:\n```")
             await channel.send(message.content)
@@ -231,11 +232,13 @@ class MiniGamesBot(Bot):
             if (filename.endswith(".svg") or filename.endswith(".png")) and f_created < dt:
                 os.remove(f_path)
 
-    async def log_not_found(self, msg_id):
+    async def log_not_found(self, msg):
         channel = await self.fetch_channel(852649391570812979)
         await channel.send(f"**NOT FOUND MESSAGE**\n"
-                           f"```\nMessage ID: {msg_id}\n"
-                           f"Timestamp: {time.strftime('%Y-%m-%d  %H:%M:%S')}")
+                           f"```\nMessage ID: {msg.id}\n"
+                           f"Channel ID: {msg.channel.id}\n"
+                           f"Guild ID: {msg.channel.guild.id}\n"
+                           f"Timestamp: {time.strftime('%Y-%m-%d  %H:%M:%S')}```")
 
     async def on_error(self, event_method, *args, **kwargs):
         e = sys.exc_info()
