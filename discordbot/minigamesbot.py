@@ -91,16 +91,23 @@ class MiniGamesBot(Bot):
         self.ctx = context
         await self.invoke(context)
 
-    async def on_message_delete(self, message):
-        if message.author.id == DISCORD["BOT_ID"]:
-            channel = await self.fetch_channel(852649209316507678)
+    async def on_raw_message_delete(self, message: discord.RawMessageDeleteEvent):
+        channel = await self.fetch_channel(852649209316507678)
+        try:
+            if message.cached_message.author.id == 704677903182594119:
+                await channel.send(f"**DELETED MESSAGE**\n"
+                                   f"```\nMessage ID: {message.message_id}\n"
+                                   f"Channel ID{message.channel_id}\n"
+                                   f"Channel ID{message.guild_id}\n"
+                                   f"Timestamp: {time.strftime('%Y-%m-%d  %H:%M:%S')}\n"
+                                   f"Content:\n```")
+                await channel.send(message.cached_message.content)
+        except:
             await channel.send(f"**DELETED MESSAGE**\n"
-                               f"```\nMessage ID: {message.id}\n"
-                               f"Channel ID: {message.channel.id}\n"
-                               f"Guild ID: {message.channel.guild.id}\n"
-                               f"Timestamp: {time.strftime('%Y-%m-%d  %H:%M:%S')}\n"
-                               f"Content:\n```")
-            await channel.send(message.content)
+                               f"```\nMessage ID: {message.message_id}\n"
+                               f"Channel ID{message.channel_id}\n"
+                               f"Channel ID{message.guild_id}\n"
+                               f"Timestamp: {time.strftime('%Y-%m-%d  %H:%M:%S')}\n```")
 
     async def on_ready(self):
         if not self.called_on_ready:
@@ -233,13 +240,15 @@ class MiniGamesBot(Bot):
             if (filename.endswith(".svg") or filename.endswith(".png")) and f_created < dt:
                 os.remove(f_path)
 
-    async def log_not_found(self, msg):
+    async def log_not_found(self, session):
         channel = await self.fetch_channel(852649391570812979)
         await channel.send(f"**NOT FOUND MESSAGE**\n"
-                           f"```\nMessage ID: {msg.id}\n"
-                           f"Channel ID: {msg.channel.id}\n"
-                           f"Guild ID: {msg.channel.guild.id}\n"
-                           f"Timestamp: {time.strftime('%Y-%m-%d  %H:%M:%S')}```")
+                           f"```\nMessage ID: {session.message.id}\n"
+                           f"Channel ID: {session.message.channel.id}\n"
+                           f"Guild ID: {session.message.channel.guild.id}\n"
+                           f"Minigame: {session.minigame_name}\n"
+                           f"Player: {session.context.author.id}\n"
+                           f"Timestamp: {time.strftime('%Y-%m-%d  %H:%M:%S')}\n```")
 
     async def on_error(self, event_method, *args, **kwargs):
         e = sys.exc_info()

@@ -24,13 +24,13 @@ class GameManager:
                 if session.message_extra is not None:
                     await session.message_extra.clear_reactions()
             except discord.errors.NotFound:
-                await cls.bot.log_not_found(session.message)
+                await cls.bot.log_not_found(session)
 
         for session in cls.paused_sessions:
             try:
                 await session.message.clear_reactions()
             except discord.errors.NotFound:
-                await cls.bot.log_not_found(session.message)
+                await cls.bot.log_not_found(session)
 
     @classmethod
     def has_open_sessions(cls):
@@ -46,7 +46,7 @@ class GameManager:
             try:
                 await session.message.edit(content="Sorry! I can't start any new games right now. Boss says I have to restart soon:tm:. Try again later!")
             except discord.errors.NotFound:
-                await cls.bot.log_not_found(session.message)
+                await cls.bot.log_not_found(session)
             return
 
         cls.open_sessions.append(session)
@@ -69,7 +69,7 @@ class GameManager:
             await session.message.add_reaction(STOP)
             await session.message.add_reaction(REPEAT)
         except discord.errors.NotFound:
-            await cls.bot.log_not_found(session.message)
+            await cls.bot.log_not_found(session)
             await cls.end_session(session)
             return
 
