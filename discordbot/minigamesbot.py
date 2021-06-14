@@ -32,7 +32,7 @@ class MiniGamesBot(Bot):
         self.prefix = prefix
         intents = discord.Intents.default()
         intents.members = True
-        super().__init__(command_prefix=self.prefix, intents=intents)
+        super().__init__(command_prefix=self.prefix, intents=intents, max_messages=5000)
 
         self.called_on_ready = False
         self.ctx = None
