@@ -233,13 +233,6 @@ class MiniGamesBot(Bot):
                            f"Timestamp: {time.strftime('%Y-%m-%d  %H:%M:%S')}\n```")
 
     async def on_error(self, event_method, *args, **kwargs):
-        e = sys.exc_info()
-        context = await self.get_context(args[0].message)
-
-        original_error = getattr(e[1], 'original', e[1])
-        if isinstance(original_error, discord.Forbidden):
-            await self.send_missing_permissions(context, self.get_missing_permissions(context))
-
         error = "Time: {0}\n\n" \
                 "Ignoring exception in command {1}:\n\n" \
                 "args: {2}\n\n" \

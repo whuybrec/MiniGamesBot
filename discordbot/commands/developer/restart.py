@@ -44,8 +44,8 @@ class RestartCommand(Command):
                 while (cls.bot.game_manager.has_open_sessions() or cls.bot.game_manager.has_paused_sessions()) \
                         and time.time()-start_time < 60*10:
                     await asyncio.sleep(10)
-        except TimeoutError and Exception as e:
-            await context.send(e)
+        except TimeoutError:
+            pass
 
         await cls.bot.game_manager.on_restart()
         await context.send(f"Restarting...")

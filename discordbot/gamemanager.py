@@ -23,14 +23,14 @@ class GameManager:
                 await session.message.clear_reactions()
                 if session.message_extra is not None:
                     await session.message_extra.clear_reactions()
-            except discord.errors.NotFound:
-                await cls.bot.log_not_found(session)
+            except:
+                pass
 
         for session in cls.paused_sessions:
             try:
                 await session.message.clear_reactions()
-            except discord.errors.NotFound:
-                await cls.bot.log_not_found(session)
+            except:
+                pass
 
     @classmethod
     def has_open_sessions(cls):
