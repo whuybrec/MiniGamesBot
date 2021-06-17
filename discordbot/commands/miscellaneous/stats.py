@@ -16,10 +16,14 @@ class StatsCommand(Command):
     @classmethod
     async def invoke(cls, context):
         args = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:].lstrip()
-        if len(args.lstrip()) > 0:
-            player = await cls.bot.fetch_user(int(re.findall(r'\d+', args)[0]))
-        else:
-            player = context.author
+        try:
+            if len(args.lstrip()) > 0:
+                player = await cls.bot.fetch_user(int(re.findall(r'\d+', args)[0]))
+            else:
+                player = context.author
+        except IndexError:
+            await context.reply("You need to tag the player you want to view the stats of.")
+            return
 
         pages = []
         table = cls.bot.db.get_formatted_stats_for_today_of_player(player.id)
