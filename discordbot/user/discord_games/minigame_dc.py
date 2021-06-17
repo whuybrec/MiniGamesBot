@@ -1,6 +1,6 @@
 from discordbot.messagemanager import MessageManager
 
-TIMEOUT = 10
+TIMEOUT = 60*5
 
 
 class MinigameDisc:

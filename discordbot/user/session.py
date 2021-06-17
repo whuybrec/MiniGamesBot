@@ -6,7 +6,7 @@ from discordbot.utils.emojis import STOP, REPEAT
 from generic.formatting import create_table
 from generic.stopwatch import Stopwatch
 
-TIMEOUT = 20
+TIMEOUT = 60
 
 
 class Session:
