@@ -35,8 +35,7 @@ class Session:
         try:
             await self.minigame.start_game()
         except Exception as e:
-            print(e)
-            # await self.bot.on_error(self.minigame_name, e)
+            await self.game_manager.bot.on_error(self.minigame_name, e)
             await self.close()
 
     async def continue_(self):

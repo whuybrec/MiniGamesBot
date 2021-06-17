@@ -18,7 +18,7 @@ class ClearCommand(Command):
             if cls.has_permission(context.message.author.id):
                 await context.channel.purge(limit=int(args))
         except Exception as e:
-            print(e)
+            await context.channel.send(e)
             await context.channel.send("Yeah you fucked up mate.")
 
     @classmethod
