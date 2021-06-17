@@ -62,7 +62,7 @@ class Session:
         self.game_manager.scheduler.cancel(self.ticket)
         await MessageManager.clear_reactions(self.message)
 
-        if self not in self.game_manager.open_games:
+        if self not in self.game_manager.open_sessions:
             return
 
         # save data to DB
