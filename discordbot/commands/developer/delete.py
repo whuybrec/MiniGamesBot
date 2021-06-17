@@ -12,7 +12,7 @@ class DeleteCommand(Command):
     category = Developer
 
     @classmethod
-    async def handler(cls, context):
+    async def invoke(cls, context):
         args = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:].lstrip()
 
         if cls.has_permission(context.message.author.id):

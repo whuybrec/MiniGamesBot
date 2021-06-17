@@ -1,8 +1,6 @@
 from discordbot.categories.minigames import Minigames
 from discordbot.commands.command import Command
 from discordbot.gamemanager import GameManager
-from discordbot.user.discord_games.hangman_dc import HangmanDisc
-from discordbot.user.session import Session
 
 
 class HangmanCommand(Command):
@@ -14,8 +12,7 @@ class HangmanCommand(Command):
     category = Minigames
 
     @classmethod
-    async def handler(cls, context):
-        msg = await context.channel.send("Starting **hangman** minigame")
+    async def invoke(cls, context):
+        message = await context.send("Starting **hangman** minigame")
 
-        session = Session(cls.bot, context, msg, "hangman", HangmanDisc, [context.author], True)
-        await GameManager.start_session(session)
+        await GameManager.create_session(message, "hangman", context.author)

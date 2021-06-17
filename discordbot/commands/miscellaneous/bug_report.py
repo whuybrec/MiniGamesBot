@@ -12,7 +12,7 @@ class BugCommand(Command):
     category = Miscellaneous
 
     @classmethod
-    async def handler(cls, context):
+    async def invoke(cls, context):
         bug = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:].lstrip()
         if len(bug) == 0:
             await context.reply("You need to provide a bug description.")

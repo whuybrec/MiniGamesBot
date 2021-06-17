@@ -1,122 +1,106 @@
 import datetime
-import time
 
-import discord.errors
-from discord import Message
-from discord.ext.commands import Context
-
-from discordbot.gamemanager import GameManager
+from discordbot.messagemanager import MessageManager
+from discordbot.user.player import Player
+from discordbot.utils.emojis import STOP, REPEAT
+from generic.stopwatch import Stopwatch
 from generic.formatting import create_table
+
+TIMEOUT = 20
 
 
 class Session:
-    def __init__(self, bot, context: Context, message: Message, minigame_name, minigame_callback, players, extra=False):
-        self.bot = bot
-        self.context = context
+    def __init__(self, game_manager, message, minigame_name, *players):
+        self.game_manager = game_manager
+        self.scheduler = self.game_manager.scheduler
         self.message = message
+        self.extra_message = None
         self.minigame_name = minigame_name
-        self.minigame_callback = minigame_callback
-        self.players = players
-        self.extra = extra
+        self.players = list()
+        for player in players:
+            self.players.append(Player(player))
 
-        self.amount = 0
-        self.start_time = 0
-        self.session_time = 0
+        self.games_played = 0
+        self.ticket = None
         self.minigame = None
-        self.message_extra = None
-        self.player_timed_out = None
-        self.stats_players = dict()
-        for player in self.players:
-            self.stats_players[player.id] = {
-                "wins": 0,
-                "losses": 0,
-                "draws": 0
-            }
+        self.stopwatch = Stopwatch()
+        self.restart = False
 
     async def start(self):
-        self.amount += 1
-        self.start_time = time.time()
-        if self.extra and self.message_extra is None:
-            self.message_extra = await self.message.channel.send("** **")
-        await self.message.clear_reactions()
+        self.stopwatch.start()
 
-        self.minigame = self.minigame_callback.__call__(self)
+        self.minigame = self.game_manager.minigames[self.minigame_name](self)
+        self.games_played += 1
+
         try:
-            await self.minigame.start()
-        except discord.errors.NotFound:
-            await self.bot.log_not_found(self)
+            await self.minigame.start_game()
+        except Exception as e:
+            print(e)
+            # await self.bot.on_error(self.minigame_name, e)
             await self.close()
 
-    async def close(self):
-        try:
-            await self.message.clear_reactions()
-            if self.extra:
-                await self.message_extra.clear_reactions()
-        except discord.errors.NotFound:
-            await self.bot.log_not_found(self)
+    async def continue_(self):
+        self.game_manager.scheduler.cancel(self.ticket)
+        await MessageManager.clear_reactions(self.message)
 
-        if len(self.minigame.winners) == 0 and len(self.minigame.losers) == 0 and len(self.minigame.drawers) == 0\
-                and self.minigame_name != 'akinator':
+        if self.game_manager.bot.has_update:
+            await MessageManager.edit_message(self.message, "Sorry! I can't start any new games right now. Boss says I have to restart soon:tm:. Try again later!")
+            await self.close()
             return
+
+        await self.start()
+
+    async def pause(self):
+        self.stopwatch.pause()
+        self.ticket = self.game_manager.scheduler.add(TIMEOUT, self.close)
+
+        for player in self.players:
+            await MessageManager.add_reaction_event(self.message, STOP, player.id, self.close)
+            await MessageManager.add_reaction_event(self.message, REPEAT, player.id, self.continue_)
+
+    async def close(self):
+        self.game_manager.scheduler.cancel(self.ticket)
+        await MessageManager.clear_reactions(self.message)
 
         # save data to DB
         wins = losses = draws = 0
-        for pid, stats in self.stats_players.items():
-            wins += stats["wins"]
-            losses += stats["losses"]
-            draws += stats["draws"]
-            if self.player_timed_out is not None and self.player_timed_out == pid:
-                self.bot.db.add_to_players_table(
-                    pid,
-                    f"\"{self.minigame_name}\"",
-                    self.amount,
-                    stats["wins"],
-                    stats["losses"],
-                    stats["draws"],
-                    self.session_time,
-                    True
-                )
-            else:
-                self.bot.db.add_to_players_table(
-                    pid,
-                    f"\"{self.minigame_name}\"",
-                    self.amount,
-                    stats["wins"],
-                    stats["losses"],
-                    stats["draws"],
-                    self.session_time,
-                    False
-                )
+        timeout = False
+        for player in self.players:
+            wins += player.wins
+            losses += player.losses
+            draws += player.draws
+            timeout = timeout or player.is_idle()
+            self.game_manager.add_player_stats_to_db(
+                player.id, f"\"{self.minigame_name}\"", self.games_played,
+                player.wins, player.losses, player.draws,
+                self.stopwatch.get_total_time(),
+                player.is_idle()
+            )
 
-        if self.player_timed_out is not None:
-            timeout = True
-        else:
-            timeout = False
-
-        self.bot.db.add_to_minigames_table(
-            self.context.guild.id,
-            f"\"{self.minigame_name}\"",
-            self.amount,
-            wins,
-            losses,
-            draws,
-            self.session_time,
+        self.game_manager.add_minigame_stats_to_db(
+            self.message.channel.guild.id, f"\"{self.minigame_name}\"", self.games_played,
+            wins, losses, draws,
+            self.stopwatch.get_total_time(),
             timeout
         )
 
-    async def pause(self):
-        self.session_time += round(time.time() - self.start_time)
-        self.start_time = 0
+        self.game_manager.close_session(self)
 
-        await GameManager.pause_session(self)
+    async def on_bot_restart(self):
+        await self.minigame.on_bot_restart()
+        await self.close()
+
+    async def send_extra_message(self):
+        if self.extra_message is None:
+            self.extra_message = await self.message.channel.send("** **")
+            self.minigame.extra_message = self.extra_message
 
     def get_summary(self):
         summary = "```\n"
         lst = [["Player", "Wins", "Losses", "Draws", "Total played"]]
         for player in self.players:
-            stats = self.stats_players[player.id]
-            lst.append([player.name, stats['wins'], stats['losses'], stats['draws'], self.amount])
+            lst.append([player.name, player.wins, player.losses, player.draws, self.games_played])
         table = create_table(*lst)
         summary += table
-        summary += f"\nSession Time: {datetime.timedelta(seconds=self.session_time)}\n```"
+        summary += f"\nSession Time: {datetime.timedelta(seconds=self.stopwatch.get_total_time())}\n```"
         return summary

@@ -16,7 +16,7 @@ class GamesCommand(Command):
     category = Developer
 
     @classmethod
-    async def handler(cls, context):
+    async def invoke(cls, context):
         if cls.has_permission(context.message.author.id):
             pages = []
 

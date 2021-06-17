@@ -1,113 +1,53 @@
-import asyncio
+from discordbot.messagemanager import MessageManager
 
-import discord.errors
-
-from discordbot.utils.emojis import STOP
-from discordbot.utils.variables import TIMEOUT
+TIMEOUT = 10
 
 
 class MinigameDisc:
     def __init__(self, session):
         self.session = session
-        self.emojis = set()
-        self.players = session.players
-        self.winners = []
-        self.losers = []
-        self.drawers = []
-        self.playing = True
+        self.scheduler = self.session.scheduler
+        self.message = self.session.message
+        self.extra_message = self.session.extra_message
+        self.players = self.session.players
+
         self.turn = 0
+        self.ticket = None
+        self.finished = False
 
-    async def add_reaction(self, emoji, extra=False):
-        try:
-            if not extra:
-                await self.session.message.add_reaction(emoji)
-            else:
-                await self.session.message_extra.add_reaction(emoji)
-        except Exception as e:
-            await self.session.bot.on_command_error(self.session.context, e)
-        self.emojis.add(emoji)
-
-    async def remove_reaction(self, emoji, user, extra=False):
-        try:
-            if not extra:
-                await self.session.message.remove_reaction(emoji, user)
-            else:
-                await self.session.message_extra.remove_reaction(emoji, user)
-        except Exception as e:
-            await self.session.bot.on_command_error(self.session.context, e)
-        self.emojis.remove(emoji)
-
-    async def clear_reaction(self, emoji, extra=False):
-        try:
-            if not extra:
-                await self.session.message.clear_reaction(emoji)
-            else:
-                await self.session.message_extra.clear_reaction(emoji)
-        except Exception as e:
-            await self.session.bot.on_command_error(self.session.context, e)
-        self.emojis.remove(emoji)
-
-    async def clear_reactions(self, extra=False):
-        try:
-            if not extra:
-                await self.session.message.clear_reactions()
-            else:
-                await self.session.message_extra.clear_reactions()
-        except Exception as e:
-            await self.session.bot.on_command_error(self.session.context, e)
-        self.emojis = set()
-
-    def get_content(self):
-        pass
-
-    async def wait_for_player(self, check_=None):
-        def check(r, u):
-            return r.message.id == self.session.message.id \
-                   and r.emoji in self.emojis \
-                   and u.id == self.players[self.turn].id
-
-        while self.playing:
-            try:
-                if check_ is None:
-                    reaction, user = await self.session.bot.wait_for("reaction_add", check=check, timeout=TIMEOUT)
-                else:
-                    reaction, user = await self.session.bot.wait_for("reaction_add", check=check_, timeout=TIMEOUT)
-                if reaction.emoji == STOP:
-                    self.losers.append(self.players[0])
-                    self.session.player_timed_out = self.players[self.turn].id
-                    self.playing = False
-
-                await self.on_reaction(reaction, user)
-
-            except asyncio.TimeoutError:
-                self.losers.append(self.players[0])
-                self.session.player_timed_out = self.players[self.turn].id
-                self.playing = False
-        try:
-            await self.session.message.edit(content=self.get_content())
-        except discord.errors.NotFound:
-            await self.session.bot.log_not_found(self.session)
-
-        await self.end_game()
-
-    async def on_reaction(self, reaction, user):
+    async def start_game(self):
         raise NotImplementedError
 
     async def end_game(self):
-        try:
-            await self.session.message.clear_reactions()
-            if self.session.message_extra is not None:
-                await self.session.message_extra.clear_reactions()
-        except discord.errors.NotFound:
-            await self.session.bot.log_not_found(self.session)
-
-        self.emojis = set()
-
-        for winner in self.winners:
-            self.session.stats_players[winner.id]["wins"] += 1
-        for loser in self.losers:
-            self.session.stats_players[loser.id]["losses"] += 1
-        for drawer in self.drawers:
-            self.session.stats_players[drawer.id]["draws"] += 1
-
+        self.finished = True
+        await MessageManager.edit_message(self.message, self.get_content() + "\n" + self.session.get_summary())
+        await self.clear_reactions()
         await self.session.pause()
+
+    def get_content(self):
+        raise NotImplementedError
+
+    async def on_stop_reaction(self):
+        self.cancel_timer()
+        self.players[self.turn].losses += 1
+        await self.end_game()
+
+    async def on_bot_restart(self):
+        await self.clear_reactions()
+        await MessageManager.edit_message(self.message, self.get_content() + "\n\nSorry! I received an update and have to restart.")
+
+    async def clear_reactions(self):
+        await MessageManager.clear_reactions(self.message)
+        if self.extra_message is not None:
+            await MessageManager.clear_reactions(self.extra_message)
+
+    async def on_player_timed_out(self):
+        self.players[self.turn].set_idle()
+        self.players[self.turn].losses += 1
+        await self.end_game()
+
+    def start_timer(self):
+        self.ticket = self.scheduler.add(TIMEOUT, self.on_player_timed_out)
+
+    def cancel_timer(self):
+        self.session.scheduler.cancel(self.ticket)

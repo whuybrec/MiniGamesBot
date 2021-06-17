@@ -1,89 +1,61 @@
-import asyncio
-
-import discord.errors
-
-from discordbot.utils.emojis import *
+from discordbot.messagemanager import MessageManager
+from discordbot.user.discord_games import *
+from discordbot.user.session import Session
 
 
 class GameManager:
     bot = None
-
+    scheduler = None
     open_sessions = list()
-    paused_sessions = list()
+
+    minigames = {
+        "scramble": ScrambleDiscord,
+        "quiz": QuizDiscord,
+        "mastermind": MastermindDiscord,
+        "hangman": HangmanDiscord,
+        "flood": FloodDiscord,
+        "blackjack": BlackjackDiscord,
+        "akinator": AkinatorDiscord,
+        "chess": ChessDiscord,
+        "connect4": Connect4Discord
+    }
 
     @classmethod
     def on_startup(cls, bot):
         cls.bot = bot
+        cls.scheduler = cls.bot.scheduler
 
     @classmethod
-    async def on_restart(cls):
+    async def on_bot_restart(cls):
         for session in cls.open_sessions:
-            try:
-                await session.message.edit(content=session.message.content+"\n\nSorry! I received an update and have to restart.")
-                await session.message.clear_reactions()
-                if session.message_extra is not None:
-                    await session.message_extra.clear_reactions()
-            except:
-                pass
-
-        for session in cls.paused_sessions:
-            try:
-                await session.message.clear_reactions()
-            except:
-                pass
+            await session.on_bot_restart()
 
     @classmethod
     def has_open_sessions(cls):
         return len(cls.open_sessions) > 0
 
     @classmethod
-    def has_paused_sessions(cls):
-        return len(cls.paused_sessions) > 0
+    async def create_session(cls, message, minigame, *players):
+        session = Session(cls, message, minigame, *players)
+        await cls.start_session(session)
 
     @classmethod
     async def start_session(cls, session):
         if cls.bot.has_update:
-            try:
-                await session.message.edit(content="Sorry! I can't start any new games right now. Boss says I have to restart soon:tm:. Try again later!")
-            except discord.errors.NotFound:
-                await cls.bot.log_not_found(session)
+            await MessageManager.edit_message(session.message, "Sorry! I can't start any new games right now. Boss says I have to restart soon:tm:. Try again later!")
             return
 
         cls.open_sessions.append(session)
-        if session in cls.paused_sessions:
-            cls.paused_sessions.remove(session)
         await session.start()
 
     @classmethod
-    async def end_session(cls, session):
-        cls.paused_sessions.remove(session)
-        await session.close()
-
-    @classmethod
-    async def pause_session(cls, session):
-        cls.paused_sessions.append(session)
+    def close_session(cls, session):
         cls.open_sessions.remove(session)
 
-        try:
-            await session.message.edit(content=session.message.content + f"\n{session.get_summary()}")
-            await session.message.add_reaction(STOP)
-            await session.message.add_reaction(REPEAT)
-        except discord.errors.NotFound:
-            await cls.bot.log_not_found(session)
-            await cls.end_session(session)
-            return
+    @classmethod
+    def add_player_stats_to_db(cls, player_id, minigame, games_played, wins, losses, draws, time, is_idle):
+        cls.bot.db.add_to_players_table(player_id, minigame, games_played, wins, losses, draws, time, is_idle)
 
-        def check(r, u):
-            return u.id in session.stats_players.keys() \
-                   and (r.emoji == STOP or r.emoji == REPEAT) \
-                   and r.message.id == session.message.id
-
-        try:
-            reaction, user = await cls.bot.wait_for('reaction_add', timeout=60.0, check=check)
-            if reaction.emoji == STOP:
-                await cls.end_session(session)
-            elif reaction.emoji == REPEAT:
-                await cls.start_session(session)
-        except asyncio.TimeoutError:
-            await cls.end_session(session)
-
+    @classmethod
+    def add_minigame_stats_to_db(cls, server_id, minigame, games_played, wins, losses, draws, time, timeout):
+        cls.bot.db.add_to_minigames_table(server_id, minigame, games_played, wins, losses, draws, time, timeout)

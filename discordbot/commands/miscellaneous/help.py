@@ -16,7 +16,7 @@ class HelpCommand(Command):
     category = Miscellaneous
 
     @classmethod
-    async def handler(cls, context):
+    async def invoke(cls, context):
         # check if user asked help for specific command
         args = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:].lstrip()
         if len(args) > 0:

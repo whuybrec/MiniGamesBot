@@ -1,65 +1,65 @@
-import asyncio
-
 from akinator.async_aki import Akinator
 
+from discordbot.messagemanager import MessageManager
 from discordbot.user.discord_games.minigame_dc import MinigameDisc
 from discordbot.utils.emojis import ALPHABET, STOP, QUESTION
-from discordbot.utils.variables import TIMEOUT
 
 
-class AkinatorDisc(MinigameDisc):
+class AkinatorDiscord(MinigameDisc):
     def __init__(self, session):
         super().__init__(session)
         self.akinator = Akinator()
         self.guessed = False
+        self.player = self.session.players[0]
 
-    async def start(self):
+    async def start_game(self):
         await self.akinator.start_game()
-        await self.session.message.edit(content=self.get_content())
-        await self.add_reaction(ALPHABET["y"])
-        await self.add_reaction(ALPHABET["n"])
-        await self.add_reaction(QUESTION)
-        await self.add_reaction(STOP)
+        await MessageManager.edit_message(self.message, self.get_content())
 
-        await self.wait_for_player()
+        await MessageManager.add_reaction_event(self.message, ALPHABET["y"], self.player.id, self.on_yes_reaction)
+        await MessageManager.add_reaction_event(self.message, ALPHABET["n"], self.player.id, self.on_no_reaction)
+        await MessageManager.add_reaction_event(self.message, QUESTION, self.player.id, self.on_dontknow_reaction)
+        await MessageManager.add_reaction_event(self.message, STOP, self.player.id, self.on_stop_reaction)
 
-    async def wait_for_player(self, check_=None):
-        def check(r, u):
-            return r.message.id == self.session.message.id \
-                   and r.emoji in self.emojis \
-                   and u.id == self.players[self.turn].id
+        self.start_timer()
 
-        while self.playing:
-            try:
-                reaction, user = await self.session.bot.wait_for("reaction_add", check=check, timeout=TIMEOUT)
-                if reaction.emoji == STOP:
-                    self.session.player_timed_out = self.players[self.turn].id
-                    self.playing = False
+    async def on_yes_reaction(self):
+        self.cancel_timer()
 
-                await self.on_reaction(reaction, user)
+        await self.akinator.answer(0)
+        await MessageManager.remove_reaction(self.message, ALPHABET["y"], self.player.member)
+        await self.check_akinator_guess()
 
-            except asyncio.TimeoutError:
-                self.session.player_timed_out = self.players[self.turn].id
-                self.playing = False
+    async def on_no_reaction(self):
+        self.cancel_timer()
 
-        await self.session.message.edit(content=self.get_content())
-        await self.end_game()
+        await self.akinator.answer(1)
+        await MessageManager.remove_reaction(self.message, ALPHABET["n"], self.player.member)
+        await self.check_akinator_guess()
 
-    async def on_reaction(self, reaction, user):
-        if reaction.emoji == ALPHABET["y"]:
-            await self.akinator.answer(0)
-        elif reaction.emoji == ALPHABET["n"]:
-            await self.akinator.answer(1)
-        else:
-            await self.akinator.answer(2)
+    async def on_dontknow_reaction(self):
+        self.cancel_timer()
 
-        await self.session.message.remove_reaction(reaction.emoji, user)
+        await self.akinator.answer(2)
+        await MessageManager.remove_reaction(self.message, QUESTION, self.player.member)
+        await self.check_akinator_guess()
 
+    async def check_akinator_guess(self):
+        await MessageManager.edit_message(self.session.message, self.get_content())
         if self.akinator.progression >= 80 or self.akinator.step == 80:
             await self.akinator.win()
             self.guessed = True
-            self.playing = False
-        await self.session.message.edit(content=self.get_content())
+            await self.end_game()
+        else:
+            self.start_timer()
+
+    async def on_player_timed_out(self):
+        self.player.set_idle()
+        await self.end_game()
+
+    async def on_stop_reaction(self):
+        self.cancel_timer()
+        await self.end_game()
 
     def get_content(self):
         content = f"Question {int(self.akinator.step)+1}: *{self.akinator.question}*\n"

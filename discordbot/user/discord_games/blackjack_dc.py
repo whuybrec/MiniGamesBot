@@ -1,44 +1,68 @@
+from discordbot.messagemanager import MessageManager
 from discordbot.user.discord_games.minigame_dc import MinigameDisc
 from discordbot.utils.emojis import STOP, ALPHABET, SPLIT
 from minigames.blackjack import Blackjack
 
 
-class BlackjackDisc(MinigameDisc):
+class BlackjackDiscord(MinigameDisc):
     def __init__(self, session):
         super().__init__(session)
         self.blackjack = Blackjack()
+        self.player = self.session.players[0]
 
-    async def start(self):
-        await self.session.message.edit(content=self.get_content())
-        await self.add_reaction(ALPHABET["h"])
-        await self.add_reaction(ALPHABET["s"])
+    async def start_game(self):
+        await MessageManager.edit_message(self.message, self.get_content())
+
+        await MessageManager.add_reaction_event(self.message, ALPHABET["h"], self.player.id, self.on_hit_reaction)
+        await MessageManager.add_reaction_event(self.message, ALPHABET["s"], self.player.id, self.on_stand_reaction)
         if self.blackjack.can_split():
-            await self.add_reaction(SPLIT)
-        await self.add_reaction(STOP)
+            await MessageManager.add_reaction_event(self.message, SPLIT, self.player.id, self.on_split_reaction)
+        await MessageManager.add_reaction_event(self.message, STOP, self.player.id, self.on_stop_reaction)
 
-        await self.wait_for_player()
+        self.start_timer()
 
-    async def on_reaction(self, reaction, user):
-        if reaction.emoji == ALPHABET["h"]:
-            if len(self.blackjack.player_hands) == 2:
-                if max(self.blackjack.player_hands[0].get_value()) > 21:
-                    self.blackjack.hit(hand=1)
-                else:
-                    self.blackjack.hit()
+    async def on_hit_reaction(self):
+        self.cancel_timer()
+
+        if len(self.blackjack.player_hands) == 2:
+            if max(self.blackjack.player_hands[0].get_value()) > 21:
+                self.blackjack.hit(hand=1)
             else:
                 self.blackjack.hit()
-            await self.session.message.remove_reaction(reaction.emoji, user)
-        elif reaction.emoji == ALPHABET["s"]:
-            self.stand()
-        elif reaction.emoji == SPLIT:
-            self.blackjack.split_hand()
+        else:
+            self.blackjack.hit()
 
-        if SPLIT in self.emojis:
-            await self.clear_reaction(SPLIT)
+        await MessageManager.edit_message(self.message, self.get_content())
+        await MessageManager.remove_reaction(self.message, ALPHABET["h"], self.player.member)
+        await MessageManager.clear_reaction(self.message, SPLIT)
 
         if self.blackjack.is_player_busted():
-            self.stand()
-        await self.session.message.edit(content=self.get_content())
+            await self.stand()
+        else:
+            self.start_timer()
+
+    async def on_stand_reaction(self):
+        self.cancel_timer()
+        await self.stand()
+
+    async def on_split_reaction(self):
+        self.cancel_timer()
+
+        self.blackjack.split_hand()
+        await MessageManager.clear_reaction(self.message, SPLIT)
+        await MessageManager.edit_message(self.message, self.get_content())
+
+        self.start_timer()
+
+    async def stand(self):
+        self.blackjack.stand()
+        if self.blackjack.has_ended_in_draw():
+            self.player.draws += 1
+        elif self.blackjack.has_player_won():
+            self.player.wins += 1
+        else:
+            self.player.losses += 1
+        await self.end_game()
 
     def get_content(self):
         content = "```diff\n"
@@ -63,22 +87,12 @@ class BlackjackDisc(MinigameDisc):
             for card in hand.cards:
                 content += f"   {card.__str__()}\n"
         content += "\n"
-        if not self.playing:
-            if len(self.winners) == 1:
+        if self.finished:
+            if self.blackjack.has_player_won():
                 content += "You have won!\n"
-            elif len(self.losers) == 1:
-                content += "You have lost!\n"
-            elif len(self.drawers) == 1:
+            elif self.blackjack.has_ended_in_draw():
                 content += "Game ended in draw!\n"
+            else:
+                content += "You have lost!\n"
         content += "```"
         return content
-
-    def stand(self):
-        self.blackjack.stand()
-        if self.blackjack.has_ended_in_draw():
-            self.drawers.append(self.players[0])
-        elif self.blackjack.has_player_won():
-            self.winners.append(self.players[0])
-        else:
-            self.losers.append(self.players[0])
-        self.playing = False

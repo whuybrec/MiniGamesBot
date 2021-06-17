@@ -25,7 +25,7 @@ class RulesCommand(Command):
     category = Miscellaneous
 
     @classmethod
-    async def handler(cls, context):
+    async def invoke(cls, context):
         args = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:].lstrip()
         if len(args) == 0:
             await context.reply("Please specify a minigame for which you want to see the rules as argument.")

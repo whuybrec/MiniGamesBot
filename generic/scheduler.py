@@ -101,9 +101,8 @@ class Scheduler:
                 else:
                     function(*args, **kwargs)
             except Exception as e:
-                # your scheduled function fucked up
+                import traceback
                 print("[EXCEPTION IN SCHEDULER]")
                 print(e)
                 print("[TRACEBACK]")
-                import traceback
                 print(traceback.format_exc())

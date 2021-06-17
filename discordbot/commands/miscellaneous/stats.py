@@ -14,7 +14,7 @@ class StatsCommand(Command):
     category = Miscellaneous
 
     @classmethod
-    async def handler(cls, context):
+    async def invoke(cls, context):
         args = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:].lstrip()
         if len(args.lstrip()) > 0:
             player = await cls.bot.fetch_user(int(re.findall(r'\d+', args)[0]))

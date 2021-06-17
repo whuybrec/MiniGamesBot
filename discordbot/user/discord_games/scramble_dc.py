@@ -1,42 +1,55 @@
+from discordbot.messagemanager import MessageManager
 from discordbot.user.discord_games.minigame_dc import MinigameDisc
 from discordbot.utils.emojis import ALPHABET, STOP, ARROW_LEFT
 from minigames.scramble import Scramble
 
 
-class ScrambleDisc(MinigameDisc):
+class ScrambleDiscord(MinigameDisc):
     def __init__(self, session):
         super().__init__(session)
         self.scramble_game = Scramble()
+        self.player = self.session.players[0]
 
-    async def start(self):
-        await self.session.message.edit(content=self.get_content())
-        await self.add_reaction(STOP)
-        await self.add_reaction(ARROW_LEFT)
+    async def start_game(self):
+        await MessageManager.edit_message(self.message, self.get_content())
+
+        await MessageManager.add_reaction_event(self.message, STOP, self.player.id, self.on_stop_reaction)
+        await MessageManager.add_reaction_event(self.message, ARROW_LEFT, self.player.id, self.on_back_reaction)
         for c in self.scramble_game.scrambled_word:
-            await self.add_reaction(ALPHABET[c])
+            await MessageManager.add_reaction_event(self.message, ALPHABET[c], self.player.id, self.on_letter_reaction, ALPHABET[c])
 
-        await self.wait_for_player()
+        self.start_timer()
 
-    async def on_reaction(self, reaction, user):
-        if reaction.emoji == ARROW_LEFT:
-            char = self.scramble_game.remove_last()
-            if char != "_":
-                await self.add_reaction(ALPHABET[char])
-            await self.session.message.remove_reaction(reaction.emoji, user)
-        else:
-            for c, e in ALPHABET.items():
-                if e == reaction.emoji:
-                    self.scramble_game.guess(c)
-                    if c not in self.scramble_game.scrambled_word:
-                        await self.clear_reaction(e)
-                    else:
-                        await self.session.message.remove_reaction(e, user)
-                    break
+    async def on_letter_reaction(self, letter_emoji):
+        self.cancel_timer()
+
+        for char, emoji in ALPHABET.items():
+            if emoji == letter_emoji:
+                self.scramble_game.guess(char)
+                if char not in self.scramble_game.scrambled_word:
+                    await MessageManager.clear_reaction(self.message, letter_emoji)
+                else:
+                    await MessageManager.remove_reaction(self.message, letter_emoji, self.player.member)
+                break
 
         if self.scramble_game.has_won():
-            self.winners.append(self.players[0])
-            self.playing = False
-        await self.session.message.edit(content=self.get_content())
+            self.player.wins += 1
+            await self.end_game()
+            return
+
+        await MessageManager.edit_message(self.message, self.get_content())
+        self.start_timer()
+
+    async def on_back_reaction(self):
+        self.cancel_timer()
+
+        char = self.scramble_game.remove_last()
+        if char != "_":
+            await MessageManager.add_reaction_event(self.message, ALPHABET[char], self.player.id, self.on_letter_reaction)
+        await MessageManager.remove_reaction(self.message, ARROW_LEFT, self.player.member)
+        await MessageManager.edit_message(self.message, self.get_content())
+
+        self.start_timer()
 
     def get_content(self):
         current_word = self.scramble_game.current_word
@@ -50,11 +63,10 @@ class ScrambleDisc(MinigameDisc):
 
         content = f"```\nLetters: {' '.join(scrambled_word)}\n" \
                   f"{''.join(word_)}\n```"
-        if not self.playing:
-            if len(self.winners) == 1:
-                content += "```\nYou have won the game!\n```"
-            else:
-                content += f"```\nYou have lost the game!\nThe word was: '{''.join(self.scramble_game.word)}'\n```"
+        if self.finished and self.scramble_game.has_won():
+            content += "```\nYou have won the game!\n```"
+        elif self.finished:
+            content += f"```\nYou have lost the game!\nThe word was: '{''.join(self.scramble_game.word)}'\n```"
         elif len(scrambled_word) == 0:
             content += "```\nWrong word, try again!\n```"
         return content

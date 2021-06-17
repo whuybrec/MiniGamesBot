@@ -1,8 +1,6 @@
 from discordbot.categories.minigames import Minigames
 from discordbot.commands.command import Command
 from discordbot.gamemanager import GameManager
-from discordbot.user.discord_games.chess_dc import ChessDisc
-from discordbot.user.session import Session
 
 
 class ChessCommand(Command):
@@ -14,7 +12,7 @@ class ChessCommand(Command):
     category = Minigames
 
     @classmethod
-    async def handler(cls, context):
+    async def invoke(cls, context):
         args = context.message.content[len(cls.bot.prefix) + len(cls.name) + 1:].lstrip()
         if len(args) == 0:
             await context.reply("You need to tag a second player to play with.")
@@ -31,7 +29,6 @@ class ChessCommand(Command):
             await context.reply("You can not start chess with a bot.")
             return
 
-        msg = await context.channel.send("Starting **chess** minigame")
-        session = Session(cls.bot, context, msg, "chess", ChessDisc, [context.author, player2], True)
-        await GameManager.start_session(session)
+        message = await context.send("Starting **chess** minigame")
+        await GameManager.create_session(message, "chess", context.author, player2)
 

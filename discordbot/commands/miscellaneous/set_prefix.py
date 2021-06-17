@@ -12,7 +12,7 @@ class SetPrefixCommand(Command):
     category = Miscellaneous
 
     @classmethod
-    async def handler(cls, context):
+    async def invoke(cls, context):
         if not context.channel.permissions_for(context.author).administrator and context.author.id not in DISCORD["DEVS"]:
             await context.reply("Only admins can change the prefix of the bot.")
             return

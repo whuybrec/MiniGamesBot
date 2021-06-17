@@ -12,7 +12,7 @@ class InfoCommand(Command):
     category = Miscellaneous
 
     @classmethod
-    async def handler(cls, context):
+    async def invoke(cls, context):
         content = "**__MiniGamesBot__**\n" \
                   "Use the **help command** to see the commands for this bot. " \
                   "Administrators can set a **different prefix** for the bot. " \

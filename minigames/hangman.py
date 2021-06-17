@@ -15,6 +15,7 @@ class Hangman(Minigame):
 
         if char not in self.word:
             self.lives -= 1
+            self.guessed.append(char)
             return
 
         for i in range(len(self.word)):

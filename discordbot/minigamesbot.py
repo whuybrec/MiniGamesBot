@@ -4,7 +4,6 @@ import inspect
 import json
 import os
 import random
-import sys
 import time
 import traceback
 from zipfile import ZipFile
@@ -19,6 +18,7 @@ from discordbot.commands.command import Command
 from discordbot.databasemanager import DatabaseManager
 from discordbot.gamemanager import GameManager
 from discordbot.utils.private import DISCORD
+from discordbot.messagemanager import MessageManager
 from discordbot.utils.topgg import TopGG
 from discordbot.utils.variables import MINIGAMES
 from generic.scheduler import Scheduler
@@ -32,6 +32,7 @@ class MiniGamesBot(Bot):
         self.prefix = prefix
         intents = discord.Intents.default()
         intents.members = True
+        intents.reactions = True
         super().__init__(command_prefix=self.prefix, intents=intents, max_messages=5000)
 
         self.called_on_ready = False
@@ -39,9 +40,11 @@ class MiniGamesBot(Bot):
         self.has_update = False
         self.prefixes = {}
         self.my_commands = []
+        self.scheduler = Scheduler()
         self.game_manager = GameManager
         self.db = DatabaseManager
         self.lexicon = Lexicon
+        self.message_manager = MessageManager
 
         # load commands
         self.categories = [
@@ -56,6 +59,7 @@ class MiniGamesBot(Bot):
         self.game_manager.on_startup(self)
         self.db.on_startup(self)
         self.lexicon.on_startup()
+        self.message_manager.on_startup(self)
 
         # load prefixes
         try:
@@ -68,7 +72,6 @@ class MiniGamesBot(Bot):
             file.write(prefixes_json)
         file.close()
 
-        self.scheduler = Scheduler()
         self.scheduler.add(20, self.routine_updates)
 
         # REMOVE THIS TRY EXCEPT
@@ -90,6 +93,9 @@ class MiniGamesBot(Bot):
         context = await self.get_context(message)
         self.ctx = context
         await self.invoke(context)
+
+    async def on_raw_reaction_add(self, payload):
+        await MessageManager.on_raw_reaction(payload)
 
     async def on_ready(self):
         if not self.called_on_ready:

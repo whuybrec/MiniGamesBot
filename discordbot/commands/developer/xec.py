@@ -17,7 +17,7 @@ class ExecuteCommand(Command):
     category: str = Developer
 
     @classmethod
-    async def handler(cls, context):
+    async def invoke(cls, context):
         if not cls.has_permission(context.message.author.id):
             return
 

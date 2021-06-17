@@ -1,69 +1,69 @@
-import asyncio
-
+from discordbot.messagemanager import MessageManager
 from discordbot.user.discord_games.minigame_dc import MinigameDisc
 from discordbot.utils.emojis import NUMBERS, STOP
-from discordbot.utils.variables import TIMEOUT
 from minigames.connect4 import Connect4
 
 
-class Connect4Disc(MinigameDisc):
+class Connect4Discord(MinigameDisc):
     def __init__(self, session):
         super().__init__(session)
         self.connect4_game = Connect4()
         self.turn = self.connect4_game.turn
 
-    async def start(self):
-        await self.session.message.edit(content=self.get_content())
+    async def start_game(self):
+        await MessageManager.edit_message(self.message, self.get_content())
 
         for i in range(1, 8):
-            await self.add_reaction(NUMBERS[i])
-        await self.add_reaction(STOP)
+            await MessageManager.add_reaction_event(self.message, NUMBERS[i], self.players[self.turn].id, self.on_number_reaction, NUMBERS[i])
 
-        await self.wait_for_player(self.check)
+        await MessageManager.add_reaction_event(self.message, STOP, self.players[0].id, self.on_stop_reaction)
+        await MessageManager.add_reaction_event(self.message, STOP, self.players[1].id, self.on_stop_reaction)
 
-    def check(self, r, u):
-        return r.message.id == self.session.message.id \
-               and r.emoji in self.emojis \
-               and u.id == self.players[self.turn].id
+        self.start_timer()
 
-    async def wait_for_player(self, check_=None):
-        while self.playing:
-            try:
-                reaction, user = await self.session.bot.wait_for("reaction_add", check=check_, timeout=TIMEOUT)
-                if reaction.emoji == STOP:
-                    self.losers.append(self.players[self.turn])
-                    self.winners.append(self.players[(self.turn+1) % 2])
-                    self.playing = False
+    async def on_number_reaction(self, number_emoji):
+        self.cancel_timer()
 
-                await self.on_reaction(reaction, user)
+        for number, emoji in NUMBERS.items():
+            if emoji == number_emoji:
+                self.connect4_game.move(number-1)
+                break
 
-            except asyncio.TimeoutError:
-                self.losers.append(self.players[self.turn])
-                self.winners.append(self.players[(self.turn + 1) % 2])
-                self.playing = False
-                self.session.player_timed_out = self.players[self.turn].id
-
-        await self.end_game()
-
-    async def on_reaction(self, reaction, user):
-        for n, e in NUMBERS.items():
-            if e == reaction.emoji:
-                self.connect4_game.move(n-1)
-
-        await reaction.message.remove_reaction(reaction.emoji, user)
+        old_turn = self.turn
         self.turn = self.connect4_game.turn
+        await MessageManager.remove_reaction(self.message, number_emoji, self.players[old_turn].member)
 
         if self.connect4_game.has_player_won():
-            self.winners.append(self.players[self.turn])
-            self.losers.append(self.players[(self.turn + 1) % 2])
-            self.playing = False
+            self.players[self.turn].wins += 1
+            self.players[(self.turn + 1) % 2].losses += 1
+            await self.end_game()
+            return
 
         if self.connect4_game.is_board_full():
-            self.drawers.append(self.players[self.turn])
-            self.drawers.append(self.players[(self.turn + 1) % 2])
-            self.playing = False
+            self.players[self.turn].draws += 1
+            self.players[(self.turn + 1) % 2].draws += 1
+            await self.end_game()
+            return
 
-        await self.session.message.edit(content=self.get_content())
+        for i in range(1, 8):
+            await MessageManager.add_reaction_event(self.message, NUMBERS[i], self.players[self.turn].id, self.on_number_reaction, NUMBERS[i])
+            await MessageManager.remove_reaction_event(self.message.id, NUMBERS[i], self.players[old_turn].id)
+
+        await MessageManager.edit_message(self.message, self.get_content())
+
+        self.start_timer()
+
+    async def on_stop_reaction(self):
+        self.cancel_timer()
+        self.players[self.turn].losses += 1
+        self.players[(self.turn + 1) % 2].wins += 1
+        await self.end_game()
+
+    async def on_player_timed_out(self):
+        self.players[self.turn].set_idle()
+        self.players[self.turn].losses += 1
+        self.players[(self.turn+1) % 2].wins += 1
+        await self.end_game()
 
     def get_content(self):
         board = self.connect4_game.get_board()
@@ -81,11 +81,11 @@ class Connect4Disc(MinigameDisc):
                 else:
                     content += ":black_circle:"
             content += "\n"
-        if not self.playing:
-            if len(self.drawers) == 2:
+        if self.finished:
+            if self.connect4_game.is_board_full():
                 content += "\nGame ended in draw!"
             else:
-                content += f"\n<@{str(self.winners[0].id)}> has won!"
+                content += f"\n<@{str(self.players[self.turn].id)}> has won!"
         else:
             content += f"\nTurn: <@{str(self.players[self.turn].id)}>"
             if self.turn == 0:
