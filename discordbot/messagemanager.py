@@ -1,4 +1,5 @@
 import discord.errors
+from discord.ext.commands import CommandInvokeError
 
 
 class MessageManager:
@@ -17,7 +18,7 @@ class MessageManager:
     async def edit_message(cls, message, content):
         try:
             await message.edit(content=content)
-        except discord.errors.NotFound:
+        except (discord.errors.NotFound, CommandInvokeError):
             channel = await cls.bot.fetch_channel(message.channel.id)
             message = await channel.fetch_message(message.id)
             await message.edit(content=content)
@@ -26,7 +27,7 @@ class MessageManager:
     async def delete_message(cls, message):
         try:
             await message.delete()
-        except discord.errors.NotFound:
+        except (discord.errors.NotFound, CommandInvokeError):
             channel = await cls.bot.fetch_channel(message.channel.id)
             message = await channel.fetch_message(message.id)
             await message.delete()
@@ -35,7 +36,7 @@ class MessageManager:
     async def add_reaction(cls, message, emoji):
         try:
             await message.add_reaction(emoji)
-        except discord.errors.NotFound:
+        except (discord.errors.NotFound, CommandInvokeError):
             channel = await cls.bot.fetch_channel(message.channel.id)
             message = await channel.fetch_message(message.id)
             await message.add_reaction(emoji)
@@ -54,7 +55,7 @@ class MessageManager:
     async def remove_reaction(cls, message, emoji, user):
         try:
             await message.remove_reaction(emoji, user)
-        except discord.errors.NotFound:
+        except (discord.errors.NotFound, CommandInvokeError):
             channel = await cls.bot.fetch_channel(message.channel.id)
             message = await channel.fetch_message(message.id)
             await message.remove_reaction(emoji, user)
@@ -70,7 +71,7 @@ class MessageManager:
 
         try:
             await message.clear_reaction(emoji)
-        except discord.errors.NotFound:
+        except (discord.errors.NotFound, CommandInvokeError):
             channel = await cls.bot.fetch_channel(message.channel.id)
             message = await channel.fetch_message(message.id)
             await message.clear_reaction(emoji)
@@ -86,7 +87,7 @@ class MessageManager:
 
         try:
             await message.clear_reactions()
-        except discord.errors.NotFound:
+        except (discord.errors.NotFound, CommandInvokeError):
             channel = await cls.bot.fetch_channel(message.channel.id)
             message = await channel.fetch_message(message.id)
             await message.clear_reactions()
