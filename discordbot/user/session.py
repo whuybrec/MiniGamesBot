@@ -62,6 +62,9 @@ class Session:
         self.game_manager.scheduler.cancel(self.ticket)
         await MessageManager.clear_reactions(self.message)
 
+        if self not in self.game_manager.open_games:
+            return
+
         # save data to DB
         wins = losses = draws = 0
         timeout = False
