@@ -47,7 +47,7 @@ class ScrambleDiscord(MinigameDisc):
         char = self.scramble_game.remove_last()
         if char != "_":
             await MessageManager.add_reaction_event(self.message, ALPHABET[char], self.player.id,
-                                                    self.on_letter_reaction)
+                                                    self.on_letter_reaction, ALPHABET[char])
         await MessageManager.remove_reaction(self.message, ARROW_LEFT, self.player.member)
         await MessageManager.edit_message(self.message, self.get_content())
 
