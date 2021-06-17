@@ -143,7 +143,7 @@ class ChessDiscord(MinigameDisc):
     async def update_messages(self):
         self.save_board_image()
 
-        dump_channel = await self.session.bot.fetch_channel(DISCORD['STACK_CHANNEL'])
+        dump_channel = await self.session.game_manager.bot.fetch_channel(DISCORD['STACK_CHANNEL'])
         msg_dump = await dump_channel.send(file=discord.File(self.file + ".png"))
         await self.session.send_extra_message()
         await MessageManager.edit_message(self.message, self.get_content())
