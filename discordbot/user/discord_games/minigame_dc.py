@@ -34,7 +34,8 @@ class MinigameDisc:
 
     async def on_bot_restart(self):
         await self.clear_reactions()
-        await MessageManager.edit_message(self.message, self.get_content() + "\n\nSorry! I received an update and have to restart.")
+        await MessageManager.edit_message(self.message,
+                                          self.get_content() + "\n\nSorry! I received an update and have to restart.")
 
     async def clear_reactions(self):
         await MessageManager.clear_reactions(self.message)

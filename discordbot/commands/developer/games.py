@@ -1,10 +1,7 @@
-from datetime import date, timedelta
-
 from discordbot.categories.developer import Developer
 from discordbot.commands.command import Command
 from discordbot.utils.pager import Pager
 from discordbot.utils.private import DISCORD
-from generic.formatting import create_table
 
 
 class GamesCommand(Command):

@@ -9,7 +9,6 @@ bot = None
 
 
 class ExecuteCommand(Command):
-
     name: str = "exec"
     help: str = "Execute python code."
     brief: str = "Exec snek"

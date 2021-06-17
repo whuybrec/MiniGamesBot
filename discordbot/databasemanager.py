@@ -168,7 +168,7 @@ class DatabaseManager:
 
     @classmethod
     def get_yearly_stats_for_player(cls, player_id, date_):
-        years = [date(year, 1, 1) for year in range(date_.year-4, date_.year+1)]
+        years = [date(year, 1, 1) for year in range(date_.year - 4, date_.year + 1)]
         stats = dict()
         for year in years:
             stats[year.strftime("%Y")] = cls.get_stats_for_player_of_year(player_id, year.strftime("%Y"))

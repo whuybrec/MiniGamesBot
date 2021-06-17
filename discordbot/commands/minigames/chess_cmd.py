@@ -31,4 +31,3 @@ class ChessCommand(Command):
 
         message = await context.send("Starting **chess** minigame")
         await GameManager.create_session(message, "chess", context.author, player2)
-

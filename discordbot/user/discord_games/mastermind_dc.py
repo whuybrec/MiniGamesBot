@@ -15,7 +15,8 @@ class MastermindDiscord(MinigameDisc):
         await MessageManager.edit_message(self.message, self.get_content())
 
         for c in COLORS:
-            await MessageManager.add_reaction_event(self.message, COLORS_EMOJI[c], self.player.id, self.on_color_reaction, COLORS_EMOJI[c])
+            await MessageManager.add_reaction_event(self.message, COLORS_EMOJI[c], self.player.id,
+                                                    self.on_color_reaction, COLORS_EMOJI[c])
         await MessageManager.add_reaction_event(self.message, ARROW_LEFT, self.player.id, self.on_back_reaction)
         await MessageManager.add_reaction_event(self.message, CHECKMARK, self.player.id, self.on_checkmark_reaction)
         await MessageManager.add_reaction_event(self.message, STOP, self.player.id, self.on_stop_reaction)

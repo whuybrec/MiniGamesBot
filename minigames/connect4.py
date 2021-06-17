@@ -66,7 +66,7 @@ class Connect4:
                 try:
                     counter = 0
                     for i in range(4):
-                        if self.board[r+i][c+i] == self.turn:
+                        if self.board[r + i][c + i] == self.turn:
                             counter += 1
                         else:
                             counter = 0

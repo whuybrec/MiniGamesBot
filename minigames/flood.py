@@ -46,10 +46,10 @@ class Grid:
     def expand_node(self, node):
         x = node.x
         y = node.y
-        up = self.matrix[(x-1) if (x - 1) >= 0 else 0][y]
-        down = self.matrix[(x+1) if (x + 1) < HEIGHT else (HEIGHT-1)][y]
-        left = self.matrix[x][(y-1) if (y - 1) >= 0 else 0]
-        right = self.matrix[x][(y+1) if (y + 1) < WIDTH else (WIDTH-1)]
+        up = self.matrix[(x - 1) if (x - 1) >= 0 else 0][y]
+        down = self.matrix[(x + 1) if (x + 1) < HEIGHT else (HEIGHT - 1)][y]
+        left = self.matrix[x][(y - 1) if (y - 1) >= 0 else 0]
+        right = self.matrix[x][(y + 1) if (y + 1) < WIDTH else (WIDTH - 1)]
         return [up, down, left, right]
 
     def set_random_grid(self):
@@ -79,7 +79,7 @@ class Grid:
                 if neighbour.color == top_node.color and neighbour not in visited:
                     size += 1
                     queue.append(neighbour)
-        self.cost = WIDTH*HEIGHT-size
+        self.cost = WIDTH * HEIGHT - size
 
     def set_colors(self):
         colors = set()

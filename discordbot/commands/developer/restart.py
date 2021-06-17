@@ -8,7 +8,6 @@ from discordbot.utils.private import DISCORD
 
 
 class RestartCommand(Command):
-
     name: str = "restart"
     help: str = "Restarts this bot. The Restarter:tm:, *smort* or f o r c e  restarts."
     brief: str = "The Restarter:tm:, *smort* or f o r c e  restarts."
@@ -34,6 +33,7 @@ class RestartCommand(Command):
 
         def check(r, u):
             return r.message.id == msg.id and u.id in DISCORD["DEVS"]
+
         try:
             reaction, user = await cls.bot.wait_for("reaction_add", check=check, timeout=60.0)
             if reaction.emoji == NUMBERS[1]:
@@ -41,7 +41,7 @@ class RestartCommand(Command):
             elif reaction.emoji == NUMBERS[2]:
                 await context.send(f"Smart restarting...")
                 start_time = time.time()
-                while cls.bot.game_manager.has_open_sessions() and time.time()-start_time < 60*10:
+                while cls.bot.game_manager.has_open_sessions() and time.time() - start_time < 60 * 10:
                     await asyncio.sleep(10)
         except TimeoutError:
             pass

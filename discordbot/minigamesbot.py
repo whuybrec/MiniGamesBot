@@ -17,8 +17,8 @@ from discordbot.categories import *
 from discordbot.commands.command import Command
 from discordbot.databasemanager import DatabaseManager
 from discordbot.gamemanager import GameManager
-from discordbot.utils.private import DISCORD
 from discordbot.messagemanager import MessageManager
+from discordbot.utils.private import DISCORD
 from discordbot.utils.topgg import TopGG
 from discordbot.utils.variables import MINIGAMES
 from generic.scheduler import Scheduler
@@ -200,7 +200,7 @@ class MiniGamesBot(Bot):
             await self.save_prefixes()
             await self.change_status()
             self.remove_old_binaries()
-            await asyncio.sleep(60*30)
+            await asyncio.sleep(60 * 30)
 
     async def change_status(self):
         n = random.randint(0, len(MINIGAMES) - 1)
@@ -243,8 +243,8 @@ class MiniGamesBot(Bot):
                 "Ignoring exception in command {1}:\n\n" \
                 "args: {2}\n\n" \
                 "kwargs: {3}\n\n" \
-                "e: {4}\n\n"\
-                .format(time.strftime("%b %d %Y %H:%M:%S"), event_method, args, kwargs, traceback.format_exc())
+                "e: {4}\n\n" \
+            .format(time.strftime("%b %d %Y %H:%M:%S"), event_method, args, kwargs, traceback.format_exc())
         await self.send_error(error)
 
     async def on_command_error(self, context, exception):
@@ -266,9 +266,9 @@ class MiniGamesBot(Bot):
         error = "Time: {0}\n\n" \
                 "Ignoring exception in command {1}:\n\n" \
                 "Exception: \n\n{2}" \
-                .format(time.strftime("%b %d %Y %H:%M:%S"),
-                        context.command,
-                        ''.join(traceback.format_exception(type(exception), exception, exception.__traceback__)))
+            .format(time.strftime("%b %d %Y %H:%M:%S"),
+                    context.command,
+                    ''.join(traceback.format_exception(type(exception), exception, exception.__traceback__)))
 
         await self.send_error(error)
 

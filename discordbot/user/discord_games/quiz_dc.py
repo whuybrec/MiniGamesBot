@@ -23,8 +23,9 @@ class QuizDiscord(MinigameDisc):
     async def start_game(self):
         await MessageManager.edit_message(self.message, self.get_content())
 
-        for i in range(1, len(self.categories)+1):
-            await MessageManager.add_reaction_event(self.message, NUMBERS[i], self.player.id, self.choose_category, NUMBERS[i])
+        for i in range(1, len(self.categories) + 1):
+            await MessageManager.add_reaction_event(self.message, NUMBERS[i], self.player.id, self.choose_category,
+                                                    NUMBERS[i])
         await MessageManager.add_reaction_event(self.message, STOP, self.player.id, self.on_stop_reaction)
 
         self.start_timer()
@@ -46,7 +47,7 @@ class QuizDiscord(MinigameDisc):
 
         self.start_timer()
 
-    async def choose_answer(self,  emoji):
+    async def choose_answer(self, emoji):
         self.cancel_timer()
 
         for c, e in ALPHABET.items():
@@ -89,7 +90,7 @@ class QuizDiscord(MinigameDisc):
         if self.selecting_category:
             content += "**Categories**\n"
             for i in range(len(self.categories)):
-                content += f"{NUMBERS[i+1]}   *{self.categories[i]}*\n"
+                content += f"{NUMBERS[i + 1]}   *{self.categories[i]}*\n"
             return content
 
         content += f"**{self.category}**\n\n" \

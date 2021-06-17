@@ -19,9 +19,11 @@ class HangmanDiscord(MinigameDisc):
         for i in range(len(ascii_lowercase)):
             emoji = ALPHABET[ascii_lowercase[i]]
             if i < 13:
-                await MessageManager.add_reaction_event(self.message, emoji, self.player.id, self.on_letter_reaction, emoji)
+                await MessageManager.add_reaction_event(self.message, emoji, self.player.id, self.on_letter_reaction,
+                                                        emoji)
             if i >= 13:
-                await MessageManager.add_reaction_event(self.extra_message, emoji, self.player.id, self.on_letter_reaction, emoji)
+                await MessageManager.add_reaction_event(self.extra_message, emoji, self.player.id,
+                                                        self.on_letter_reaction, emoji)
         await MessageManager.add_reaction_event(self.extra_message, STOP, self.player.id, self.on_stop_reaction)
 
         self.start_timer()

@@ -57,17 +57,18 @@ class HelpCommand(Command):
                 return u.id == context.message.author.id \
                        and (r.emoji == ARROW_DOWN or r.emoji == ARROW_UP or r.emoji == STOP) \
                        and r.message.id == help_msg.id
+
             try:
                 reaction, user = await cls.bot.wait_for('reaction_add', timeout=60.0, check=check)
                 if reaction.emoji == STOP:
                     await help_msg.delete()
                     break
 
-                if reaction.emoji == ARROW_DOWN and page < (len(cls.bot.categories)-1):
+                if reaction.emoji == ARROW_DOWN and page < (len(cls.bot.categories) - 1):
                     new_page = page + 1
                     while not cls.bot.categories[new_page].has_permission(context.author.id):
                         new_page += 1
-                        if new_page > (len(cls.bot.categories)-1):
+                        if new_page > (len(cls.bot.categories) - 1):
                             new_page = page
                             break
                     page = new_page

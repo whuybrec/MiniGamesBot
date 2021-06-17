@@ -31,8 +31,10 @@ class ServersCommand(Command):
                 joined_on_day = joined_servers[day.strftime("%Y-%m-%d")]
                 left_on_day = left_servers[day.strftime("%Y-%m-%d")]
                 if len(joined_on_day) != 0 or len(left_on_day) != 0:
-                    lists.append([day.strftime("%d-%m"), len(joined_on_day), len(left_on_day), len(joined_on_day)-len(left_on_day)])
-            pages.append("Daily:\n```\n" + create_table(*lists) + "\n```\nCurrent total: **" + str(len(cls.bot.guilds)) + "**")
+                    lists.append([day.strftime("%d-%m"), len(joined_on_day), len(left_on_day),
+                                  len(joined_on_day) - len(left_on_day)])
+            pages.append(
+                "Daily:\n```\n" + create_table(*lists) + "\n```\nCurrent total: **" + str(len(cls.bot.guilds)) + "**")
 
             lists = [["Month", "Joined", "Left", "Diff"]]
             joined_servers = cls.bot.db.get_monthly_stats_for_servers_of_year("JOIN", today)
@@ -42,8 +44,10 @@ class ServersCommand(Command):
                 joined_on_month = joined_servers[month.strftime("%Y-%m")]
                 left_on_month = left_servers[month.strftime("%Y-%m")]
                 if len(joined_on_month) != 0 or len(left_on_month) != 0:
-                    lists.append([month.strftime("%B"), len(joined_on_month), len(left_on_month), len(joined_on_month)-len(left_on_month)])
-            pages.append("Monthly:\n```\n" + create_table(*lists) + "\n```\nCurrent total: **" + str(len(cls.bot.guilds)) + "**")
+                    lists.append([month.strftime("%B"), len(joined_on_month), len(left_on_month),
+                                  len(joined_on_month) - len(left_on_month)])
+            pages.append(
+                "Monthly:\n```\n" + create_table(*lists) + "\n```\nCurrent total: **" + str(len(cls.bot.guilds)) + "**")
 
             lists = [["Year", "Joined", "Left", "Diff"]]
             joined_servers = cls.bot.db.get_yearly_stats_for_servers("JOIN", today)
@@ -53,8 +57,10 @@ class ServersCommand(Command):
                 joined_on_year = joined_servers[year.strftime("%Y")]
                 left_on_year = left_servers[year.strftime("%Y")]
                 if len(joined_on_year) != 0 or len(left_on_year) != 0:
-                    lists.append([year.year, len(joined_on_year), len(left_on_year), len(joined_on_year)-len(left_on_year)])
-            pages.append("Yearly:\n```\n" + create_table(*lists) + "\n```\nCurrent total: **" + str(len(cls.bot.guilds)) + "**")
+                    lists.append(
+                        [year.year, len(joined_on_year), len(left_on_year), len(joined_on_year) - len(left_on_year)])
+            pages.append(
+                "Yearly:\n```\n" + create_table(*lists) + "\n```\nCurrent total: **" + str(len(cls.bot.guilds)) + "**")
 
             pager = Pager(cls.bot, context, pages)
             await pager.show()

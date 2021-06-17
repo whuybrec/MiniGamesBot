@@ -1,4 +1,3 @@
-
 def create_table(*lists):
     PADDING = 2
     column_sizes = [0 for e in lists[0]]
@@ -10,6 +9,6 @@ def create_table(*lists):
     table = ""
     for lst in lists:
         for i in range(len(lst)):
-            table += str(lst[i]).ljust(column_sizes[i]+PADDING)
+            table += str(lst[i]).ljust(column_sizes[i] + PADDING)
         table += "\n"
     return table

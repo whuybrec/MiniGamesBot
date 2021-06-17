@@ -3,8 +3,8 @@ import datetime
 from discordbot.messagemanager import MessageManager
 from discordbot.user.player import Player
 from discordbot.utils.emojis import STOP, REPEAT
-from generic.stopwatch import Stopwatch
 from generic.formatting import create_table
+from generic.stopwatch import Stopwatch
 
 TIMEOUT = 20
 
@@ -44,7 +44,8 @@ class Session:
         await MessageManager.clear_reactions(self.message)
 
         if self.game_manager.bot.has_update:
-            await MessageManager.edit_message(self.message, "Sorry! I can't start any new games right now. Boss says I have to restart soon:tm:. Try again later!")
+            await MessageManager.edit_message(self.message,
+                                              "Sorry! I can't start any new games right now. Boss says I have to restart soon:tm:. Try again later!")
             await self.close()
             return
 

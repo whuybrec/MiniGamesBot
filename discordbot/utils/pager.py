@@ -64,7 +64,7 @@ class Pager:
                 elif reaction.emoji == ARROW_RIGHT:
                     self.current_page += 1
                     if self.current_page >= len(self.pages):
-                        self.current_page = len(self.pages)-1
+                        self.current_page = len(self.pages) - 1
                 else:
                     await self.page_msg.delete()
                     return

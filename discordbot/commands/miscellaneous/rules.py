@@ -2,7 +2,6 @@ from discordbot.categories.miscellaneous import Miscellaneous
 from discordbot.commands.command import Command
 from discordbot.utils.variables import *
 
-
 RULES = {
     "blackjack": BLACKJACK_RULES,
     "chess": CHESS_RULES,
@@ -37,4 +36,3 @@ class RulesCommand(Command):
             await context.reply(rules)
         except KeyError:
             await context.reply("Please specify a correct minigame for which you want to see the rules as argument.")
-

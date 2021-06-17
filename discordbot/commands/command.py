@@ -1,4 +1,3 @@
-
 class Command:
     bot = None
     name = "CommandName"
@@ -29,4 +28,3 @@ class Command:
     @classmethod
     def has_permission(cls, user_id):
         return True
-

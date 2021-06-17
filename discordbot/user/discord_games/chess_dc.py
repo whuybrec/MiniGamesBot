@@ -31,12 +31,15 @@ class ChessDiscord(MinigameDisc):
 
         for i in range(8):
             emoji = ALPHABET[ascii_lowercase[i]]
-            await MessageManager.add_reaction_event(self.message, emoji, self.players[self.turn].id, self.on_letter_reaction, emoji)
+            await MessageManager.add_reaction_event(self.message, emoji, self.players[self.turn].id,
+                                                    self.on_letter_reaction, emoji)
         for i in range(1, 9):
             emoji = NUMBERS[i]
-            await MessageManager.add_reaction_event(self.extra_message, emoji, self.players[self.turn].id, self.on_number_reaction, emoji)
+            await MessageManager.add_reaction_event(self.extra_message, emoji, self.players[self.turn].id,
+                                                    self.on_number_reaction, emoji)
 
-        await MessageManager.add_reaction_event(self.extra_message, ARROW_LEFT, self.players[self.turn].id, self.on_back_reaction)
+        await MessageManager.add_reaction_event(self.extra_message, ARROW_LEFT, self.players[self.turn].id,
+                                                self.on_back_reaction)
         await MessageManager.add_reaction_event(self.extra_message, STOP, self.players[0].id, self.on_stop_reaction)
         await MessageManager.add_reaction_event(self.extra_message, STOP, self.players[1].id, self.on_stop_reaction)
 
@@ -106,12 +109,15 @@ class ChessDiscord(MinigameDisc):
 
                     for i in range(8):
                         emoji = ALPHABET[ascii_lowercase[i]]
-                        await MessageManager.add_reaction_event(self.message, emoji, self.players[self.turn].id, self.on_letter_reaction, emoji)
+                        await MessageManager.add_reaction_event(self.message, emoji, self.players[self.turn].id,
+                                                                self.on_letter_reaction, emoji)
                         await MessageManager.remove_reaction_event(self.message.id, emoji, self.players[old_turn].id)
                     for i in range(1, 9):
                         emoji = NUMBERS[i]
-                        await MessageManager.add_reaction_event(self.extra_message, emoji, self.players[self.turn].id, self.on_number_reaction, emoji)
-                        await MessageManager.remove_reaction_event(self.extra_message.id, emoji, self.players[old_turn].id)
+                        await MessageManager.add_reaction_event(self.extra_message, emoji, self.players[self.turn].id,
+                                                                self.on_number_reaction, emoji)
+                        await MessageManager.remove_reaction_event(self.extra_message.id, emoji,
+                                                                   self.players[old_turn].id)
                     return
             except ValueError:
                 pass
@@ -131,7 +137,7 @@ class ChessDiscord(MinigameDisc):
     async def on_player_timed_out(self):
         self.players[self.turn].set_idle()
         self.players[self.turn].losses += 1
-        self.players[(self.turn+1) % 2].wins += 1
+        self.players[(self.turn + 1) % 2].wins += 1
         await self.end_game()
 
     async def update_messages(self):

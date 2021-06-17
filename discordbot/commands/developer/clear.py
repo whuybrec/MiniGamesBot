@@ -26,4 +26,3 @@ class ClearCommand(Command):
         if user_id in DISCORD["DEVS"]:
             return True
         return False
-

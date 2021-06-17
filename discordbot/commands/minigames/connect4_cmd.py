@@ -31,4 +31,3 @@ class Connect4Command(Command):
 
         message = await context.send("Starting **connect4** minigame")
         await GameManager.create_session(message, "connect4", context.author, player2)
-

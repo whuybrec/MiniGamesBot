@@ -62,7 +62,7 @@ class AkinatorDiscord(MinigameDisc):
         await self.end_game()
 
     def get_content(self):
-        content = f"Question {int(self.akinator.step)+1}: *{self.akinator.question}*\n"
+        content = f"Question {int(self.akinator.step) + 1}: *{self.akinator.question}*\n"
         if self.guessed:
             content = f"Akinator guesses: {self.akinator.first_guess['name']}\n{self.akinator.first_guess['absolute_picture_path']}"
         return content

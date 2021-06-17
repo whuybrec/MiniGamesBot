@@ -3,8 +3,7 @@ from time import time
 
 
 class Scheduler:
-
-    max_wait = 10*60  # in seconds
+    max_wait = 10 * 60  # in seconds
     store_metadata = False
 
     def __init__(self):
@@ -15,7 +14,7 @@ class Scheduler:
 
     def add(self, delay, function, *args, **kwargs):
         """Schedule an event in a specific amount of time."""
-        return self.at(time()+delay, function, *args, **kwargs)
+        return self.at(time() + delay, function, *args, **kwargs)
 
     def at(self, t, function, *args, **kwargs):
         """Schedule an event at a specific timestamp ``t``."""
@@ -59,7 +58,7 @@ class Scheduler:
             return
 
         # never wait more than max_wait to prevent long sleeps
-        t = min(t, now+Scheduler.max_wait)
+        t = min(t, now + Scheduler.max_wait)
 
         # start waiter
         self.waiters.add(t)

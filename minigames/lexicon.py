@@ -18,7 +18,7 @@ class Lexicon:
 
     @classmethod
     def get_random_word(cls):
-        word = cls.WORDS[random.randint(0, len(cls.WORDS)-1)].rstrip()
+        word = cls.WORDS[random.randint(0, len(cls.WORDS) - 1)].rstrip()
         while len(word) < 5:
-            word = cls.WORDS[random.randint(0, len(cls.WORDS)-1)].rstrip()
+            word = cls.WORDS[random.randint(0, len(cls.WORDS) - 1)].rstrip()
         return word

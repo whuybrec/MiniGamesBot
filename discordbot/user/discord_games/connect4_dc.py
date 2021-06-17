@@ -14,7 +14,8 @@ class Connect4Discord(MinigameDisc):
         await MessageManager.edit_message(self.message, self.get_content())
 
         for i in range(1, 8):
-            await MessageManager.add_reaction_event(self.message, NUMBERS[i], self.players[self.turn].id, self.on_number_reaction, NUMBERS[i])
+            await MessageManager.add_reaction_event(self.message, NUMBERS[i], self.players[self.turn].id,
+                                                    self.on_number_reaction, NUMBERS[i])
 
         await MessageManager.add_reaction_event(self.message, STOP, self.players[0].id, self.on_stop_reaction)
         await MessageManager.add_reaction_event(self.message, STOP, self.players[1].id, self.on_stop_reaction)
@@ -26,7 +27,7 @@ class Connect4Discord(MinigameDisc):
 
         for number, emoji in NUMBERS.items():
             if emoji == number_emoji:
-                self.connect4_game.move(number-1)
+                self.connect4_game.move(number - 1)
                 break
 
         old_turn = self.turn
@@ -46,7 +47,8 @@ class Connect4Discord(MinigameDisc):
             return
 
         for i in range(1, 8):
-            await MessageManager.add_reaction_event(self.message, NUMBERS[i], self.players[self.turn].id, self.on_number_reaction, NUMBERS[i])
+            await MessageManager.add_reaction_event(self.message, NUMBERS[i], self.players[self.turn].id,
+                                                    self.on_number_reaction, NUMBERS[i])
             await MessageManager.remove_reaction_event(self.message.id, NUMBERS[i], self.players[old_turn].id)
 
         await MessageManager.edit_message(self.message, self.get_content())
@@ -62,7 +64,7 @@ class Connect4Discord(MinigameDisc):
     async def on_player_timed_out(self):
         self.players[self.turn].set_idle()
         self.players[self.turn].losses += 1
-        self.players[(self.turn+1) % 2].wins += 1
+        self.players[(self.turn + 1) % 2].wins += 1
         await self.end_game()
 
     def get_content(self):

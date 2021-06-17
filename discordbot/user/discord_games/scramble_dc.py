@@ -16,7 +16,8 @@ class ScrambleDiscord(MinigameDisc):
         await MessageManager.add_reaction_event(self.message, STOP, self.player.id, self.on_stop_reaction)
         await MessageManager.add_reaction_event(self.message, ARROW_LEFT, self.player.id, self.on_back_reaction)
         for c in self.scramble_game.scrambled_word:
-            await MessageManager.add_reaction_event(self.message, ALPHABET[c], self.player.id, self.on_letter_reaction, ALPHABET[c])
+            await MessageManager.add_reaction_event(self.message, ALPHABET[c], self.player.id, self.on_letter_reaction,
+                                                    ALPHABET[c])
 
         self.start_timer()
 
@@ -45,7 +46,8 @@ class ScrambleDiscord(MinigameDisc):
 
         char = self.scramble_game.remove_last()
         if char != "_":
-            await MessageManager.add_reaction_event(self.message, ALPHABET[char], self.player.id, self.on_letter_reaction)
+            await MessageManager.add_reaction_event(self.message, ALPHABET[char], self.player.id,
+                                                    self.on_letter_reaction)
         await MessageManager.remove_reaction(self.message, ARROW_LEFT, self.player.member)
         await MessageManager.edit_message(self.message, self.get_content())
 

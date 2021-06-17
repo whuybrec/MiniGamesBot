@@ -42,7 +42,8 @@ class GameManager:
     @classmethod
     async def start_session(cls, session):
         if cls.bot.has_update:
-            await MessageManager.edit_message(session.message, "Sorry! I can't start any new games right now. Boss says I have to restart soon:tm:. Try again later!")
+            await MessageManager.edit_message(session.message,
+                                              "Sorry! I can't start any new games right now. Boss says I have to restart soon:tm:. Try again later!")
             return
 
         cls.open_sessions.append(session)
