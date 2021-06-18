@@ -38,6 +38,7 @@ class MiniGamesBot(Bot):
         self.called_on_ready = False
         self.ctx = None
         self.has_update = False
+        self.uptime = time.time()
         self.prefixes = {}
         self.my_commands = []
         self.scheduler = Scheduler()
