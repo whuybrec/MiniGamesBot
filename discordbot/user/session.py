@@ -16,14 +16,10 @@ class Session:
         self.message = message
         self.extra_message = None
         self.minigame_name = minigame_name
-        self.players = list()
-        for player in players:
-            self.players.append(Player(player))
-
+        self.players = [Player(player) for player in players]
         self.ticket = None
         self.minigame = None
         self.stopwatch = Stopwatch()
-        self.restart = False
 
     async def start(self):
         self.stopwatch.start()
