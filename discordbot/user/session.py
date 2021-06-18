@@ -65,7 +65,7 @@ class Session:
 
         # save data to DB
         for player in self.players:
-            total_played = player.wins + player.losses + player.draws + player.unfinished
+            total_played = player.wins + player.losses + player.draws
             self.game_manager.add_player_stats_to_db(
                 player.id, f"\"{self.minigame_name}\"", total_played,
                 player.wins, player.losses, player.draws,
@@ -77,7 +77,7 @@ class Session:
         total_losses = sum([player.losses for player in self.players])
         total_draws = sum([player.draws for player in self.players])
         total_unfinished = sum([player.unfinished for player in self.players])
-        total_played = total_wins + total_losses + total_draws + total_unfinished
+        total_played = total_wins + total_losses + total_draws
         self.game_manager.add_minigame_stats_to_db(
             self.message.channel.guild.id, f"\"{self.minigame_name}\"", total_played,
             total_wins, total_losses, total_draws,
@@ -100,9 +100,9 @@ class Session:
         summary = "```\n"
         lst = [["Player", "Wins", "Losses", "Draws", "Unfinished", "Total played"]]
         for player in self.players:
-            total_played = player.wins + player.losses + player.draws + player.unfinished
+            total_played = player.wins + player.losses + player.draws
             lst.append([player.name, player.wins, player.losses, player.draws, player.unfinished, total_played])
         table = create_table(*lst)
         summary += table
-        summary += f"\nSession Time: {datetime.timedelta(seconds=self.stopwatch.get_total_time())}\n```"
+        summary += f"\nSession Time: {datetime.timedelta(seconds=round(self.stopwatch.get_total_time()))}\n```"
         return summary

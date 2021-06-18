@@ -1,3 +1,6 @@
+import datetime
+import time
+
 from discordbot.categories.miscellaneous import Miscellaneous
 from discordbot.commands.command import Command
 from discordbot.utils.emojis import STOP
@@ -35,4 +38,5 @@ class InfoCommand(Command):
                    "If you wish to make a donation: https://www.buymeacoffee.com/whuybrec\n" \
                    "Github link: <https://github.com/whuybrec/whuybrec.github.io>\n" \
                    "Invite to my server: https://discord.gg/hGeGsWp\n"
+        content += f"\n*Uptime: {datetime.timedelta(seconds=round(time.time() - cls.bot.uptime))}*"
         await context.send(content)

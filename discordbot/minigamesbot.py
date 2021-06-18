@@ -228,16 +228,6 @@ class MiniGamesBot(Bot):
             if (filename.endswith(".svg") or filename.endswith(".png")) and f_created < dt:
                 os.remove(f_path)
 
-    async def log_not_found(self, session):
-        channel = await self.fetch_channel(852649391570812979)
-        await channel.send(f"**NOT FOUND MESSAGE**\n"
-                           f"```\nMessage ID: {session.message.id}\n"
-                           f"Channel ID: {session.message.channel.id}\n"
-                           f"Guild ID: {session.message.channel.guild.id}\n"
-                           f"Minigame: {session.minigame_name}\n"
-                           f"Player: {session.context.author.id}\n"
-                           f"Timestamp: {time.strftime('%Y-%m-%d  %H:%M:%S')}\n```")
-
     async def on_error(self, event_method, *args, **kwargs):
         error = "Time: {0}\n\n" \
                 "Ignoring exception in command {1}:\n\n" \
