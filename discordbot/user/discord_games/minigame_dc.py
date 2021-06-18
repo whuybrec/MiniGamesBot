@@ -33,9 +33,12 @@ class MinigameDisc:
         await self.end_game()
 
     async def on_bot_restart(self):
-        await self.clear_reactions()
-        await MessageManager.edit_message(self.message,
-                                          self.get_content() + "\n\nSorry! I received an update and have to restart.")
+        try:
+            await self.clear_reactions()
+            await MessageManager.edit_message(self.message,
+                                              self.get_content() + "\n\nSorry! I received an update and have to restart.")
+        except:
+            pass
 
     async def clear_reactions(self):
         await MessageManager.clear_reactions(self.message)
