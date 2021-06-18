@@ -72,7 +72,7 @@ class QuizDiscord(MinigameDisc):
         self.answers.insert(self.correct_answer, quiz['correct_answer'])
 
     async def on_player_timed_out(self):
-        self.player.set_idle()
+        self.player.unfinished += 1
         if not self.selecting_category:
             self.player.losses += 1
         await self.end_game()

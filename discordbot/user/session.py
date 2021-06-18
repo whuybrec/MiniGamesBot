@@ -20,7 +20,6 @@ class Session:
         for player in players:
             self.players.append(Player(player))
 
-        self.games_played = 0
         self.ticket = None
         self.minigame = None
         self.stopwatch = Stopwatch()
@@ -30,7 +29,6 @@ class Session:
         self.stopwatch.start()
 
         self.minigame = self.game_manager.minigames[self.minigame_name](self)
-        self.games_played += 1
 
         try:
             await self.minigame.start_game()
@@ -66,25 +64,25 @@ class Session:
             return
 
         # save data to DB
-        wins = losses = draws = 0
-        timeout = False
         for player in self.players:
-            wins += player.wins
-            losses += player.losses
-            draws += player.draws
-            timeout = timeout or player.is_idle()
+            total_played = player.wins + player.losses + player.draws + player.unfinished
             self.game_manager.add_player_stats_to_db(
-                player.id, f"\"{self.minigame_name}\"", self.games_played,
+                player.id, f"\"{self.minigame_name}\"", total_played,
                 player.wins, player.losses, player.draws,
                 self.stopwatch.get_total_time(),
-                player.is_idle()
+                player.unfinished
             )
 
+        total_wins = sum([player.wins for player in self.players])
+        total_losses = sum([player.losses for player in self.players])
+        total_draws = sum([player.draws for player in self.players])
+        total_unfinished = sum([player.unfinished for player in self.players])
+        total_played = total_wins + total_losses + total_draws + total_unfinished
         self.game_manager.add_minigame_stats_to_db(
-            self.message.channel.guild.id, f"\"{self.minigame_name}\"", self.games_played,
-            wins, losses, draws,
+            self.message.channel.guild.id, f"\"{self.minigame_name}\"", total_played,
+            total_wins, total_losses, total_draws,
             self.stopwatch.get_total_time(),
-            timeout
+            total_unfinished
         )
 
         self.game_manager.close_session(self)
@@ -100,9 +98,10 @@ class Session:
 
     def get_summary(self):
         summary = "```\n"
-        lst = [["Player", "Wins", "Losses", "Draws", "Total played"]]
+        lst = [["Player", "Wins", "Losses", "Draws", "Unfinished", "Total played"]]
         for player in self.players:
-            lst.append([player.name, player.wins, player.losses, player.draws, self.games_played])
+            total_played = player.wins + player.losses + player.draws + player.unfinished
+            lst.append([player.name, player.wins, player.losses, player.draws, player.unfinished, total_played])
         table = create_table(*lst)
         summary += table
         summary += f"\nSession Time: {datetime.timedelta(seconds=self.stopwatch.get_total_time())}\n```"

@@ -43,7 +43,7 @@ class MinigameDisc:
             await MessageManager.clear_reactions(self.extra_message)
 
     async def on_player_timed_out(self):
-        self.players[self.turn].set_idle()
+        self.players[self.turn].unfinished += 1
         self.players[self.turn].losses += 1
         await self.end_game()
 

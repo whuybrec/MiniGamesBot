@@ -31,7 +31,7 @@ class DatabaseManager:
                 "draws integer",
                 "total_games integer",
                 "time_played integer",
-                "timeout boolean"
+                "unfinished integer"
             ],
             [
                 "player_id",
@@ -50,7 +50,7 @@ class DatabaseManager:
                 "draws integer",
                 "total_games",
                 "time_played integer",
-                "timeout boolean"
+                "unfinished integer"
             ],
             [
                 "server_id",
@@ -73,7 +73,7 @@ class DatabaseManager:
         )
 
     @classmethod
-    def add_to_players_table(cls, player_id, minigame, total_games, wins, losses, draws, time_played, timeout):
+    def add_to_players_table(cls, player_id, minigame, total_games, wins, losses, draws, time_played, unfinished):
         data = dict()
         data["player_id"] = player_id
         data["minigame"] = minigame
@@ -83,11 +83,11 @@ class DatabaseManager:
         data["draws"] = draws
         data["total_games"] = total_games
         data["time_played"] = time_played
-        data["timeout"] = timeout
+        data["unfinished"] = unfinished
         cls.database.write("players", data)
 
     @classmethod
-    def add_to_minigames_table(cls, server_id, minigame, total_games, wins, losses, draws, time_played, timeout):
+    def add_to_minigames_table(cls, server_id, minigame, total_games, wins, losses, draws, time_played, unfinished):
         data = dict()
         data["server_id"] = server_id
         data["minigame"] = minigame
@@ -97,7 +97,7 @@ class DatabaseManager:
         data["draws"] = draws
         data["total_games"] = total_games
         data["time_played"] = time_played
-        data["timeout"] = timeout
+        data["unfinished"] = unfinished
         cls.database.write("minigames", data)
 
     @classmethod
@@ -112,7 +112,7 @@ class DatabaseManager:
 
     @classmethod
     def get_all_time_stats_for_player(cls, player_id):
-        q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(timeout), SUM(time_played) " \
+        q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(unfinished), SUM(time_played) " \
             "FROM players " \
             "WHERE player_id={0} " \
             "GROUP BY minigame;".format(player_id)
@@ -120,7 +120,7 @@ class DatabaseManager:
 
     @classmethod
     def get_stats_for_player_of_day(cls, player_id, date_):
-        q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(timeout), SUM(time_played) " \
+        q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(unfinished), SUM(time_played) " \
             "FROM players " \
             "WHERE player_id={0} AND strftime('%Y-%m-%d', time_stamp, 'unixepoch', 'localtime')='{1}' " \
             "GROUP BY minigame;".format(player_id, date_)
@@ -128,7 +128,7 @@ class DatabaseManager:
 
     @classmethod
     def get_stats_for_player_of_week(cls, player_id, date_):
-        q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(timeout), SUM(time_played) " \
+        q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(unfinished), SUM(time_played) " \
             "FROM players " \
             "WHERE player_id={0} AND strftime('%W', time_stamp, 'unixepoch', 'localtime')='{1}'" \
             "GROUP BY minigame".format(player_id, date_.strftime('%W'))
@@ -136,7 +136,7 @@ class DatabaseManager:
 
     @classmethod
     def get_stats_for_player_of_month(cls, player_id, date_):
-        q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(timeout), SUM(time_played) " \
+        q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(unfinished), SUM(time_played) " \
             "FROM players " \
             "WHERE player_id={0} AND strftime('%Y-%m', time_stamp, 'unixepoch', 'localtime')='{1}' " \
             "GROUP BY minigame;".format(player_id, date_)
@@ -144,7 +144,7 @@ class DatabaseManager:
 
     @classmethod
     def get_stats_for_player_of_year(cls, player_id, year):
-        q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(timeout), SUM(time_played) " \
+        q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(unfinished), SUM(time_played) " \
             "FROM players " \
             "WHERE player_id={0} AND strftime('%Y', time_stamp, 'unixepoch', 'localtime')='{1}' " \
             "GROUP BY minigame;".format(player_id, year)
@@ -178,14 +178,14 @@ class DatabaseManager:
 
     @classmethod
     def get_all_time_stats_for_minigames(cls):
-        q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(timeout), SUM(time_played) " \
+        q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(unfinished), SUM(time_played) " \
             "FROM minigames " \
             "GROUP BY minigame;"
         return cls.query(q)
 
     @classmethod
     def get_stats_for_minigames_of_day(cls, date_):
-        q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(timeout), SUM(time_played) " \
+        q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(unfinished), SUM(time_played) " \
             "FROM minigames " \
             "WHERE strftime('%Y-%m-%d', time_stamp, 'unixepoch', 'localtime')='{0}'" \
             "GROUP BY minigame".format(date_.strftime('%Y-%m-%d'))
@@ -193,7 +193,7 @@ class DatabaseManager:
 
     @classmethod
     def get_stats_for_minigames_of_week(cls, date_):
-        q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(timeout), SUM(time_played) " \
+        q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(unfinished), SUM(time_played) " \
             "FROM minigames " \
             "WHERE strftime('%W', time_stamp, 'unixepoch', 'localtime')='{0}'" \
             "GROUP BY minigame".format(date_.strftime('%W'))
@@ -201,7 +201,7 @@ class DatabaseManager:
 
     @classmethod
     def get_stats_for_minigames_of_month(cls, date_):
-        q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(timeout), SUM(time_played) " \
+        q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(unfinished), SUM(time_played) " \
             "FROM minigames " \
             "WHERE strftime('%Y-%m', time_stamp, 'unixepoch', 'localtime')='{0}'" \
             "GROUP BY minigame;".format(date_.strftime('%Y-%m'))
@@ -209,7 +209,7 @@ class DatabaseManager:
 
     @classmethod
     def get_stats_for_minigames_of_year(cls, date_):
-        q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(timeout), SUM(time_played) " \
+        q = "SELECT minigame, SUM(wins), SUM(losses), SUM(draws), SUM(total_games), SUM(unfinished), SUM(time_played) " \
             "FROM minigames " \
             "WHERE strftime('%Y', time_stamp, 'unixepoch', 'localtime')='{0}'" \
             "GROUP BY minigame;".format(date_.strftime('%Y'))

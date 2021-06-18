@@ -54,7 +54,7 @@ class AkinatorDiscord(MinigameDisc):
             self.start_timer()
 
     async def on_player_timed_out(self):
-        self.player.set_idle()
+        self.player.unfinished += 1
         await self.end_game()
 
     async def on_stop_reaction(self):

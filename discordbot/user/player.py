@@ -6,10 +6,4 @@ class Player:
         self.wins = 0
         self.losses = 0
         self.draws = 0
-        self.idle = False
-
-    def is_idle(self):
-        return self.idle
-
-    def set_idle(self):
-        self.idle = True
+        self.unfinished = 0
