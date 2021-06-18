@@ -76,13 +76,11 @@ class Session:
         total_wins = sum([player.wins for player in self.players])
         total_losses = sum([player.losses for player in self.players])
         total_draws = sum([player.draws for player in self.players])
-        total_unfinished = sum([player.unfinished for player in self.players])
-        total_played = total_wins + total_losses + total_draws
         self.game_manager.add_minigame_stats_to_db(
-            self.message.channel.guild.id, f"\"{self.minigame_name}\"", total_played,
+            self.message.channel.guild.id, f"\"{self.minigame_name}\"", self.players[0].get_total_played_games(),
             total_wins, total_losses, total_draws,
             self.stopwatch.get_total_time(),
-            total_unfinished
+            self.players[0].unfinished
         )
 
         self.game_manager.close_session(self)

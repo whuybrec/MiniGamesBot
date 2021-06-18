@@ -63,6 +63,7 @@ class Connect4Discord(MinigameDisc):
 
     async def on_player_timed_out(self):
         self.players[self.turn].unfinished += 1
+        self.players[(self.turn + 1) % 2].unfinished += 1
         self.players[self.turn].losses += 1
         self.players[(self.turn + 1) % 2].wins += 1
         await self.end_game()

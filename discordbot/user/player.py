@@ -7,3 +7,6 @@ class Player:
         self.losses = 0
         self.draws = 0
         self.unfinished = 0
+
+    def get_total_played_games(self):
+        return self.wins + self.losses + self.draws

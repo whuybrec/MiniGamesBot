@@ -58,5 +58,5 @@ class GameManager:
         cls.bot.db.add_to_players_table(player_id, minigame, games_played, wins, losses, draws, time, is_idle)
 
     @classmethod
-    def add_minigame_stats_to_db(cls, server_id, minigame, games_played, wins, losses, draws, time, timeout):
-        cls.bot.db.add_to_minigames_table(server_id, minigame, games_played, wins, losses, draws, time, timeout)
+    def add_minigame_stats_to_db(cls, server_id, minigame, games_played, wins, losses, draws, time, unfinished):
+        cls.bot.db.add_to_minigames_table(server_id, minigame, games_played, wins, losses, draws, time, unfinished)
