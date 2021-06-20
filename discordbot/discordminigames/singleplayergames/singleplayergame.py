@@ -6,6 +6,7 @@ WON = 1         # player has won the game
 LOST = 2        # player has lost the game
 DRAW = 3        # player has drawn in the game
 QUIT = 4        # player force quit the game or was idle for too long
+UNFINISHED = 5
 
 
 class SinglePlayerGame(DiscordMinigame):
@@ -29,6 +30,8 @@ class SinglePlayerGame(DiscordMinigame):
         elif self.game_state == QUIT:
             self.player.did_not_finish()
             self.player.lose()
+        elif self.game_state == UNFINISHED:
+            self.player.did_not_finish()
 
         await self.clear_reactions()
         await self.session.pause()

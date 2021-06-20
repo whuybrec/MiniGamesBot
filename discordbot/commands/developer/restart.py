@@ -36,15 +36,15 @@ class RestartCommand(Command):
 
         try:
             reaction, user = await cls.bot.wait_for("reaction_add", check=check, timeout=60.0)
-            if reaction.emoji == NUMBERS[1]:
-                await context.send(f"Force restarting...")
-            elif reaction.emoji == NUMBERS[2]:
-                await context.send(f"Smart restarting...")
-                start_time = time.time()
-                while cls.bot.game_manager.has_open_sessions() and time.time() - start_time < 60 * 10:
-                    await asyncio.sleep(10)
         except TimeoutError:
-            pass
+            return
+        if reaction.emoji == NUMBERS[1]:
+            await context.send(f"Force restarting...")
+        elif reaction.emoji == NUMBERS[2]:
+            await context.send(f"Smart restarting...")
+            start_time = time.time()
+            while cls.bot.game_manager.has_open_sessions() and time.time() - start_time < 60 * 10:
+                await asyncio.sleep(10)
 
         try:
             await cls.bot.game_manager.on_bot_restart()

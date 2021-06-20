@@ -1,6 +1,9 @@
+import json.decoder
+
+import akinator.exceptions
 from akinator.async_aki import Akinator
 
-from discordbot.discordminigames.singleplayergames.singleplayergame import SinglePlayerGame
+from discordbot.discordminigames.singleplayergames.singleplayergame import SinglePlayerGame, UNFINISHED
 from discordbot.messagemanager import MessageManager
 from discordbot.utils.emojis import ALPHABET, STOP, QUESTION
 
@@ -22,30 +25,29 @@ class AkinatorDiscord(SinglePlayerGame):
 
     async def on_yes_reaction(self):
         self.on_start_move()
-
-        await self.akinator.answer(0)
         await MessageManager.remove_reaction(self.message, ALPHABET["y"], self.player.member)
-        await self.check_akinator_guess()
+        await self.answer(0)
 
     async def on_no_reaction(self):
         self.on_start_move()
-
-        await self.akinator.answer(1)
         await MessageManager.remove_reaction(self.message, ALPHABET["n"], self.player.member)
-        await self.check_akinator_guess()
+        await self.answer(1)
 
     async def on_dontknow_reaction(self):
         self.on_start_move()
-
-        await self.akinator.answer(2)
         await MessageManager.remove_reaction(self.message, QUESTION, self.player.member)
-        await self.check_akinator_guess()
+        await self.answer(2)
 
-    async def check_akinator_guess(self):
-        await MessageManager.edit_message(self.session.message, self.get_board())
-        if self.akinator.progression >= 80 or self.akinator.step == 80:
-            await self.akinator.win()
-            self.guessed = True
+    async def answer(self, answer):
+        try:
+            await self.akinator.answer(answer)
+            await MessageManager.edit_message(self.session.message, self.get_board())
+            if self.akinator.progression >= 80 or self.akinator.step == 79:
+                await self.akinator.win()
+                self.guessed = True
+                self.game_state = -1
+                await self.end_game()
+        except (akinator.exceptions.AkiTimedOut, json.decoder.JSONDecodeError):
             self.game_state = -1
             await self.end_game()
 
@@ -56,5 +58,5 @@ class AkinatorDiscord(SinglePlayerGame):
         return content
 
     async def on_quit_game(self):
-        self.game_state = -1
+        self.game_state = UNFINISHED
         await self.end_game()
