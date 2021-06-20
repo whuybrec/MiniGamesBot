@@ -279,6 +279,8 @@ class MiniGamesBot(Bot):
         return missing_permissions
 
     async def send_missing_permissions(self, context, missing_permissions):
+        if len(missing_permissions) == 0:
+            return
         content = "I am missing the following permissions in this channel. Please enable these so the bot can work properly:\n"
         for missing_permission in missing_permissions:
             content += f"- {missing_permission}\n"
