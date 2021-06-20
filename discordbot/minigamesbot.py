@@ -205,6 +205,10 @@ class MiniGamesBot(Bot):
             self.remove_old_binaries()
             await asyncio.sleep(60 * 30)
 
+    async def on_restart(self):
+        await self.db.update()
+        await self.save_prefixes()
+
     async def change_status(self):
         n = random.randint(0, len(MINIGAMES) - 1)
         game = discord.Game(MINIGAMES[n])

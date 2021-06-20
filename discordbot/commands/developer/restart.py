@@ -21,6 +21,7 @@ class RestartCommand(Command):
 
         if not cls.bot.game_manager.has_open_sessions():
             await context.send(f"Be right back!\n")
+            await cls.bot.on_restart()
             await cls.bot.close()
             return
 
@@ -51,6 +52,7 @@ class RestartCommand(Command):
             print(e)
         await context.send(f"Restarting...")
         print("Restarting...")
+        await cls.bot.on_restart()
         await cls.bot.close()
 
     @classmethod
