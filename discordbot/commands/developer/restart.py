@@ -45,7 +45,10 @@ class RestartCommand(Command):
         except TimeoutError:
             pass
 
-        await cls.bot.game_manager.on_bot_restart()
+        try:
+            await cls.bot.game_manager.on_bot_restart()
+        except Exception as e:
+            print(e)
         await context.send(f"Restarting...")
         print("Restarting...")
         await cls.bot.close()
