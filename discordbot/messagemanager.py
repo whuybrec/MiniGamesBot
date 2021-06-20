@@ -20,7 +20,7 @@ class MessageManager:
                 message = await channel.fetch_message(message.id)
                 await message.edit(content=content)
         except Exception as e:
-            await cls.bot.on_error("EDIT MESSAGE", e)
+            await cls.bot.on_error(f"EDIT MESSAGE of message_id: {message.id}", e)
 
     @classmethod
     async def delete_message(cls, message):
@@ -32,7 +32,7 @@ class MessageManager:
                 message = await channel.fetch_message(message.id)
                 await message.delete()
         except Exception as e:
-            await cls.bot.on_error("DELETE MESSAGE", e)
+            await cls.bot.on_error(f"DELETE MESSAGE of message_id: {message.id}", e)
 
     @classmethod
     async def add_reaction(cls, message, emoji):
@@ -44,7 +44,7 @@ class MessageManager:
                 message = await channel.fetch_message(message.id)
                 await message.add_reaction(emoji)
         except Exception as e:
-            await cls.bot.on_error("ADD REACTION", e)
+            await cls.bot.on_error(f"ADD REACTION of message_id: {message.id}", e)
 
     @classmethod
     async def add_reaction_event(cls, message, emoji, user_id, handler, *args):
@@ -66,7 +66,7 @@ class MessageManager:
                 message = await channel.fetch_message(message.id)
                 await message.remove_reaction(emoji, user)
         except Exception as e:
-            await cls.bot.on_error("REMOVE REACTION", e)
+            await cls.bot.on_error(f"REMOVE REACTION of message_id: {message.id}", e)
 
     @classmethod
     async def clear_reaction(cls, message, emoji):
@@ -85,7 +85,7 @@ class MessageManager:
                 message = await channel.fetch_message(message.id)
                 await message.clear_reaction(emoji)
         except Exception as e:
-            await cls.bot.on_error("CLEAR REACTION", e)
+            await cls.bot.on_error(f"CLEAR REACTION of message_id: {message.id}", e)
 
     @classmethod
     async def clear_reactions(cls, message):
@@ -104,7 +104,7 @@ class MessageManager:
                 message = await channel.fetch_message(message.id)
                 await message.clear_reactions()
         except Exception as e:
-            await cls.bot.on_error("CLEAR REACTIONS", e)
+            await cls.bot.on_error(f"CLEAR REACTIONS of message_id: {message.id}", e)
 
     @classmethod
     async def on_raw_reaction(cls, payload):
