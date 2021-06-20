@@ -37,15 +37,11 @@ class MiniGamesBot(Bot):
 
         self.called_on_ready = False
         self.ctx = None
-        self.has_update = False
         self.uptime = time.time()
         self.prefixes = {}
         self.my_commands = []
         self.scheduler = Scheduler()
-        self.game_manager = GameManager
-        self.db = DatabaseManager
-        self.lexicon = Lexicon
-        self.message_manager = MessageManager
+        self.game_manager = GameManager()
 
         # load commands
         self.categories = [
@@ -57,22 +53,17 @@ class MiniGamesBot(Bot):
         self.load_commands()
 
         # load managers
-        self.game_manager.on_startup(self)
+        self.db = DatabaseManager
+        self.lexicon = Lexicon
+        self.message_manager = MessageManager
         self.db.on_startup(self)
         self.lexicon.on_startup()
         self.message_manager.on_startup(self)
 
         # load prefixes
-        try:
-            file = open(PREFIXES_FILE)
-            json_strings = file.read()
-            self.prefixes = json.loads(json_strings)
-        except FileNotFoundError:
-            file = open(PREFIXES_FILE, 'w')
-            prefixes_json = json.dumps(self.prefixes)
-            file.write(prefixes_json)
-        file.close()
+        self.load_prefixes()
 
+        self.scheduler.add(10, self.game_manager.close_inactive_sessions)
         self.scheduler.add(20, self.routine_updates)
 
         # REMOVE THIS TRY EXCEPT
@@ -119,6 +110,17 @@ class MiniGamesBot(Bot):
                                'Type **?help** for a list of possible commands.'.format(guild.name))
         channel = await self.fetch_channel(DISCORD["STACK_CHANNEL"])
         await channel.send("JOINED GUILD '{0}' ({1}).".format(guild.name, guild.id))
+
+    def load_prefixes(self):
+        try:
+            file = open(PREFIXES_FILE)
+            json_strings = file.read()
+            self.prefixes = json.loads(json_strings)
+        except FileNotFoundError:
+            file = open(PREFIXES_FILE, 'w')
+            prefixes_json = json.dumps(self.prefixes)
+            file.write(prefixes_json)
+        file.close()
 
     def load_commands(self):
         modules = self.get_modules(os.path.join(os.getcwd(), "discordbot", "commands"), "discordbot.commands")

@@ -1,6 +1,7 @@
 from discordbot.categories.minigames import Minigames
 from discordbot.commands.command import Command
-from discordbot.gamemanager import GameManager
+from discordbot.discordminigames.multiplayergames.connect4_dc import Connect4Discord
+from discordbot.user.multiplayersession import MultiPlayerSession
 
 
 class Connect4Command(Command):
@@ -30,4 +31,5 @@ class Connect4Command(Command):
             return
 
         message = await context.send("Starting **connect4** minigame")
-        await GameManager.create_session(message, "connect4", context.author, player2)
+        session = MultiPlayerSession(message, "connect4", Connect4Discord, context.author, player2)
+        await cls.bot.game_manager.start_session(session)

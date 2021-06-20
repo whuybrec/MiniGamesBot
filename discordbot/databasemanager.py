@@ -73,40 +73,16 @@ class DatabaseManager:
         )
 
     @classmethod
-    def add_to_players_table(cls, player_id, minigame, total_games, wins, losses, draws, time_played, unfinished):
-        data = dict()
-        data["player_id"] = player_id
-        data["minigame"] = minigame
-        data["time_stamp"] = time()
-        data["wins"] = wins
-        data["losses"] = losses
-        data["draws"] = draws
-        data["total_games"] = total_games
-        data["time_played"] = time_played
-        data["unfinished"] = unfinished
+    def add_to_players_table(cls, data):
         cls.database.write("players", data)
 
     @classmethod
-    def add_to_minigames_table(cls, server_id, minigame, total_games, wins, losses, draws, time_played, unfinished):
-        data = dict()
-        data["server_id"] = server_id
-        data["minigame"] = minigame
-        data["time_stamp"] = time()
-        data["wins"] = wins
-        data["losses"] = losses
-        data["draws"] = draws
-        data["total_games"] = total_games
-        data["time_played"] = time_played
-        data["unfinished"] = unfinished
+    def add_to_minigames_table(cls, data):
         cls.database.write("minigames", data)
 
     @classmethod
     def add_to_servers_table(cls, server_id, event):
-        data = dict()
-        data["server_id"] = server_id
-        data["time_stamp"] = time()
-        data["event"] = event
-        cls.database.write("servers", data)
+        cls.database.write("servers", {"server_id": server_id, "time_stamp": time(), "event": event})
 
     # PLAYERS
 

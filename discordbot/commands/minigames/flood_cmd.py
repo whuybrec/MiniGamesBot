@@ -1,6 +1,7 @@
 from discordbot.categories.minigames import Minigames
 from discordbot.commands.command import Command
-from discordbot.gamemanager import GameManager
+from discordbot.discordminigames.singleplayergames.flood_dc import FloodDiscord
+from discordbot.user.singleplayersession import SinglePlayerSession
 
 
 class FloodCommand(Command):
@@ -15,4 +16,5 @@ class FloodCommand(Command):
     async def invoke(cls, context):
         message = await context.send("Starting **flood** minigame")
 
-        await GameManager.create_session(message, "flood", context.author)
+        session = SinglePlayerSession(message, "flood", FloodDiscord, context.author)
+        await cls.bot.game_manager.start_session(session)

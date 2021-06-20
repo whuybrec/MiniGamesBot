@@ -1,6 +1,7 @@
 from discordbot.categories.minigames import Minigames
 from discordbot.commands.command import Command
-from discordbot.gamemanager import GameManager
+from discordbot.discordminigames.singleplayergames.quiz_dc import QuizDiscord
+from discordbot.user.singleplayersession import SinglePlayerSession
 
 
 class QuizCommand(Command):
@@ -15,4 +16,5 @@ class QuizCommand(Command):
     async def invoke(cls, context):
         message = await context.send("Starting **quiz**")
 
-        await GameManager.create_session(message, "quiz", context.author)
+        session = SinglePlayerSession(message, "quiz", QuizDiscord, context.author)
+        await cls.bot.game_manager.start_session(session)

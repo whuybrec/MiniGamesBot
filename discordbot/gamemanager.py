@@ -1,62 +1,32 @@
-from discordbot.messagemanager import MessageManager
-from discordbot.user.discord_games import *
-from discordbot.user.session import Session
+import asyncio
 
 
 class GameManager:
-    bot = None
-    scheduler = None
-    open_sessions = list()
+    def __init__(self):
+        self.sessions = list()
 
-    minigames = {
-        "scramble": ScrambleDiscord,
-        "quiz": QuizDiscord,
-        "mastermind": MastermindDiscord,
-        "hangman": HangmanDiscord,
-        "flood": FloodDiscord,
-        "blackjack": BlackjackDiscord,
-        "akinator": AkinatorDiscord,
-        "chess": ChessDiscord,
-        "connect4": Connect4Discord
-    }
-
-    @classmethod
-    def on_startup(cls, bot):
-        cls.bot = bot
-        cls.scheduler = cls.bot.scheduler
-
-    @classmethod
-    async def on_bot_restart(cls):
-        for session in cls.open_sessions:
+    async def on_bot_restart(self):
+        for session in self.sessions:
             await session.on_bot_restart()
 
-    @classmethod
-    def has_open_sessions(cls):
-        return len(cls.open_sessions) > 0
+    def has_open_sessions(self):
+        return len(self.sessions) > 0
 
-    @classmethod
-    async def create_session(cls, message, minigame, *players):
-        session = Session(cls, message, minigame, *players)
-        await cls.start_session(session)
+    async def start_session(self, session):
+        self.sessions.append(session)
+        await session.start_game()
 
-    @classmethod
-    async def start_session(cls, session):
-        if cls.bot.has_update:
-            await MessageManager.edit_message(session.message,
-                                              "Sorry! I can't start any new games right now. Boss says I have to restart soon:tm:. Try again later!")
-            return
+    def close_session(self, session):
+        self.sessions.remove(session)
 
-        cls.open_sessions.append(session)
-        await session.start()
+    def on_pending_update(self):
+        for session in self.sessions:
+            session.on_pending_update()
 
-    @classmethod
-    def close_session(cls, session):
-        cls.open_sessions.remove(session)
-
-    @classmethod
-    def add_player_stats_to_db(cls, player_id, minigame, games_played, wins, losses, draws, time, is_idle):
-        cls.bot.db.add_to_players_table(player_id, minigame, games_played, wins, losses, draws, time, is_idle)
-
-    @classmethod
-    def add_minigame_stats_to_db(cls, server_id, minigame, games_played, wins, losses, draws, time, unfinished):
-        cls.bot.db.add_to_minigames_table(server_id, minigame, games_played, wins, losses, draws, time, unfinished)
+    async def close_inactive_sessions(self):
+        while True:
+            for session in self.sessions:
+                if await session.is_inactive():
+                    await session.close()
+                    self.close_session(session)
+            await asyncio.sleep(60 * 5)

@@ -19,7 +19,6 @@ class RestartCommand(Command):
         if not cls.has_permission(context.message.author.id):
             return
 
-        cls.bot.has_update = True
         if not cls.bot.game_manager.has_open_sessions():
             await context.send(f"Be right back!\n")
             await cls.bot.close()

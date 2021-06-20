@@ -1,7 +1,3 @@
-import discord.errors
-from discord.ext.commands import CommandInvokeError
-
-
 class MessageManager:
     reaction_events = dict()
     bot = None
@@ -17,29 +13,38 @@ class MessageManager:
     @classmethod
     async def edit_message(cls, message, content):
         try:
-            await message.edit(content=content)
-        except (discord.errors.NotFound, CommandInvokeError):
-            channel = await cls.bot.fetch_channel(message.channel.id)
-            message = await channel.fetch_message(message.id)
-            await message.edit(content=content)
+            if message in cls.bot.cached_messages:
+                await message.edit(content=content)
+            else:
+                channel = await cls.bot.fetch_channel(message.channel.id)
+                message = await channel.fetch_message(message.id)
+                await message.edit(content=content)
+        except Exception as e:
+            await cls.bot.on_error("EDIT MESSAGE", e)
 
     @classmethod
     async def delete_message(cls, message):
         try:
-            await message.delete()
-        except (discord.errors.NotFound, CommandInvokeError):
-            channel = await cls.bot.fetch_channel(message.channel.id)
-            message = await channel.fetch_message(message.id)
-            await message.delete()
+            if message in cls.bot.cached_messages:
+                await message.delete()
+            else:
+                channel = await cls.bot.fetch_channel(message.channel.id)
+                message = await channel.fetch_message(message.id)
+                await message.delete()
+        except Exception as e:
+            await cls.bot.on_error("DELETE MESSAGE", e)
 
     @classmethod
     async def add_reaction(cls, message, emoji):
         try:
-            await message.add_reaction(emoji)
-        except (discord.errors.NotFound, CommandInvokeError):
-            channel = await cls.bot.fetch_channel(message.channel.id)
-            message = await channel.fetch_message(message.id)
-            await message.add_reaction(emoji)
+            if message in cls.bot.cached_messages:
+                await message.add_reaction(emoji)
+            else:
+                channel = await cls.bot.fetch_channel(message.channel.id)
+                message = await channel.fetch_message(message.id)
+                await message.add_reaction(emoji)
+        except Exception as e:
+            await cls.bot.on_error("ADD REACTION", e)
 
     @classmethod
     async def add_reaction_event(cls, message, emoji, user_id, handler, *args):
@@ -54,11 +59,14 @@ class MessageManager:
     @classmethod
     async def remove_reaction(cls, message, emoji, user):
         try:
-            await message.remove_reaction(emoji, user)
-        except (discord.errors.NotFound, CommandInvokeError):
-            channel = await cls.bot.fetch_channel(message.channel.id)
-            message = await channel.fetch_message(message.id)
-            await message.remove_reaction(emoji, user)
+            if message in cls.bot.cached_messages:
+                await message.remove_reaction(emoji, user)
+            else:
+                channel = await cls.bot.fetch_channel(message.channel.id)
+                message = await channel.fetch_message(message.id)
+                await message.remove_reaction(emoji, user)
+        except Exception as e:
+            await cls.bot.on_error("REMOVE REACTION", e)
 
     @classmethod
     async def clear_reaction(cls, message, emoji):
@@ -70,11 +78,14 @@ class MessageManager:
             cls.reaction_events.pop(container)
 
         try:
-            await message.clear_reaction(emoji)
-        except (discord.errors.NotFound, CommandInvokeError):
-            channel = await cls.bot.fetch_channel(message.channel.id)
-            message = await channel.fetch_message(message.id)
-            await message.clear_reaction(emoji)
+            if message in cls.bot.cached_messages:
+                await message.clear_reaction(emoji)
+            else:
+                channel = await cls.bot.fetch_channel(message.channel.id)
+                message = await channel.fetch_message(message.id)
+                await message.clear_reaction(emoji)
+        except Exception as e:
+            await cls.bot.on_error("CLEAR REACTION", e)
 
     @classmethod
     async def clear_reactions(cls, message):
@@ -86,11 +97,14 @@ class MessageManager:
             cls.reaction_events.pop(container)
 
         try:
-            await message.clear_reactions()
-        except (discord.errors.NotFound, CommandInvokeError):
-            channel = await cls.bot.fetch_channel(message.channel.id)
-            message = await channel.fetch_message(message.id)
-            await message.clear_reactions()
+            if message in cls.bot.cached_messages:
+                await message.clear_reactions()
+            else:
+                channel = await cls.bot.fetch_channel(message.channel.id)
+                message = await channel.fetch_message(message.id)
+                await message.clear_reactions()
+        except Exception as e:
+            await cls.bot.on_error("CLEAR REACTIONS", e)
 
     @classmethod
     async def on_raw_reaction(cls, payload):

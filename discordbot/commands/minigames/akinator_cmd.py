@@ -1,6 +1,7 @@
 from discordbot.categories.minigames import Minigames
 from discordbot.commands.command import Command
-from discordbot.gamemanager import GameManager
+from discordbot.discordminigames.singleplayergames.akinator_dc import AkinatorDiscord
+from discordbot.user.singleplayersession import SinglePlayerSession
 
 
 class AkinatorCommand(Command):
@@ -15,4 +16,5 @@ class AkinatorCommand(Command):
     async def invoke(cls, context):
         message = await context.send("Starting **akinator** minigame")
 
-        await GameManager.create_session(message, "akinator", context.author)
+        session = SinglePlayerSession(message, "akinator", AkinatorDiscord, context.author)
+        await cls.bot.game_manager.start_session(session)

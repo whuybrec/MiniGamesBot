@@ -1,6 +1,7 @@
 from discordbot.categories.minigames import Minigames
 from discordbot.commands.command import Command
-from discordbot.gamemanager import GameManager
+from discordbot.discordminigames.singleplayergames.mastermind_dc import MastermindDiscord
+from discordbot.user.singleplayersession import SinglePlayerSession
 
 
 class MastermindCommand(Command):
@@ -15,4 +16,5 @@ class MastermindCommand(Command):
     async def invoke(cls, context):
         message = await context.send("Starting **mastermind** minigame")
 
-        await GameManager.create_session(message, "mastermind", context.author)
+        session = SinglePlayerSession(message, "mastermind", MastermindDiscord, context.author)
+        await cls.bot.game_manager.start_session(session)

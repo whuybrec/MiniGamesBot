@@ -1,6 +1,7 @@
 from discordbot.categories.minigames import Minigames
 from discordbot.commands.command import Command
-from discordbot.gamemanager import GameManager
+from discordbot.discordminigames.singleplayergames.scramble_dc import ScrambleDiscord
+from discordbot.user.singleplayersession import SinglePlayerSession
 
 
 class ScrambleCommand(Command):
@@ -15,4 +16,5 @@ class ScrambleCommand(Command):
     async def invoke(cls, context):
         message = await context.send("Starting **scramble** minigame")
 
-        await GameManager.create_session(message, "scramble", context.author)
+        session = SinglePlayerSession(message, "scramble", ScrambleDiscord, context.author)
+        await cls.bot.game_manager.start_session(session)

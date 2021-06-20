@@ -1,6 +1,7 @@
 from discordbot.categories.minigames import Minigames
 from discordbot.commands.command import Command
-from discordbot.gamemanager import GameManager
+from discordbot.discordminigames.multiplayergames.chess_dc import ChessDiscord
+from discordbot.user.multiplayersession import MultiPlayerSession
 
 
 class ChessCommand(Command):
@@ -30,4 +31,5 @@ class ChessCommand(Command):
             return
 
         message = await context.send("Starting **chess** minigame")
-        await GameManager.create_session(message, "chess", context.author, player2)
+        session = MultiPlayerSession(message, "chess", ChessDiscord, context.author, player2)
+        await cls.bot.game_manager.start_session(session)

@@ -1,54 +1,47 @@
+from discordbot.discordminigames.singleplayergames.singleplayergame import SinglePlayerGame, WON, LOST, QUIT
 from discordbot.messagemanager import MessageManager
-from discordbot.user.discord_games.minigame_dc import MinigameDisc
 from discordbot.utils.emojis import STOP, COLORS as COLORS_EMOJI, ARROW_LEFT, CHECKMARK, REPEAT
 from minigames.mastermind import Mastermind, COLORS
 
 
-class MastermindDiscord(MinigameDisc):
+class MastermindDiscord(SinglePlayerGame):
     def __init__(self, session):
         super().__init__(session)
         self.mastermind = Mastermind()
-        self.player = self.session.players[0]
         self.code = []
 
     async def start_game(self):
-        await MessageManager.edit_message(self.message, self.get_content())
+        await MessageManager.edit_message(self.message, self.get_board())
 
         for c in COLORS:
             await MessageManager.add_reaction_event(self.message, COLORS_EMOJI[c], self.player.id,
                                                     self.on_color_reaction, COLORS_EMOJI[c])
         await MessageManager.add_reaction_event(self.message, ARROW_LEFT, self.player.id, self.on_back_reaction)
         await MessageManager.add_reaction_event(self.message, CHECKMARK, self.player.id, self.on_checkmark_reaction)
-        await MessageManager.add_reaction_event(self.message, STOP, self.player.id, self.on_stop_reaction)
-
-        self.start_timer()
+        await MessageManager.add_reaction_event(self.message, STOP, self.player.id, self.on_quit_game)
 
     async def on_back_reaction(self):
-        self.cancel_timer()
+        self.on_start_move()
 
         await MessageManager.remove_reaction(self.message, ARROW_LEFT, self.player.member)
         if len(self.code) > 0:
             color = self.code[-1]
             await MessageManager.remove_reaction(self.message, COLORS_EMOJI[color], self.player.member)
             self.code.remove(color)
-            await MessageManager.edit_message(self.message, self.get_content())
-
-        self.start_timer()
+            await MessageManager.edit_message(self.message, self.get_board())
 
     async def on_color_reaction(self, color_emoji):
-        self.cancel_timer()
+        self.on_start_move()
 
         for color, emoji in COLORS_EMOJI.items():
             if emoji == color_emoji and color not in self.code and len(self.code) < 4:
                 self.code.append(color)
             elif emoji == color_emoji:
                 await MessageManager.remove_reaction(self.message, emoji, self.player.member)
-        await MessageManager.edit_message(self.message, self.get_content())
-
-        self.start_timer()
+        await MessageManager.edit_message(self.message, self.get_board())
 
     async def on_checkmark_reaction(self):
-        self.cancel_timer()
+        self.on_start_move()
 
         await MessageManager.remove_reaction(self.message, CHECKMARK, self.player.member)
         if len(self.code) == 4:
@@ -58,19 +51,15 @@ class MastermindDiscord(MinigameDisc):
             self.code = []
 
         if self.mastermind.has_won():
-            self.player.wins += 1
-            await self.end_game()
+            await self.game_won()
             return
         elif self.mastermind.has_lost():
-            self.player.losses += 1
-            await self.end_game()
+            await self.game_lost()
             return
 
-        await MessageManager.edit_message(self.message, self.get_content())
+        await MessageManager.edit_message(self.message, self.get_board())
 
-        self.start_timer()
-
-    def get_content(self):
+    def get_board(self):
         content = f"Lives: {self.mastermind.lives}\nYour guess:"
         for code in self.code:
             content += COLORS_EMOJI[code]
@@ -84,11 +73,11 @@ class MastermindDiscord(MinigameDisc):
                 content += CHECKMARK * history_[1]
                 content += REPEAT * history_[2]
                 content += "\n"
-        if self.finished:
-            if self.mastermind.has_won():
-                content += "You have won the game!"
-            else:
-                content += f"You have lost the game!\nThe code was: "
-                for color in self.mastermind.code:
-                    content += COLORS_EMOJI[color]
+
+        if self.game_state == WON:
+            content += "You have won the game!"
+        if self.game_state == LOST or self.game_state == QUIT:
+            content += f"You have lost the game!\nThe code was: "
+            for color in self.mastermind.code:
+                content += COLORS_EMOJI[color]
         return content
