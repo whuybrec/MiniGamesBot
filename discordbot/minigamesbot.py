@@ -25,6 +25,7 @@ from generic.scheduler import Scheduler
 from minigames.lexicon import Lexicon
 
 PREFIXES_FILE = "bin/server_prefixes.json"
+MAX_MESSAGE_LENGTH = 1900
 
 
 class MiniGamesBot(Bot):
@@ -40,7 +41,6 @@ class MiniGamesBot(Bot):
         self.uptime = time.time()
         self.prefixes = {}
         self.my_commands = []
-        self.scheduler = Scheduler()
         self.game_manager = GameManager()
 
         # load commands
@@ -49,20 +49,18 @@ class MiniGamesBot(Bot):
             Developer,
             Minigames
         ]
-
         self.load_commands()
 
         # load managers
-        self.db = DatabaseManager
-        self.lexicon = Lexicon
-        self.message_manager = MessageManager
-        self.db.on_startup(self)
-        self.lexicon.on_startup()
-        self.message_manager.on_startup(self)
+        DatabaseManager.on_startup(self)
+        Lexicon.on_startup()
+        MessageManager.on_startup(self)
 
         # load prefixes
         self.load_prefixes()
 
+        # setup scheduler
+        self.scheduler = Scheduler()
         self.scheduler.add(60, self.game_manager.close_inactive_sessions)
         self.scheduler.add(45, self.routine_updates)
 
@@ -98,12 +96,12 @@ class MiniGamesBot(Bot):
     async def on_guild_remove(self, guild):
         if guild.name is None:
             return
-        self.db.add_to_servers_table(guild.id, "\"LEAVE\"")
+        DatabaseManager.add_to_servers_table(guild.id, "\"LEAVE\"")
         channel = await self.fetch_channel(DISCORD["STACK_CHANNEL"])
         await channel.send("LEFT GUILD '{0}' ({1}).".format(guild.name, guild.id))
 
     async def on_guild_join(self, guild):
-        self.db.add_to_servers_table(guild.id, "\"JOIN\"")
+        DatabaseManager.add_to_servers_table(guild.id, "\"JOIN\"")
         general = find(lambda x: 'general' in x.name, guild.text_channels)
         if general and general.permissions_for(guild.me).send_messages:
             await general.send('Hello {0}! The command prefix for this bot is **?**.\n'
@@ -164,7 +162,6 @@ class MiniGamesBot(Bot):
         await channel.send(content[j * max_length:])
 
     async def send_formatted(self, content, channel_id=None):
-        max_length = 1900
         message_length = len(content)
         j = 0
         content = content[3:-3]
@@ -174,23 +171,20 @@ class MiniGamesBot(Bot):
         else:
             channel = self.ctx.channel
 
-        while max_length < message_length:
-            await channel.send("```\n" + content[j * max_length:(j + 1) * max_length] + "\n```")
-            message_length -= max_length
+        while MAX_MESSAGE_LENGTH < message_length:
+            await channel.send("```\n" + content[j * MAX_MESSAGE_LENGTH:(j + 1) * MAX_MESSAGE_LENGTH] + "\n```")
+            message_length -= MAX_MESSAGE_LENGTH
             j += 1
 
-        await channel.send("```\n" + content[j * max_length:] + "\n```")
+        await channel.send("```\n" + content[j * MAX_MESSAGE_LENGTH:] + "\n```")
 
     async def send_error(self, content):
         channel = self.get_channel(DISCORD["ERROR_CHANNEL"])
-
-        max_length = 1900
         contents = content.split("\n")
-
         content = ""
         for part in contents:
             temp = content + "\n" + part
-            if len(temp) > max_length:
+            if len(temp) > MAX_MESSAGE_LENGTH:
                 await channel.send("```\n" + content + "\n```")
                 content = part
             else:
@@ -199,7 +193,7 @@ class MiniGamesBot(Bot):
 
     async def routine_updates(self):
         while True:
-            await self.db.update()
+            await DatabaseManager.update()
             await self.save_prefixes()
             await self.change_status()
             self.remove_old_binaries()
@@ -207,7 +201,7 @@ class MiniGamesBot(Bot):
 
     async def on_restart(self):
         await self.game_manager.on_restart()
-        await self.db.update()
+        await DatabaseManager.update()
         await self.save_prefixes()
 
     async def change_status(self):

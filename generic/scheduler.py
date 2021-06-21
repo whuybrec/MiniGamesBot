@@ -103,5 +103,4 @@ class Scheduler:
                 import traceback
                 print("[EXCEPTION IN SCHEDULER]")
                 print(e)
-                print("[TRACEBACK]")
                 print(traceback.format_exc())
