@@ -68,5 +68,3 @@ class MultiPlayerGame(DiscordMinigame):
     async def game_draw(self):
         self.game_state = DRAW
         await self.end_game()
-
-    async def add_reactions(self): pass

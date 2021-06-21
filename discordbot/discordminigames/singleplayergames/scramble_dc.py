@@ -12,11 +12,11 @@ class ScrambleDiscord(SinglePlayerGame):
     async def start_game(self):
         await MessageManager.edit_message(self.message, self.get_board())
 
-        await MessageManager.add_reaction_event(self.message, STOP, self.player.id, self.on_quit_game)
-        await MessageManager.add_reaction_event(self.message, ARROW_LEFT, self.player.id, self.on_back_reaction)
+        await MessageManager.add_reaction_and_event(self.message, STOP, self.player.id, self.on_quit_game)
+        await MessageManager.add_reaction_and_event(self.message, ARROW_LEFT, self.player.id, self.on_back_reaction)
         for c in self.scramble_game.scrambled_word:
-            await MessageManager.add_reaction_event(self.message, ALPHABET[c], self.player.id, self.on_letter_reaction,
-                                                    ALPHABET[c])
+            await MessageManager.add_reaction_and_event(self.message, ALPHABET[c], self.player.id, self.on_letter_reaction,
+                                                        ALPHABET[c])
 
     async def on_letter_reaction(self, letter_emoji):
         self.on_start_move()
@@ -40,8 +40,8 @@ class ScrambleDiscord(SinglePlayerGame):
 
         char = self.scramble_game.remove_last()
         if char != "_":
-            await MessageManager.add_reaction_event(self.message, ALPHABET[char], self.player.id,
-                                                    self.on_letter_reaction, ALPHABET[char])
+            await MessageManager.add_reaction_and_event(self.message, ALPHABET[char], self.player.id,
+                                                        self.on_letter_reaction, ALPHABET[char])
         await MessageManager.remove_reaction(self.message, ARROW_LEFT, self.player.member)
         await MessageManager.edit_message(self.message, self.get_board())
 
@@ -56,7 +56,6 @@ class ScrambleDiscord(SinglePlayerGame):
         content = f"```\nLetters: {' '.join(self.scramble_game.scrambled_word)}\n" \
                   f"{''.join(word_)}\n```"
 
-        print(self.game_state)
         if self.game_state == WON:
             content += "```\nYou have won the game!\n```"
         elif self.game_state == LOST or self.game_state == QUIT:

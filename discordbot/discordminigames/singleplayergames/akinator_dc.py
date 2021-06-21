@@ -18,10 +18,10 @@ class AkinatorDiscord(SinglePlayerGame):
         await self.akinator.start_game()
         await MessageManager.edit_message(self.message, self.get_board())
 
-        await MessageManager.add_reaction_event(self.message, ALPHABET["y"], self.player.id, self.on_yes_reaction)
-        await MessageManager.add_reaction_event(self.message, ALPHABET["n"], self.player.id, self.on_no_reaction)
-        await MessageManager.add_reaction_event(self.message, QUESTION, self.player.id, self.on_dontknow_reaction)
-        await MessageManager.add_reaction_event(self.message, STOP, self.player.id, self.on_quit_game)
+        await MessageManager.add_reaction_and_event(self.message, ALPHABET["y"], self.player.id, self.on_yes_reaction)
+        await MessageManager.add_reaction_and_event(self.message, ALPHABET["n"], self.player.id, self.on_no_reaction)
+        await MessageManager.add_reaction_and_event(self.message, QUESTION, self.player.id, self.on_dontknow_reaction)
+        await MessageManager.add_reaction_and_event(self.message, STOP, self.player.id, self.on_quit_game)
 
     async def on_yes_reaction(self):
         self.on_start_move()

@@ -12,12 +12,12 @@ class BlackjackDiscord(SinglePlayerGame):
     async def start_game(self):
         await MessageManager.edit_message(self.message, self.get_board())
 
-        await MessageManager.add_reaction_event(self.message, ALPHABET["h"], self.player.id, self.on_hit_reaction)
-        await MessageManager.add_reaction_event(self.message, ALPHABET["s"], self.player.id, self.on_stand_reaction)
+        await MessageManager.add_reaction_and_event(self.message, ALPHABET["h"], self.player.id, self.on_hit_reaction)
+        await MessageManager.add_reaction_and_event(self.message, ALPHABET["s"], self.player.id, self.on_stand_reaction)
 
         if self.blackjack.can_split():
-            await MessageManager.add_reaction_event(self.message, SPLIT, self.player.id, self.on_split_reaction)
-        await MessageManager.add_reaction_event(self.message, STOP, self.player.id, self.on_quit_game)
+            await MessageManager.add_reaction_and_event(self.message, SPLIT, self.player.id, self.on_split_reaction)
+        await MessageManager.add_reaction_and_event(self.message, STOP, self.player.id, self.on_quit_game)
 
     async def on_hit_reaction(self):
         self.on_start_move()

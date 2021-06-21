@@ -14,11 +14,11 @@ class MastermindDiscord(SinglePlayerGame):
         await MessageManager.edit_message(self.message, self.get_board())
 
         for c in COLORS:
-            await MessageManager.add_reaction_event(self.message, COLORS_EMOJI[c], self.player.id,
-                                                    self.on_color_reaction, COLORS_EMOJI[c])
-        await MessageManager.add_reaction_event(self.message, ARROW_LEFT, self.player.id, self.on_back_reaction)
-        await MessageManager.add_reaction_event(self.message, CHECKMARK, self.player.id, self.on_checkmark_reaction)
-        await MessageManager.add_reaction_event(self.message, STOP, self.player.id, self.on_quit_game)
+            await MessageManager.add_reaction_and_event(self.message, COLORS_EMOJI[c], self.player.id,
+                                                        self.on_color_reaction, COLORS_EMOJI[c])
+        await MessageManager.add_reaction_and_event(self.message, ARROW_LEFT, self.player.id, self.on_back_reaction)
+        await MessageManager.add_reaction_and_event(self.message, CHECKMARK, self.player.id, self.on_checkmark_reaction)
+        await MessageManager.add_reaction_and_event(self.message, STOP, self.player.id, self.on_quit_game)
 
     async def on_back_reaction(self):
         self.on_start_move()

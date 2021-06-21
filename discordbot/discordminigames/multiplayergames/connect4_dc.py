@@ -12,21 +12,28 @@ class Connect4Discord(MultiPlayerGame):
 
     async def start_game(self):
         await MessageManager.edit_message(self.message, self.get_board())
-        await self.add_reactions()
 
-    async def on_number_reaction(self, number_emoji):
+        for i in range(1, 8):
+            await MessageManager.add_reaction_and_event(self.message, NUMBERS[i], self.players[self.turn].id,
+                                                        self.on_number_reaction,
+                                                        NUMBERS[i], self.players[self.turn].id)
+
+        await MessageManager.add_reaction_and_event(self.message, STOP, self.players[0].id, self.on_quit_game, self.players[0])
+        await MessageManager.add_reaction_event(self.message, STOP, self.players[1].id, self.on_quit_game, self.players[1])
+
+    async def on_number_reaction(self, number_emoji, user_id):
+        if user_id != self.players[self.turn].id:
+            return
+
         self.on_start_move()
-        await MessageManager.remove_reaction(self.message, number_emoji, self.players[self.turn].member)
 
         for number, emoji in NUMBERS.items():
             if emoji == number_emoji:
                 self.connect4_game.move(number - 1)
                 break
 
-        if self.turn == self.connect4_game.turn:
-            return
-
         self.turn = self.connect4_game.turn
+        await MessageManager.remove_reaction(self.message, number_emoji, self.players[self.turn].member)
 
         if self.connect4_game.has_player_won():
             await self.game_won()
@@ -36,19 +43,13 @@ class Connect4Discord(MultiPlayerGame):
             await self.game_draw()
             return
 
-        await self.clear_reactions()
-        await self.add_reactions()
         await MessageManager.edit_message(self.message, self.get_board())
 
-    async def add_reactions(self):
         for i in range(1, 8):
+            await MessageManager.remove_reaction_event(self.message, NUMBERS[i], self.players[self.turn-1].id)
             await MessageManager.add_reaction_event(self.message, NUMBERS[i], self.players[self.turn].id,
-                                                    self.on_number_reaction, NUMBERS[i])
-
-        await MessageManager.add_reaction_event(self.message, STOP, self.players[0].id, self.on_quit_game,
-                                                self.players[0])
-        await MessageManager.add_reaction_event(self.message, STOP, self.players[1].id, self.on_quit_game,
-                                                self.players[1])
+                                                    self.on_number_reaction,
+                                                    NUMBERS[i], self.players[self.turn].id)
 
     def get_board(self):
         board = self.connect4_game.get_board()

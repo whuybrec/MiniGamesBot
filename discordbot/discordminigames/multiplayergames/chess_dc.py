@@ -28,9 +28,24 @@ class ChessDiscord(MultiPlayerGame):
 
     async def start_game(self):
         await self.update_messages()
-        await self.add_reactions()
 
-    async def on_letter_reaction(self, letter_emoji):
+        for i in range(8):
+            emoji = ALPHABET[ascii_lowercase[i]]
+            await MessageManager.add_reaction_and_event(self.message, emoji, self.players[self.turn].id, self.on_letter_reaction, emoji, self.players[self.turn].id)
+        for i in range(1, 9):
+            emoji = NUMBERS[i]
+            await MessageManager.add_reaction_and_event(self.extra_message, emoji, self.players[self.turn].id, self.on_number_reaction, emoji, self.players[self.turn].id)
+
+        await MessageManager.add_reaction_and_event(self.extra_message, ARROW_LEFT, self.players[self.turn].id, self.on_back_reaction, self.players[self.turn].id)
+        await MessageManager.add_reaction_and_event(self.extra_message, CHECKMARK, self.players[self.turn].id, self.check_end_move, self.players[self.turn].id)
+
+        await MessageManager.add_reaction_and_event(self.extra_message, STOP, self.players[0].id, self.on_quit_game, self.players[0])
+        await MessageManager.add_reaction_event(self.extra_message, STOP, self.players[1].id, self.on_quit_game, self.players[1])
+
+    async def on_letter_reaction(self, letter_emoji, user_id):
+        if user_id != self.players[self.turn].id:
+            return
+
         self.on_start_move()
 
         if self.choosing_letter:
@@ -42,7 +57,10 @@ class ChessDiscord(MultiPlayerGame):
             await MessageManager.edit_message(self.message, self.get_board())
         await MessageManager.remove_reaction(self.message, letter_emoji, self.players[self.turn].member)
 
-    async def on_number_reaction(self, number_emoji):
+    async def on_number_reaction(self, number_emoji, user_id):
+        if user_id != self.players[self.turn].id:
+            return
+
         self.on_start_move()
 
         if self.choosing_number:
@@ -54,7 +72,10 @@ class ChessDiscord(MultiPlayerGame):
             await MessageManager.edit_message(self.message, self.get_board())
         await MessageManager.remove_reaction(self.extra_message, number_emoji, self.players[self.turn].member)
 
-    async def on_back_reaction(self):
+    async def on_back_reaction(self, user_id):
+        if user_id != self.players[self.turn].id:
+            return
+
         self.on_start_move()
 
         if len(self.move) > 0:
@@ -64,7 +85,10 @@ class ChessDiscord(MultiPlayerGame):
             await MessageManager.edit_message(self.message, self.get_board())
         await MessageManager.remove_reaction(self.extra_message, ARROW_LEFT, self.players[self.turn].member)
 
-    async def check_end_move(self):
+    async def check_end_move(self, user_id):
+        if user_id != self.players[self.turn].id:
+            return
+
         await MessageManager.remove_reaction(self.extra_message, CHECKMARK, self.players[self.turn].member)
 
         if len(self.move) != 4:
@@ -92,9 +116,21 @@ class ChessDiscord(MultiPlayerGame):
 
         self.turn = (self.turn + 1) % 2
         await self.update_messages()
-        await self.clear_reactions()
-        await self.add_reactions()
-        return
+
+        for i in range(8):
+            emoji = ALPHABET[ascii_lowercase[i]]
+            await MessageManager.remove_reaction_event(self.message, emoji, self.players[self.turn - 1].id)
+            await MessageManager.add_reaction_event(self.message, emoji, self.players[self.turn].id, self.on_letter_reaction, emoji, self.players[self.turn].id)
+        for i in range(1, 9):
+            emoji = NUMBERS[i]
+            await MessageManager.remove_reaction_event(self.extra_message, emoji, self.players[self.turn - 1].id)
+            await MessageManager.add_reaction_event(self.extra_message, emoji, self.players[self.turn].id, self.on_number_reaction, emoji, self.players[self.turn].id)
+
+        await MessageManager.remove_reaction_event(self.extra_message, ARROW_LEFT, self.players[self.turn - 1].id)
+        await MessageManager.add_reaction_event(self.extra_message, ARROW_LEFT, self.players[self.turn].id, self.on_back_reaction, self.players[self.turn].id)
+
+        await MessageManager.remove_reaction_event(self.extra_message, CHECKMARK, self.players[self.turn - 1].id)
+        await MessageManager.add_reaction_and_event(self.extra_message, CHECKMARK, self.players[self.turn].id,  self.check_end_move, self.players[self.turn].id)
 
     async def update_messages(self):
         self.save_board_image()
@@ -137,20 +173,3 @@ class ChessDiscord(MultiPlayerGame):
         f.write(drawing)
         import os
         os.system(f'svgexport {self.file}.svg {self.file}.png 1.5x')
-
-    async def add_reactions(self):
-        for i in range(8):
-            emoji = ALPHABET[ascii_lowercase[i]]
-            await MessageManager.add_reaction_event(self.message, emoji, self.players[self.turn].id,
-                                                    self.on_letter_reaction, emoji)
-        for i in range(1, 9):
-            emoji = NUMBERS[i]
-            await MessageManager.add_reaction_event(self.extra_message, emoji, self.players[self.turn].id,
-                                                    self.on_number_reaction, emoji)
-
-        await MessageManager.add_reaction_event(self.extra_message, ARROW_LEFT, self.players[self.turn].id,
-                                                self.on_back_reaction)
-        await MessageManager.add_reaction_event(self.extra_message, CHECKMARK, self.players[self.turn].id, self.check_end_move)
-
-        await MessageManager.add_reaction_event(self.extra_message, STOP, self.players[0].id, self.on_quit_game, self.players[0])
-        await MessageManager.add_reaction_event(self.extra_message, STOP, self.players[1].id, self.on_quit_game, self.players[1])

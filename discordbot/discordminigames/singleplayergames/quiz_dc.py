@@ -23,9 +23,9 @@ class QuizDiscord(SinglePlayerGame):
         await MessageManager.edit_message(self.message, self.get_board())
 
         for i in range(1, len(self.categories) + 1):
-            await MessageManager.add_reaction_event(self.message, NUMBERS[i], self.player.id, self.choose_category,
-                                                    NUMBERS[i])
-        await MessageManager.add_reaction_event(self.message, STOP, self.player.id, self.on_quit_game)
+            await MessageManager.add_reaction_and_event(self.message, NUMBERS[i], self.player.id, self.choose_category,
+                                                        NUMBERS[i])
+        await MessageManager.add_reaction_and_event(self.message, STOP, self.player.id, self.on_quit_game)
 
     async def choose_category(self, emoji):
         self.on_start_move()
@@ -39,8 +39,8 @@ class QuizDiscord(SinglePlayerGame):
         await self.clear_reactions()
         for i in range(len(self.answers)):
             emoji = ALPHABET[ascii_lowercase[i]]
-            await MessageManager.add_reaction_event(self.message, emoji, self.player.id, self.choose_answer, emoji)
-        await MessageManager.add_reaction_event(self.message, STOP, self.player.id, self.on_quit_game)
+            await MessageManager.add_reaction_and_event(self.message, emoji, self.player.id, self.choose_answer, emoji)
+        await MessageManager.add_reaction_and_event(self.message, STOP, self.player.id, self.on_quit_game)
 
     async def choose_answer(self, emoji):
         self.on_start_move()

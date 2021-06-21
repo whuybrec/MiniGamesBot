@@ -13,9 +13,9 @@ class FloodDiscord(SinglePlayerGame):
     async def start_game(self):
         await MessageManager.edit_message(self.message, self.get_board())
         for c in COLORS:
-            await MessageManager.add_reaction_event(self.message, COLORS_EMOJI[c], self.player.id,
-                                                    self.on_color_reaction, COLORS_EMOJI[c])
-        await MessageManager.add_reaction_event(self.message, STOP, self.player.id, self.on_quit_game)
+            await MessageManager.add_reaction_and_event(self.message, COLORS_EMOJI[c], self.player.id,
+                                                        self.on_color_reaction, COLORS_EMOJI[c])
+        await MessageManager.add_reaction_and_event(self.message, STOP, self.player.id, self.on_quit_game)
 
     async def on_color_reaction(self, color_emoji):
         self.on_start_move()

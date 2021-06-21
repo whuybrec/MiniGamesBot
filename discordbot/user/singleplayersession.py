@@ -18,8 +18,8 @@ class SinglePlayerSession(Session):
         self.stopwatch.pause()
         await MessageManager.edit_message(self.message, self.game.get_board() + "\n" + self.get_summary())
 
-        await MessageManager.add_reaction_event(self.message, STOP, self.player.id, self.close)
-        await MessageManager.add_reaction_event(self.message, REPEAT, self.player.id, self.start_game)
+        await MessageManager.add_reaction_and_event(self.message, STOP, self.player.id, self.close)
+        await MessageManager.add_reaction_and_event(self.message, REPEAT, self.player.id, self.start_game)
 
     async def close(self):
         if self.closed:
