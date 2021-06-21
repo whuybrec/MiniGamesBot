@@ -50,7 +50,7 @@ class Session:
     def update_last_seen(self):
         self.last_seen = time()
 
-    async def on_bot_restart(self):
+    async def on_restart(self):
         await MessageManager.edit_message(self.message, self.game.get_content() + "\n" + UPDATE_PENDING_CONTENT)
         await self.close()
 

@@ -19,12 +19,18 @@ class RestartCommand(Command):
         if not cls.has_permission(context.message.author.id):
             return
 
-        if not cls.bot.game_manager.has_open_sessions():
-            await context.send(f"Be right back!\n")
-            await cls.bot.on_restart()
-            await cls.bot.close()
-            return
+        if cls.bot.game_manager.has_open_sessions():
+            await cls.smart_restart(context)
 
+        try:
+            await cls.bot.on_restart()
+            await context.send(f"Restarting...")
+        except Exception as e:
+            print(e)
+        await cls.bot.close()
+
+    @classmethod
+    async def smart_restart(cls, context):
         msg = await context.send(f"There are open sessions, are you sure?\n"
                                  f"{NUMBERS[1]}: **force restart**\n"
                                  f"{NUMBERS[2]}: **smart restart**\n")
@@ -40,20 +46,15 @@ class RestartCommand(Command):
             return
         if reaction.emoji == NUMBERS[1]:
             await context.send(f"Force restarting...")
+            return
+
         elif reaction.emoji == NUMBERS[2]:
             await context.send(f"Smart restarting...")
+            cls.bot.game_manager.on_pending_update()
             start_time = time.time()
             while cls.bot.game_manager.has_open_sessions() and time.time() - start_time < 60 * 10:
                 await asyncio.sleep(10)
-
-        try:
-            await cls.bot.game_manager.on_bot_restart()
-        except Exception as e:
-            print(e)
-        await context.send(f"Restarting...")
-        print("Restarting...")
-        await cls.bot.on_restart()
-        await cls.bot.close()
+            return
 
     @classmethod
     def has_permission(cls, user_id):

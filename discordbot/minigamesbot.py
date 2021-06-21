@@ -206,6 +206,7 @@ class MiniGamesBot(Bot):
             await asyncio.sleep(60 * 30)
 
     async def on_restart(self):
+        await self.game_manager.on_restart()
         await self.db.update()
         await self.save_prefixes()
 

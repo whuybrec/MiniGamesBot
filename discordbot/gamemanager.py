@@ -5,13 +5,6 @@ class GameManager:
     def __init__(self):
         self.sessions = list()
 
-    async def on_bot_restart(self):
-        for session in self.sessions:
-            await session.on_bot_restart()
-
-    def has_open_sessions(self):
-        return len(self.sessions) > 0
-
     async def start_session(self, session):
         self.sessions.append(session)
         await session.start_game()
@@ -22,6 +15,13 @@ class GameManager:
     def on_pending_update(self):
         for session in self.sessions:
             session.on_pending_update()
+
+    async def on_restart(self):
+        for session in self.sessions:
+            await session.on_restart()
+
+    def has_open_sessions(self):
+        return len(self.sessions) > 0
 
     async def close_inactive_sessions(self):
         while True:
