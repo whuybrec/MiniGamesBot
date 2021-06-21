@@ -63,8 +63,8 @@ class MiniGamesBot(Bot):
         # load prefixes
         self.load_prefixes()
 
-        self.scheduler.add(30, self.game_manager.close_inactive_sessions)
-        self.scheduler.add(30, self.routine_updates)
+        self.scheduler.add(60, self.game_manager.close_inactive_sessions)
+        self.scheduler.add(45, self.routine_updates)
 
         # REMOVE THIS TRY EXCEPT
         try:
