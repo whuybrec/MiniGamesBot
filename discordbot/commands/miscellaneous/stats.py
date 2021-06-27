@@ -2,6 +2,7 @@ import re
 
 from discordbot.categories.miscellaneous import Miscellaneous
 from discordbot.commands.command import Command
+from discordbot.databasemanager import DatabaseManager
 from discordbot.utils.pager import Pager
 
 
@@ -26,16 +27,16 @@ class StatsCommand(Command):
             return
 
         pages = []
-        table = cls.bot.db.get_formatted_stats_for_today_of_player(player.id)
+        table = DatabaseManager.get_formatted_stats_for_today_of_player(player.id)
         pages.append(f"Stats of today for **{player.name}**:\n```\n{table}\n```")
 
-        table = cls.bot.db.get_formatted_weekly_stats_of_player(player.id)
+        table = DatabaseManager.get_formatted_weekly_stats_of_player(player.id)
         pages.append(f"Weekly stats for **{player.name}**:\n```\n{table}\n```")
 
-        table = cls.bot.db.get_formatted_monthly_stats_of_player(player.id)
+        table = DatabaseManager.get_formatted_monthly_stats_of_player(player.id)
         pages.append(f"Monthly stats for **{player.name}**:\n```\n{table}\n```")
 
-        table = cls.bot.db.get_formatted_yearly_stats_of_player(player.id)
+        table = DatabaseManager.get_formatted_yearly_stats_of_player(player.id)
         pages.append(f"Yearly stats for **{player.name}**:\n```\n{table}\n```")
 
         pager = Pager(cls.bot, context, pages)

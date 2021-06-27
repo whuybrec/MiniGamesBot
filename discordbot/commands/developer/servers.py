@@ -3,6 +3,7 @@ from datetime import date
 
 from discordbot.categories.developer import Developer
 from discordbot.commands.command import Command
+from discordbot.databasemanager import DatabaseManager
 from discordbot.utils.pager import Pager
 from discordbot.utils.private import DISCORD
 from generic.formatting import create_table
@@ -23,8 +24,8 @@ class ServersCommand(Command):
             today = date.today()
 
             lists = [["Day", "Joined", "Left", "Diff"]]
-            joined_servers = cls.bot.db.get_daily_stats_for_servers_of_month("JOIN", today)
-            left_servers = cls.bot.db.get_daily_stats_for_servers_of_month("LEAVE", today)
+            joined_servers = DatabaseManager.get_daily_stats_for_servers_of_month("JOIN", today)
+            left_servers = DatabaseManager.get_daily_stats_for_servers_of_month("LEAVE", today)
             num_days = calendar.monthrange(today.year, today.month)[1]
             days = [date(today.year, today.month, day) for day in range(1, num_days + 1)]
             for day in days:
@@ -37,8 +38,8 @@ class ServersCommand(Command):
                 "Daily:\n```\n" + create_table(*lists) + "\n```\nCurrent total: **" + str(len(cls.bot.guilds)) + "**")
 
             lists = [["Month", "Joined", "Left", "Diff"]]
-            joined_servers = cls.bot.db.get_monthly_stats_for_servers_of_year("JOIN", today)
-            left_servers = cls.bot.db.get_monthly_stats_for_servers_of_year("LEAVE", today)
+            joined_servers = DatabaseManager.get_monthly_stats_for_servers_of_year("JOIN", today)
+            left_servers = DatabaseManager.get_monthly_stats_for_servers_of_year("LEAVE", today)
             months = [date(today.year, month, 1) for month in range(1, 13)]
             for month in months:
                 joined_on_month = joined_servers[month.strftime("%Y-%m")]
@@ -50,8 +51,8 @@ class ServersCommand(Command):
                 "Monthly:\n```\n" + create_table(*lists) + "\n```\nCurrent total: **" + str(len(cls.bot.guilds)) + "**")
 
             lists = [["Year", "Joined", "Left", "Diff"]]
-            joined_servers = cls.bot.db.get_yearly_stats_for_servers("JOIN", today)
-            left_servers = cls.bot.db.get_yearly_stats_for_servers("LEAVE", today)
+            joined_servers = DatabaseManager.get_yearly_stats_for_servers("JOIN", today)
+            left_servers = DatabaseManager.get_yearly_stats_for_servers("LEAVE", today)
             years = [date(year, 1, 1) for year in range(today.year - 4, today.year + 1)]
             for year in years:
                 joined_on_year = joined_servers[year.strftime("%Y")]
