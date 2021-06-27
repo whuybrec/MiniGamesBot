@@ -5,19 +5,18 @@ import json
 import os
 import random
 import time
-import traceback
 from zipfile import ZipFile
 
 import discord
 from discord import DMChannel, Permissions
-from discord.ext.commands import Bot, CommandNotFound, Cog
+from discord.ext.commands import Bot
 from discord.utils import find
-
+from discord_components import DiscordComponents
 from discordbot.categories import *
 from discordbot.commands.command import Command
-from discordbot.databasemanager import DatabaseManager
-from discordbot.gamemanager import GameManager
-from discordbot.messagemanager import MessageManager
+from discordbot.managers.databasemanager import DatabaseManager
+from discordbot.managers.gamemanager import GameManager
+from discordbot.managers.messagemanager import MessageManager
 from discordbot.utils.private import DISCORD
 from discordbot.utils.topgg import TopGG
 from discordbot.utils.variables import MINIGAMES
@@ -35,6 +34,7 @@ class MiniGamesBot(Bot):
         intents.members = True
         intents.reactions = True
         super().__init__(command_prefix=self.prefix, intents=intents, max_messages=5000)
+        DiscordComponents(self)
 
         self.called_on_ready = False
         self.ctx = None
@@ -62,7 +62,7 @@ class MiniGamesBot(Bot):
         # setup scheduler
         self.scheduler = Scheduler()
         self.scheduler.add(60, self.game_manager.close_inactive_sessions)
-        self.scheduler.add(45, self.routine_updates)
+        # self.scheduler.add(45, self.routine_updates)
 
         # REMOVE THIS TRY EXCEPT
         try:
@@ -230,39 +230,39 @@ class MiniGamesBot(Bot):
             if (filename.endswith(".svg") or filename.endswith(".png")) and f_created < dt:
                 os.remove(f_path)
 
-    async def on_error(self, event_method, *args, **kwargs):
-        error = "Time: {0}\n\n" \
-                "Ignoring exception in command {1}:\n\n" \
-                "args: {2}\n\n" \
-                "kwargs: {3}\n\n" \
-                "e: {4}\n\n" \
-            .format(time.strftime("%b %d %Y %H:%M:%S"), event_method, args, kwargs, traceback.format_exc())
-        await self.send_error(error)
-
-    async def on_command_error(self, context, exception):
-        if isinstance(exception, CommandNotFound):
-            return
-        if self.extra_events.get('on_command_error', None):
-            return
-        if hasattr(context.command, 'on_error'):
-            return
-
-        cog = context.cog
-        if cog and Cog._get_overridden_method(cog.cog_command_error) is not None:
-            return
-
-        original_error = getattr(exception, 'original', exception)
-        if isinstance(original_error, discord.Forbidden):
-            await self.send_missing_permissions(context, self.get_missing_permissions(context))
-
-        error = "Time: {0}\n\n" \
-                "Ignoring exception in command {1}:\n\n" \
-                "Exception: \n\n{2}" \
-            .format(time.strftime("%b %d %Y %H:%M:%S"),
-                    context.command,
-                    ''.join(traceback.format_exception(type(exception), exception, exception.__traceback__)))
-
-        await self.send_error(error)
+    # async def on_error(self, event_method, *args, **kwargs):
+    #     error = "Time: {0}\n\n" \
+    #             "Ignoring exception in command {1}:\n\n" \
+    #             "args: {2}\n\n" \
+    #             "kwargs: {3}\n\n" \
+    #             "e: {4}\n\n" \
+    #         .format(time.strftime("%b %d %Y %H:%M:%S"), event_method, args, kwargs, traceback.format_exc())
+    #     await self.send_error(error)
+    #
+    # async def on_command_error(self, context, exception):
+    #     if isinstance(exception, CommandNotFound):
+    #         return
+    #     if self.extra_events.get('on_command_error', None):
+    #         return
+    #     if hasattr(context.command, 'on_error'):
+    #         return
+    #
+    #     cog = context.cog
+    #     if cog and Cog._get_overridden_method(cog.cog_command_error) is not None:
+    #         return
+    #
+    #     original_error = getattr(exception, 'original', exception)
+    #     if isinstance(original_error, discord.Forbidden):
+    #         await self.send_missing_permissions(context, self.get_missing_permissions(context))
+    #
+    #     error = "Time: {0}\n\n" \
+    #             "Ignoring exception in command {1}:\n\n" \
+    #             "Exception: \n\n{2}" \
+    #         .format(time.strftime("%b %d %Y %H:%M:%S"),
+    #                 context.command,
+    #                 ''.join(traceback.format_exception(type(exception), exception, exception.__traceback__)))
+    #
+    #     await self.send_error(error)
 
     def get_missing_permissions(self, context):
         permissions: Permissions = context.channel.permissions_for(context.channel.guild.me)

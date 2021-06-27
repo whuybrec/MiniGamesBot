@@ -1,8 +1,8 @@
 import datetime
 from time import time
 
-from discordbot.databasemanager import DatabaseManager
-from discordbot.messagemanager import MessageManager
+from discordbot.managers.databasemanager import DatabaseManager
+from discordbot.managers.messagemanager import MessageManager
 from discordbot.user.player import Player
 from discordbot.user.session import Session, UPDATE_PENDING_CONTENT
 from discordbot.utils.emojis import STOP, REPEAT, CHECKMARK

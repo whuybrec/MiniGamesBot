@@ -1,4 +1,4 @@
-from discordbot.messagemanager import MessageManager
+from discordbot.managers.messagemanager import MessageManager
 from discordbot.discordminigames.singleplayergames.singleplayergame import SinglePlayerGame, WON, LOST, QUIT, DRAW
 from discordbot.utils.emojis import STOP, ALPHABET, SPLIT
 from minigames.blackjack import Blackjack

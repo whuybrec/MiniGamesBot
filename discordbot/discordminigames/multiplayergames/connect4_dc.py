@@ -1,5 +1,5 @@
 from discordbot.discordminigames.multiplayergames.multiplayergame import MultiPlayerGame, WON, DRAW
-from discordbot.messagemanager import MessageManager
+from discordbot.managers.messagemanager import MessageManager
 from discordbot.utils.emojis import NUMBERS, STOP
 from minigames.connect4 import Connect4
 

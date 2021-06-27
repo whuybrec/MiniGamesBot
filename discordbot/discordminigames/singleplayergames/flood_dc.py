@@ -1,4 +1,4 @@
-from discordbot.messagemanager import MessageManager
+from discordbot.managers.messagemanager import MessageManager
 from discordbot.discordminigames.singleplayergames.singleplayergame import SinglePlayerGame, WON, LOST, QUIT
 from discordbot.utils.emojis import STOP, COLORS as COLORS_EMOJI
 from minigames.flood import Flood, COLORS

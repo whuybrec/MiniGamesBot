@@ -2,7 +2,7 @@ import html
 import random
 from string import ascii_lowercase, ascii_uppercase
 
-from discordbot.messagemanager import MessageManager
+from discordbot.managers.messagemanager import MessageManager
 from discordbot.discordminigames.singleplayergames.singleplayergame import SinglePlayerGame, WON, LOST, QUIT
 from discordbot.utils.emojis import ALPHABET, STOP, NUMBERS
 from minigames.lexicon import Lexicon

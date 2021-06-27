@@ -1,6 +1,6 @@
 from time import time
 
-from discordbot.messagemanager import MessageManager
+from discordbot.managers.messagemanager import MessageManager
 from generic.stopwatch import Stopwatch
 
 UPDATE_PENDING_CONTENT = "Sorry! I can't start any new games right now. Boss says I have to restart soon:tm:. Try again later!"

@@ -1,5 +1,5 @@
 from discordbot.discordminigames.singleplayergames.singleplayergame import SinglePlayerGame, WON, LOST, QUIT
-from discordbot.messagemanager import MessageManager
+from discordbot.managers.messagemanager import MessageManager
 from discordbot.utils.emojis import ALPHABET, STOP, ARROW_LEFT
 from minigames.scramble import Scramble
 

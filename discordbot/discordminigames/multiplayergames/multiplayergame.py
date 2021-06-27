@@ -1,5 +1,5 @@
 from discordbot.discordminigames.discordminigame import DiscordMinigame
-from discordbot.messagemanager import MessageManager
+from discordbot.managers.messagemanager import MessageManager
 
 PLAYING = 0     # player playing the game
 WON = 1         # player has won the game

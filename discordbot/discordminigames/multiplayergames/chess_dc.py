@@ -6,7 +6,7 @@ import discord
 from chess import Board, svg
 
 from discordbot.discordminigames.multiplayergames.multiplayergame import MultiPlayerGame, WON, DRAW
-from discordbot.messagemanager import MessageManager
+from discordbot.managers.messagemanager import MessageManager
 from discordbot.utils.emojis import ALPHABET, STOP, NUMBERS, ARROW_LEFT, CHECKMARK
 from discordbot.utils.private import DISCORD
 

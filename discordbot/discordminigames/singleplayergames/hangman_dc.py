@@ -1,6 +1,6 @@
 from string import ascii_lowercase
 
-from discordbot.messagemanager import MessageManager
+from discordbot.managers.messagemanager import MessageManager
 from discordbot.discordminigames.singleplayergames.singleplayergame import SinglePlayerGame, WON, LOST, QUIT
 from discordbot.utils.emojis import ALPHABET, STOP
 from minigames.hangman import Hangman, HANGMEN

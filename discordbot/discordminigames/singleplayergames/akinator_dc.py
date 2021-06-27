@@ -4,7 +4,7 @@ import akinator.exceptions
 from akinator.async_aki import Akinator
 
 from discordbot.discordminigames.singleplayergames.singleplayergame import SinglePlayerGame, UNFINISHED
-from discordbot.messagemanager import MessageManager
+from discordbot.managers.messagemanager import MessageManager
 from discordbot.utils.emojis import ALPHABET, STOP, QUESTION
 
 
